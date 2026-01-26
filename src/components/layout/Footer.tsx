@@ -51,56 +51,6 @@ export const Footer = () => {
                             </li>
                         </ul>
                     </div>
-                    <div>
-                        <h3 className="font-bold text-gray-900 mb-4">Пользователям</h3>
-                        <ul className="space-y-2">
-                            <li>
-                                <Link to="/orders" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    Все заказы
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/freelancers" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    Исполнители
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/categories" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    Категории
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/create-order" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    Разместить заказ
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-900 mb-4">Поддержка</h3>
-                        <ul className="space-y-2">
-                            <li>
-                                <Link to="/support" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    Центр помощи
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/faq" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    FAQ
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/terms" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    Условия использования
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/privacy" className="text-gray-600 hover:text-indigo-600 transition-colors">
-                                    Политика конфиденциальности
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
                 <div className="border-t border-gray-200 pt-8 mb-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

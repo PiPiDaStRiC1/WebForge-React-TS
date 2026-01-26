@@ -8,5 +8,13 @@ export type FrontendSkills = typeof frontendSkills[number];
 export type BackendSkills = typeof backendSkills[number];
 export type FullstackSkills = typeof fullstackSkills[number];
 export type MobileSkills = typeof mobileSkills[number];
-
 export type AllSkills = FrontendSkills | BackendSkills | FullstackSkills | MobileSkills;
+export type AllFilteredSkills = Exclude<AllSkills, 'SEO' | 'Node.js' | 'Next.js' | 'React'>;
+
+
+export const allSkills: Array<AllSkills> = Array.from(new Set<AllSkills>([
+    ...frontendSkills,
+    ...backendSkills,
+    ...fullstackSkills,
+    ...mobileSkills
+]));

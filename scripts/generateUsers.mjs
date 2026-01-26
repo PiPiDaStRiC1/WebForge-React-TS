@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const SEED = 'abc';
+const SEED = 'cdf';
 const FREELANCERS_COUNT = 100;
 const CLIENTS_COUNT = 30;
 
@@ -80,13 +80,15 @@ const freelancerBioByStack = {
     ]
 };
 
+const categories = ['web-dev', 'design', 'marketing', 'mobile', 'seo', 'data'];
+
 
 function generateRichInfoClients() {
     return enrichedUsers.slice(0, CLIENTS_COUNT).map((user, idx) => (
         {
             ...user,
             id: idx + 1,
-            name: `${user.name.first} ${user.name.last}`,
+            name: `${user.name.first.charAt(0).toUpperCase() + user.name.first.slice(1)} ${user.name.last.charAt(0).toUpperCase() + user.name.last.slice(1)}`,
             role: 'client',
             login: user.login.username,
             rating: faker.number.float({ min: 3.5, max: 5, fractionDigits: 1 }),
@@ -96,6 +98,7 @@ function generateRichInfoClients() {
             skills: null,
             pricePerHour: null,
             experience: null,
+            category: null,
             status: faker.helpers.arrayElement(['verified', 'busy', 'online']),
             registeredAt: faker.date.past({ years: 2 }).toISOString(),
         }
@@ -112,22 +115,18 @@ function generateRichInfoFreelancers() {
     return enrichedUsers.slice(CLIENTS_COUNT).map((user, idx) => {
         
         const rand = Math.random();
-        let stackType, skillsPool, bioTemplates;
+        let skillsPool, bioTemplates;
         
         if (rand < 0.35) {
-            stackType = 'frontend';
             skillsPool = frontendSkills;
             bioTemplates = freelancerBioByStack.frontend;
         } else if (rand < 0.6) {
-            stackType = 'backend';
             skillsPool = backendSkills;
             bioTemplates = freelancerBioByStack.backend;
         } else if (rand < 0.85) {
-            stackType = 'fullstack';
             skillsPool = fullstackSkills;
             bioTemplates = freelancerBioByStack.fullstack;
         } else {
-            stackType = 'mobile';
             skillsPool = mobileSkills;
             bioTemplates = freelancerBioByStack.mobile;
         }
@@ -148,7 +147,7 @@ function generateRichInfoFreelancers() {
         return {
             ...user,
             id: idx + 1000,
-            name: `${user.name.first} ${user.name.last}`,
+            name: `${user.name.first.charAt(0).toUpperCase() + user.name.first.slice(1)} ${user.name.last.charAt(0).toUpperCase() + user.name.last.slice(1)}`,
             role: 'freelancer',
             login: user.login.username,
             rating: faker.number.float({ min: 3.8, max: 5, fractionDigits: 1 }),
@@ -159,6 +158,7 @@ function generateRichInfoFreelancers() {
             pricePerHour: pricePerHour,
             experience: faker.number.int({ min: 0, max: 7 }),
             status: faker.helpers.arrayElement(['verified', 'free', 'busy', 'online']),
+            category: faker.helpers.arrayElement(categories),
             registeredAt: faker.date.past({ years: 3 }).toISOString(),
         };
     });

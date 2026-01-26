@@ -19,6 +19,7 @@ export interface Freelancer {
     location: string,
     experience: number,
     status: 'verified' | 'free' | 'busy' | 'online',
+    category: 'web-dev' | 'design' | 'marketing' | 'mobile' | 'seo' | 'data',
     registeredAt: string,
 }
 
@@ -43,5 +44,6 @@ export interface Client {
     location: string,
     experience: null,
     status: 'verified' | 'busy' | 'online',
+    category: null,
     registeredAt: string
 }

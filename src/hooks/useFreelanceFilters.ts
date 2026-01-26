@@ -25,7 +25,7 @@ export const useFreelanceFilters = () => {
     const set = (key: string, value: string | Array<string>, defaultValue?: string | Array<string>) => {
         setSearchParams(prev => {
             const params = new URLSearchParams(prev);
-            
+
             const isEmpty = value === '' || (Array.isArray(value) && value.length === 0);
             const isDefault = JSON.stringify(value) === JSON.stringify(defaultValue);
             
@@ -43,7 +43,7 @@ export const useFreelanceFilters = () => {
                     }
                 }
             }
-
+            
             return params;
         });
     }

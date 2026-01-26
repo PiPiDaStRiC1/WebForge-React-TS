@@ -1,18 +1,18 @@
 import { Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown } from 'lucide-react';
+import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown, X } from 'lucide-react';
 import {AsideFilters, UserCard} from '@/components/ui/Performers';
 import { useEffect, useState, useMemo, useRef } from 'react';
-import {useFreelanceFilters} from '@/hooks/index'
-import {fetchFreelancePages} from '@/lib/api/fetchFreelancePages';
+import {useFreelanceFilters, useFreelancerSort, type SortOption} from '@/hooks/index'
+import {fetchAllFreelancers} from '@/lib/api/fetchAllFreelancers';
 import type {Freelancer} from '@/types';
-import {FREELANCERS_COUNT_ON_PAGE, TOTAL_FREELANCE_PAGES} from '@/lib/constants';
-
-type SortOption = 'default' | 'price-asc' | 'price-desc';
+import {ITEMS_PER_PAGE_OPTIONS, DEFAULT_ITEMS_PER_PAGE, allSkills, allCategories} from '@/lib/constants';
 
 const SORT_OPTIONS = [
     { value: 'default' as const, label: 'По умолчанию' },
     { value: 'price-asc' as const, label: 'Цена: по возрастанию' },
     { value: 'price-desc' as const, label: 'Цена: по убыванию' },
+    { value: 'rating-desc' as const, label: 'Рейтинг: по убыванию' },
+    { value: 'experience-desc' as const, label: 'Опыт: по убыванию' },
 ];
 
 export const Performers = () => {
@@ -20,21 +20,28 @@ export const Performers = () => {
     const [data, setData] = useState<Array<Freelancer>>([]);
     const [sortBy, setSortBy] = useState<SortOption>('default');
     const [isSortOpen, setIsSortOpen] = useState(false);
+    const [loadSkills, setLoadSkills] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
     const sortRef = useRef<HTMLDivElement>(null);
-    const {get, set, toggle, getRange} = useFreelanceFilters();
+    const {get, set, toggle, getRange, resetFilters} = useFreelanceFilters();
     const page = get('page', Number, 1);
+    const itemsPerPage = get('limit', Number, DEFAULT_ITEMS_PER_PAGE);
 
 
-    const [priceLow, priceHigh] = getRange('price', ['1000', '3000']).map(Number);
+    const search = get('search', String, '');
+    const categories = get('category', (v) => v.split(','), []);
+    const [priceLow, priceHigh] = getRange('price', ['1000', '5000']).map(Number);
     const skills = get('skills', (v) => v.split(','), []);
-    const [ratingLow, ratingHigh] = getRange('rating', ['4.0', '5']).map(Number);
-    const [experienceLow, experienceHigh] = getRange('experience', ['5', '10']).map(Number);
+    const [ratingLow, ratingHigh] = getRange('rating', ['0', '5']).map(Number);
+    const [experienceLow, experienceHigh] = getRange('experience', ['0', '20']).map(Number);
     const status = get('status', (v) => v.split(','), []);
-    const [ordersCountLow, ordersCountHigh] = getRange('ordersCount', ['10', '500']).map(Number);
+    const [ordersCountLow, ordersCountHigh] = getRange('ordersCount', ['0', '1000']).map(Number);
 
 
     const filteredData = useMemo(() => {
-        const filtered = data.filter((user) => (
+        return data.filter((user) => (
+            (user.login.includes(search) || user.name.includes(search)) &&
+            (categories.length === 0 || categories.some(cat => user.category === cat)) &&
             user.pricePerHour >= priceLow && user.pricePerHour <= priceHigh &&
             (skills.length === 0 || skills.some(skill => user.skills.includes(skill))) &&
             (user.rating >= ratingLow && user.rating <= ratingHigh) &&
@@ -42,14 +49,19 @@ export const Performers = () => {
             (status.length === 0 || status.includes(user.status)) &&
             user.completedOrders >= ordersCountLow && user.completedOrders <= ordersCountHigh
         ));
+    }, [search, data, priceLow, priceHigh, skills, ratingLow, ratingHigh, experienceLow, experienceHigh, status, ordersCountHigh, ordersCountLow, categories]);
 
-        if (sortBy === 'price-asc') {
-            return [...filtered].sort((a, b) => (a.pricePerHour ?? 0) - (b.pricePerHour ?? 0));
-        } else if (sortBy === 'price-desc') {
-            return [...filtered].sort((a, b) => (b.pricePerHour ?? 0) - (a.pricePerHour ?? 0));
-        }
-        return filtered;
-    }, [data, priceLow, priceHigh, skills, ratingLow, ratingHigh, experienceLow, experienceHigh, status, ordersCountHigh, ordersCountLow, sortBy])
+    const sortedData = useFreelancerSort(filteredData, sortBy);
+
+    const paginatedData = useMemo(() => {
+        const start = (page - 1) * itemsPerPage;
+        const end = page * itemsPerPage;
+        return sortedData.slice(start, end);
+    }, [sortedData, page, itemsPerPage]);
+
+
+    const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1;
+
     useEffect(() => {
         let isCancelled = false;
 
@@ -57,10 +69,10 @@ export const Performers = () => {
             setLoading(true);
 
             try {
-                const data = await fetchFreelancePages(page, FREELANCERS_COUNT_ON_PAGE);
+                const allData: Freelancer[] = await fetchAllFreelancers();
     
                 if (!isCancelled) {
-                    setData(data)
+                    setData(allData);
                 }
             } catch (error) {
                 if (error instanceof Error) 
@@ -74,7 +86,13 @@ export const Performers = () => {
         return () => {
             isCancelled = true;
         }
-    }, [page]);
+    }, []);
+
+    useEffect(() => {
+        if (page > totalPages && totalPages > 0) {
+            set('page', '1', '1');
+        }
+    }, [filteredData, page, totalPages, set]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -134,10 +152,24 @@ export const Performers = () => {
                             <div className="flex-1 relative">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                                 <input
+                                    value={searchValue}
                                     type="text"
-                                    placeholder="Поиск по навыкам, имени, специализации..."
+                                    placeholder="Поиск по логину или имени..."
                                     className="w-full h-12 pl-12 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                    onChange={(e) => setSearchValue(e.target.value)}
                                 />
+                                {searchValue && (
+                                    <button
+                                        type="button"
+                                        className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                        onClick={() => {
+                                            setSearchValue('');
+                                            resetFilters();
+                                        }}
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                )}
                             </div>
                             <button
                                 type="button"
@@ -148,43 +180,53 @@ export const Performers = () => {
                             </button>
                             <button
                                 type="button"
-                                className="inline-flex items-center justify-center h-12 px-6 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                className="cursor-pointer inline-flex items-center justify-center h-12 px-6 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                onClick={() => set('search', searchValue, '')}
                             >
                                 Найти
                             </button>
                         </div>
 
                         <div className="mt-4 flex flex-wrap gap-2">
+                            {allCategories.map(cat => (
+                                <button 
+                                    key={cat}
+                                    type='button'
+                                    className={`${categories.includes(cat) ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700'} cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-indigo-100`}
+                                    onClick={() => toggle('category', cat)}
+                                >
+                                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                </button>
+                            ))}
+
                             <button 
-                                type='button'
-                                className={`${skills.includes('React') ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700'} cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-indigo-100`}
-                                onClick={() => toggle('skills', 'React')}
+                                className={`${loadSkills ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700'} cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-gray-200`}
+                                onClick={() => setLoadSkills(!loadSkills)}
                             >
-                                React
+                                {loadSkills ? 'Скрыть' : 'Показать все'}
                             </button>
-                            <button 
-                                className={`${skills.includes('Next.js') ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700'} cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-indigo-100`}
-                                onClick={() => toggle('skills', 'Next.js')}
+                            <div 
+                                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                                    loadSkills 
+                                        ? 'max-h-96 opacity-100' 
+                                        : 'max-h-0 opacity-0'
+                                }`}
                             >
-                                Next.js
-                            </button>
-                            <button 
-                                className={`${skills.includes('Node.js') ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700'} cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-indigo-100`}
-                                onClick={() => toggle('skills', 'Node.js')}
-                            >
-                                Node.js
-                            </button>
-                            <button 
-                                className={`${skills.includes('SEO') ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700'} cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-indigo-100`}
-                                onClick={() => toggle('skills', 'SEO')}
-                            >
-                                SEO
-                            </button>
-                            <button 
-                                className={`bg-indigo-50 text-indigo-700 cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-gray-200`}
-                            >
-                                +12
-                            </button>
+                                <div className="flex flex-wrap gap-2 pt-2 animate-fade-in">
+                                    {allSkills.map((skill, index) => (
+                                        <button 
+                                            key={skill}
+                                            className={`${skills.includes(skill) ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700'} cursor-pointer px-3 py-1.5 text-sm font-medium rounded-full border border-indigo-100 transition-all hover:scale-105`}
+                                            onClick={() => toggle('skills', skill)}
+                                            style={{
+                                                animationDelay: `${index * 30}ms`
+                                            }}
+                                        >   
+                                            {skill}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -202,13 +244,34 @@ export const Performers = () => {
                     <div className="lg:col-span-8 xl:col-span-9">
                         <div className="flex items-center justify-between mb-4">
                             <div className="text-sm text-gray-600">
-                                <h2 className="text-2xl font-bold text-gray-900">Топ исполнителей</h2>
+                                <h2 className="text-2xl font-bold text-gray-900" id='top-performers'>Топ исполнителей</h2>
                                 <p>
-                                    Показано: <span className="font-semibold text-gray-900">{filteredData.length}</span>
+                                    Показано <span className="font-semibold text-gray-900">{Math.min(page * itemsPerPage, sortedData.length)}</span> из <span className="font-semibold text-gray-900">{sortedData.length}</span>
                                 </p>
                             </div>
 
-                            <div className="hidden md:flex items-center gap-2">
+                            <div className="hidden md:flex items-center gap-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-500">На странице:</span>
+                                    <div className="flex gap-1">
+                                        {ITEMS_PER_PAGE_OPTIONS.map((count) => (
+                                            <button
+                                                key={count}
+                                                type="button"
+                                                onClick={() => {
+                                                    set('limit', String(count), String(DEFAULT_ITEMS_PER_PAGE));
+                                                }}
+                                                className={`cursor-pointer h-8 w-10 rounded-lg text-sm font-semibold transition-colors ${
+                                                    count === itemsPerPage
+                                                        ? 'bg-indigo-600 text-white'
+                                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700'
+                                                }`}
+                                            >
+                                                {count}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                                 <span className="text-sm text-gray-500">Сортировка:</span>
                                 <div className="relative" ref={sortRef}>
                                     <button
@@ -252,49 +315,64 @@ export const Performers = () => {
                                 </div>
                             </div>
                         </div>
+                        
+                        <div className='flex h-[calc(100%-52px)] flex-col justify-between'>
+                            {loading ?
+                                <div className="flex flex-col gap-2 items-center justify-center py-15">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                                        <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-indigo-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
+                                    </div>
+                                    <span>Loading...</span>
+                                </div> :
+                                <>
+                                    {sortedData.length === 0 ? (
+                                        <div className="flex flex-col gap-2 items-center justify-center py-15">
+                                            <h1 className='h-full flex text-xl items-center justify-center'>Ни один исполнитель не найден</h1>
+                                        </div>
+                                    ) : (
+                                        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                                            {paginatedData.map((u: Freelancer) => (
+                                                <UserCard key={u.id} user={u}/>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            }
 
-                        {loading ?
-                            <h1>Loading...</h1> :
-                            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {filteredData.map((u: Freelancer) => (
-                                    <UserCard key={u.id} user={u}/>
-                                ))}
-                            </div>
-                        }
-
-
-                        <div className="mt-10 w-full flex items-center justify-center">
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                                    disabled={page === 1}
-                                    onClick={() => set('page', String(Math.max(page - 1, 1)), '1')}
-                                >
-                                    Назад
-                                </button>
-                                {Array.from({ length: TOTAL_FREELANCE_PAGES }, (_, i) => i + 1).map((p) => (
+                            <div className="w-full flex items-center justify-center mt-10">
+                                <div className="flex items-center gap-2">
                                     <button
-                                        key={p}
                                         type="button"
-                                        className={`cursor-pointer h-10 w-10 rounded-xl text-sm font-semibold ${
-                                            p === page
-                                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
-                                                : 'bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors'
-                                        }`}
-                                        onClick={() => set('page', String(p), '1')}
+                                        className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                        disabled={page === 1}
+                                        onClick={() => set('page', String(Math.max(page - 1, 1)), '1')}
                                     >
-                                        {p}
+                                        Назад
                                     </button>
-                                ))}
-                                <button
-                                    type="button"
-                                    className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                                    disabled={page === TOTAL_FREELANCE_PAGES}
-                                    onClick={() => set('page', String(Math.min(page + 1, TOTAL_FREELANCE_PAGES)), '1')}
-                                >
-                                    Вперёд
-                                </button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                                        <button
+                                            key={p}
+                                            type="button"
+                                            className={`cursor-pointer h-10 w-10 rounded-xl text-sm font-semibold ${
+                                                p === page
+                                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
+                                                    : 'bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors'
+                                            }`}
+                                            onClick={() => set('page', String(p), '1')}
+                                        >
+                                            {p}
+                                        </button>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                        disabled={page === totalPages}
+                                        onClick={() => set('page', String(Math.min(page + 1, totalPages)), '1')}
+                                    >
+                                        Вперёд
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

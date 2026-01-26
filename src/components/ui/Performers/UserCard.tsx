@@ -29,6 +29,7 @@ export const UserCard = memo(({user}: UserCardProps) => {
 
                     <div className="min-w-0 flex-1">
                         <h3 className="text-base font-bold text-gray-900">{user.name}</h3>
+                        <h4 className='text-gray-600 text-[0.8rem] mb-1'>@{user.login}</h4>
                         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-600">
                             <MapPin size={12} className="text-gray-400 flex-shrink-0" />
                             <span className="truncate">{user.location}</span>
@@ -65,7 +66,7 @@ export const UserCard = memo(({user}: UserCardProps) => {
                 <div className="flex flex-col flex-grow gap-4">
                     <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{user.bio}</p>
                     <div className="flex flex-wrap gap-1.5">
-                        {user.skills.slice(0, 4).map((s: string) => (
+                        {user.skills.map((s: string) => (
                             <span
                                 key={s}
                                 className="px-2.5 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100"
