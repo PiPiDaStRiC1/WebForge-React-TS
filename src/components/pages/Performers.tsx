@@ -1,8 +1,10 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown, X } from 'lucide-react';
-import {AsideFilters, UserCard} from '@/components/ui/Performers';
 import { useEffect, useState, useMemo, useRef } from 'react';
-import {useFreelanceFilters, useFreelancerSort, type SortOption} from '@/hooks/index'
+import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown, X } from 'lucide-react';
+import { Preloader, ErrorAlert } from '@/features'
+import {AsideFilters, UserCard} from '@/components/ui/Performers';
+import {useFilters, useFreelancerSort, type SortOption} from '@/hooks/index'
 import {fetchAllFreelancers} from '@/lib/api/fetchAllFreelancers';
 import type {Freelancer} from '@/types';
 import {ITEMS_PER_PAGE_OPTIONS, DEFAULT_ITEMS_PER_PAGE, allSkills, allCategories} from '@/lib/constants';
@@ -16,14 +18,17 @@ const SORT_OPTIONS = [
 ];
 
 export const Performers = () => {
-    const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<Array<Freelancer>>([]);
+    const {data, isLoading, isError} = useQuery<Array<Freelancer>>({
+        queryKey: ['freelancers'],
+        queryFn: fetchAllFreelancers,
+        staleTime: 5 * 60 * 1000,
+    });
     const [sortBy, setSortBy] = useState<SortOption>('default');
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [loadSkills, setLoadSkills] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const sortRef = useRef<HTMLDivElement>(null);
-    const {get, set, toggle, getRange, resetFilters} = useFreelanceFilters();
+    const {get, set, toggle, getRange, resetFilters} = useFilters();
     const page = get('page', Number, 1);
     const itemsPerPage = get('limit', Number, DEFAULT_ITEMS_PER_PAGE);
 
@@ -39,6 +44,8 @@ export const Performers = () => {
 
 
     const filteredData = useMemo(() => {
+        if (!data) return [];
+
         return data.filter((user) => (
             (user.login.includes(search) || user.name.includes(search)) &&
             (categories.length === 0 || categories.some(cat => user.category === cat)) &&
@@ -61,38 +68,6 @@ export const Performers = () => {
 
 
     const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1;
-
-    useEffect(() => {
-        let isCancelled = false;
-
-        const load = async () => {
-            setLoading(true);
-
-            try {
-                const allData: Freelancer[] = await fetchAllFreelancers();
-    
-                if (!isCancelled) {
-                    setData(allData);
-                }
-            } catch (error) {
-                if (error instanceof Error) 
-                    console.log(error.message)
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-
-        return () => {
-            isCancelled = true;
-        }
-    }, []);
-
-    useEffect(() => {
-        if (page > totalPages && totalPages > 0) {
-            set('page', '1', '1');
-        }
-    }, [filteredData, page, totalPages, set]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -232,7 +207,7 @@ export const Performers = () => {
                 </div>
             </section>
 
-            <section className="py-10">
+            <section className="relative py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <AsideFilters 
                         price={[priceLow, priceHigh]}
@@ -317,27 +292,23 @@ export const Performers = () => {
                         </div>
                         
                         <div className='flex h-[calc(100%-52px)] flex-col justify-between'>
-                            {loading ?
-                                <div className="flex flex-col gap-2 items-center justify-center py-15">
-                                    <div className="relative">
-                                        <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                                        <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-indigo-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
-                                    </div>
-                                    <span>Loading...</span>
-                                </div> :
-                                <>
-                                    {sortedData.length === 0 ? (
-                                        <div className="flex flex-col gap-2 items-center justify-center py-15">
-                                            <h1 className='h-full flex text-xl items-center justify-center'>Ни один исполнитель не найден</h1>
-                                        </div>
-                                    ) : (
-                                        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                            {paginatedData.map((u: Freelancer) => (
-                                                <UserCard key={u.id} user={u}/>
-                                            ))}
-                                        </div>
-                                    )}
-                                </>
+                            {isLoading ?
+                                <Preloader /> :
+                                    isError ? 
+                                        <ErrorAlert /> :
+                                            <>
+                                                {sortedData.length === 0 ? (
+                                                    <div className="flex flex-col gap-2 items-center justify-center py-15">
+                                                        <h1 className='h-full flex text-xl items-center justify-center'>Ни один исполнитель не найден</h1>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                                                        {paginatedData.map((u: Freelancer) => (
+                                                            <UserCard key={u.id} user={u}/>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </>
                             }
 
                             <div className="w-full flex items-center justify-center mt-10">

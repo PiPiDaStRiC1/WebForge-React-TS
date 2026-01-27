@@ -6,3 +6,4 @@ export * from './FAQ';
 export * from './Guides';
 export * from './Privacy';
 export * from './Terms';
+export * from './Orders';

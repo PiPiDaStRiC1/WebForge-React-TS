@@ -83,8 +83,8 @@ const freelancerBioByStack = {
 const categories = ['web-dev', 'design', 'marketing', 'mobile', 'seo', 'data'];
 
 
-function generateRichInfoClients() {
-    return enrichedUsers.slice(0, CLIENTS_COUNT).map((user, idx) => (
+function generateRichInfoClients(count) {
+    return enrichedUsers.slice(0, count).map((user, idx) => (
         {
             ...user,
             id: idx + 1,
@@ -105,14 +105,14 @@ function generateRichInfoClients() {
     ))
 }
 
-function generateRichInfoFreelancers() {
+function generateRichInfoFreelancers(count) {
     const frontendSkills = ['React', 'Vue', 'Angular', 'TypeScript', 'Next.js', 'Tailwind CSS', 'JavaScript', 'HTML/CSS', 'Webpack', 'Vite', 'SEO'];
     const backendSkills = ['Node.js', 'Python', 'PHP', 'Express', 'Django', 'Laravel', 'PostgreSQL', 'MongoDB', 'Redis', 'REST API'];
     const fullstackSkills = ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'MongoDB', 'Next.js', 'Express', 'Docker'];
     const mobileSkills = ['React Native', 'TypeScript', 'JavaScript', 'Mobile UI', 'REST API'];
     
 
-    return enrichedUsers.slice(CLIENTS_COUNT).map((user, idx) => {
+    return enrichedUsers.slice(count).map((user, idx) => {
         
         const rand = Math.random();
         let skillsPool, bioTemplates;
@@ -164,9 +164,9 @@ function generateRichInfoFreelancers() {
     });
 }
 
-const clients = generateRichInfoClients(CLIENTS_COUNT);
-const freelancers = generateRichInfoFreelancers(FREELANCERS_COUNT);
-const allUsers = [...clients, ...freelancers];
+export const clients = generateRichInfoClients(CLIENTS_COUNT);
+export const freelancers = generateRichInfoFreelancers(CLIENTS_COUNT);
+export const allUsers = [...clients, ...freelancers];
 
 
 const outputPath = path.join(__dirname, '../src/lib/data/users.json');

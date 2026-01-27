@@ -14,7 +14,7 @@ export const ScrollToTop = ({ behavior = 'smooth' }: ScrollToTopProps) => {
             left: 0,
             behavior: behavior
         });
-    }, [location, behavior]);
+    }, [location.pathname, behavior]);
 
     return null;
 };

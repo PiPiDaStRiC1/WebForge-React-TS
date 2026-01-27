@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 
-export const useFreelanceFilters = () => {
+export const useFilters = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const get = <T>(key: string, parser: (v: string) => T, defaultValue: T): T => {

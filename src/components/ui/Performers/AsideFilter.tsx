@@ -1,5 +1,5 @@
-import {useFreelanceFilters} from '@/hooks/index'
-import { Star, BadgeCheck, Clock } from "lucide-react";
+import { useFilters } from '@/hooks/index'
+import { Star, BadgeCheck, Clock, ArrowUp } from "lucide-react";
 
 interface AsideFiltersProps {
     price: number[]
@@ -12,7 +12,7 @@ interface AsideFiltersProps {
 export const AsideFilters = ({experience, ordersCountLow, price, ratingLow, status}: AsideFiltersProps) => {
     const [experienceLow, experienceHigh] = experience;
     const [priceLow, priceHigh] = price;
-    const {resetFilters, toggle, setRange} = useFreelanceFilters();
+    const {resetFilters, toggle, setRange} = useFilters();
 
     
     return (
@@ -235,6 +235,12 @@ export const AsideFilters = ({experience, ordersCountLow, price, ratingLow, stat
                         </div>
                         </div>
                     </div>
+                </div>
+                <div 
+                    className='cursor-pointer w-full bottom-0 mt-2 p-1 flex justify-center items-center bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg'
+                    onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+                >
+                    <ArrowUp size={30}/>
                 </div>
             </div>
         </aside>

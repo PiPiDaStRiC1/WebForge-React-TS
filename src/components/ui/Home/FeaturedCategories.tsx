@@ -33,7 +33,6 @@ export const FeaturedCategories = () => {
                                 </span>
                             ))}
                         </p>
-                        <div className="text-indigo-600 font-semibold text-sm">245 заказов →</div>
                     </Link>
                 ))}
             </div>
