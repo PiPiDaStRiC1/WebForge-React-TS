@@ -2,28 +2,22 @@ import { useState, useMemo } from 'react';
 import { Preloader, ErrorAlert } from '@/features';
 import { useQuery } from '@tanstack/react-query';
 import {useFilters} from '@/hooks'
-import { Briefcase, DollarSign, Clock, Users, TrendingUp, Filter, Search, Calendar, MessageCircle } from 'lucide-react';
+import {AsideFilter, OrderCard} from '@/components/ui/Orders'
+import { Briefcase, DollarSign, TrendingUp, Search } from 'lucide-react';
 import {fetchAllOrders} from '@/lib/api/fetchAllOrders'
 import {useOrdersSort} from '@/hooks';
 import type {Order} from '@/types';
 import {CATEGORIES} from '@/lib/constants/categories'
 
-
-const STATUS_CONFIG = {
-    'new': { label: 'Новый', color: 'bg-green-100 text-green-700', icon: '🆕' },
-    'in-progress': { label: 'В работе', color: 'bg-blue-100 text-blue-700', icon: '⚡' },
-    'completed': { label: 'Завершен', color: 'bg-gray-100 text-gray-700', icon: '✅' },
-};
-
 type SortOption = 'date-desc' | 'date-asc' | 'budget-desc' | 'budget-asc' | 'responses-desc';
 
 export const Orders = () => {
     const [searchQuery, setSearchQuery] = useState('');
-    const {get, set, toggle, resetFilters} = useFilters();
+    const {get, set} = useFilters();
     const {data, isLoading, isError} = useQuery<Array<Order>>({
         queryKey: ['orders'],
         queryFn: fetchAllOrders,
-        staleTime: 5 * 60 * 1000, 
+        staleTime: 5 * 60 * 1000,
     });
 
     const sortBy = get<SortOption>('sortBy', v => v as SortOption, 'date-desc');
@@ -125,52 +119,10 @@ export const Orders = () => {
             </section>
             <section className="py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <aside className="lg:col-span-3">
-                        <div className="bg-white/70 top-26 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 sticky top-4">
-                            <div className="flex items-center gap-2 mb-6">
-                                <Filter size={20} className="text-indigo-600" />
-                                <h3 className="text-lg font-bold text-gray-900">Фильтры</h3>
-                            </div>
-                            <div className="mb-6">
-                                <h4 className="text-sm font-semibold text-gray-700 mb-3">Статус</h4>
-                                <div className="space-y-2">
-                                    {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                                        <label key={key} className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={status.includes(key)}
-                                                onChange={() => toggle('status', key)}
-                                                className="w-4 h-4 text-indigo-600 rounded"
-                                            />
-                                            <span className="text-sm text-gray-700">{config.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="mb-6">
-                                <h4 className="text-sm font-semibold text-gray-700 mb-3">Сортировка</h4>
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => set('sortBy', e.target.value)}
-                                    className="cursor-pointer w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm"
-                                >
-                                    <option value="date-desc">Сначала новые</option>
-                                    <option value="date-asc">Сначала старые</option>
-                                    <option value="budget-desc">Дорогие первыми</option>
-                                    <option value="budget-asc">Дешевые первыми</option>
-                                    <option value="responses-desc">Популярные</option>
-                                </select>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={resetFilters}
-                                className="cursor-pointer w-full py-2 text-sm text-indigo-600 hover:text-indigo-700 font-semibold"
-                            >
-                                Сбросить фильтры
-                            </button>
-                        </div>
-                    </aside>
+                    <AsideFilter 
+                        sortBy={sortBy} 
+                        status={status}
+                    />
                     <div className="lg:col-span-9">
                         <div className="mb-4">
                             <p className="text-sm text-gray-600">
@@ -191,70 +143,11 @@ export const Orders = () => {
                                             ) : (
                                                 <div className="space-y-4">
                                                     {sortedData.map((order, index) => (
-                                                        <div
-                                                            key={order.id}
-                                                            className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 animate-slide-in-left"
-                                                            style={{ animationDelay: `${index * 50}ms` }}
-                                                        >
-                                                            <div className="flex items-start justify-between mb-4">
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center gap-2 mb-2">
-                                                                        <span className={`px-3 py-1 rounded-lg text-xs font-semibold ${STATUS_CONFIG[order.status].color}`}>
-                                                                            {STATUS_CONFIG[order.status].icon} {STATUS_CONFIG[order.status].label}
-                                                                        </span>
-                                                                        <span className="text-xs text-gray-500">
-                                                                            <Calendar size={12} className="inline mr-1" />
-                                                                            {new Date(order.createdAt).toLocaleDateString('ru-RU')}
-                                                                        </span>
-                                                                    </div>
-                                                                    <h3 className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors cursor-pointer">
-                                                                        {order.title}
-                                                                    </h3>
-                                                                </div>
-                                                                <div className="text-right ml-4">
-                                                                    <div className="text-2xl font-bold text-indigo-600">
-                                                                        {order.budgetMin.toLocaleString()} - {order.budgetMax.toLocaleString()}₽
-                                                                    </div>
-                                                                    <div className="text-xs text-gray-500">Бюджет проекта</div>
-                                                                </div>
-                                                            </div>
-                                                            <p className="text-gray-700 mb-4 line-clamp-2">
-                                                                {order.description}
-                                                            </p>
-                                                            <div className="flex flex-wrap gap-2 mb-4">
-                                                                {order.skills.map(skill => (
-                                                                    <span
-                                                                        key={skill}
-                                                                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium"
-                                                                    >
-                                                                        {skill}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                                                <div className="flex items-center gap-4 text-sm text-gray-600">
-                                                                    <div className="flex items-center gap-1">
-                                                                        <Clock size={16} />
-                                                                        <span>{order.deadline} дней</span>
-                                                                    </div>
-                                                                    <div className="flex items-center gap-1">
-                                                                        <MessageCircle size={16} />
-                                                                        <span>{order.responsesCount} откликов</span>
-                                                                    </div>
-                                                                    <div className="flex items-center gap-1">
-                                                                        <Users size={16} />
-                                                                        <span>{order.clientName}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <button
-                                                                    type="button"
-                                                                    className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                    disabled={order.status === 'completed'}
-                                                                >
-                                                                    Откликнуться
-                                                                </button>
-                                                            </div>
-                                                        </div>
+                                                        <OrderCard 
+                                                            key={order.id} 
+                                                            order={order}
+                                                            animDelay={index}
+                                                        />
                                                     ))}
                                                 </div>
                                             )}

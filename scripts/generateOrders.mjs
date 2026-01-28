@@ -4,8 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const SEED = 'cdf';
-const ORDERS_COUNT = 50;
+const SEED = 'abc';
+const ORDERS_COUNT = 500;
 
 faker.seed(SEED);
 
@@ -73,7 +73,7 @@ function generateOrders(count) {
         const selectedCategory = faker.helpers.arrayElement(CATEGORIES);
         const budgetMin = faker.number.int({min: 5000, max: 50000, multipleOf: 500});
         const budgetMax = faker.number.int({min: budgetMin + 5000, max: budgetMin + 100000, multipleOf: 500});
-        const status = faker.helpers.arrayElement(['new', 'in-progress', 'completed']);
+        const status = faker.helpers.arrayElement(['new', 'in-progress', 'completed', 'completed', 'completed']);
         const selectedFreelancer = status === 'completed' ? faker.helpers.arrayElement(freelancers) : null;
         
         return {

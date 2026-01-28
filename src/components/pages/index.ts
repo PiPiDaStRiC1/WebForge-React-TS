@@ -7,3 +7,5 @@ export * from './Guides';
 export * from './Privacy';
 export * from './Terms';
 export * from './Orders';
+export * from './UserProfile';
+export * from './OrderInfo';

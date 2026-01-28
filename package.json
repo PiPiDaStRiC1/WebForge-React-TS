@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "generate-users": "node ./scripts/generateUsers.mjs",
+    "generate-orders": "node ./scripts/generateOrders.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

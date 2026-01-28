@@ -26,13 +26,12 @@ export const Performers = () => {
     const [sortBy, setSortBy] = useState<SortOption>('default');
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [loadSkills, setLoadSkills] = useState(false);
-    const [searchValue, setSearchValue] = useState('');
     const sortRef = useRef<HTMLDivElement>(null);
-    const {get, set, toggle, getRange, resetFilters} = useFilters();
+    const {get, set, toggle, getRange} = useFilters();
     const page = get('page', Number, 1);
     const itemsPerPage = get('limit', Number, DEFAULT_ITEMS_PER_PAGE);
 
-
+    
     const search = get('search', String, '');
     const categories = get('category', (v) => v.split(','), []);
     const [priceLow, priceHigh] = getRange('price', ['1000', '5000']).map(Number);
@@ -68,6 +67,12 @@ export const Performers = () => {
 
 
     const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1;
+
+    useEffect(() => {
+        if (page > 1 && page > totalPages) {
+            set('page', '1', '1');
+        }
+    }, [page, totalPages, set]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -127,20 +132,17 @@ export const Performers = () => {
                             <div className="flex-1 relative">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                                 <input
-                                    value={searchValue}
+                                    value={search}
                                     type="text"
                                     placeholder="Поиск по логину или имени..."
                                     className="w-full h-12 pl-12 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                                    onChange={(e) => setSearchValue(e.target.value)}
+                                    onChange={(e) => set('search', e.target.value, '')}
                                 />
-                                {searchValue && (
+                                {search && (
                                     <button
                                         type="button"
                                         className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                        onClick={() => {
-                                            setSearchValue('');
-                                            resetFilters();
-                                        }}
+                                        onClick={() => set('search', '', '')}
                                     >
                                         <X size={20} />
                                     </button>
@@ -156,7 +158,6 @@ export const Performers = () => {
                             <button
                                 type="button"
                                 className="cursor-pointer inline-flex items-center justify-center h-12 px-6 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
-                                onClick={() => set('search', searchValue, '')}
                             >
                                 Найти
                             </button>

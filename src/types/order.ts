@@ -11,5 +11,7 @@ export interface Order {
     responsesCount: number;
     createdAt: string;
     clientName: string;
+    clientId: number;
     completedBy: string;
+    completedById: number | null;
 }

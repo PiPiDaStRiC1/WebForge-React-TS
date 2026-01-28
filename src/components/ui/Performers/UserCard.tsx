@@ -1,25 +1,30 @@
-import {memo} from 'react';
+import {memo, useState} from 'react';
 import { Link } from "react-router-dom"
 import {Star, MapPin, Heart, BadgeCheck, Briefcase} from 'lucide-react'
 import type { Freelancer } from '@/types';
+import {AvatarPreloader} from '@/components/common'
 
 interface UserCardProps {
     user: Freelancer
 }
 
 export const UserCard = memo(({user}: UserCardProps) => {
-
+    const [isLoadingAvatar, setIsLoadingAvatar] = useState(true);
 
     return (
         <article className="group flex flex-col bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300">
             <div className="relative bg-gradient-to-br from-slate-50 to-indigo-50/30 p-4 border-b border-gray-100">
                 <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
-                        <img
-                            src={user.picture.medium}
-                            alt={user.name}
-                            className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
-                        />
+                        {isLoadingAvatar && <AvatarPreloader />}
+                        <Link to={`/profile/${user.id}`}>
+                            <img
+                                src={user.picture.medium}
+                                alt={user.name}
+                                className="cursor-pointer w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
+                                onLoad={() => setIsLoadingAvatar(false)}
+                            />
+                        </Link>
                         {user.status === 'verified' && (
                             <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
                                 <BadgeCheck size={14} className="text-white" />

@@ -1,6 +1,6 @@
 import '@/styles/style.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Header, Main, Home, Footer, Performers, Categories, TopPerformers, FAQ, Guides, Terms, Privacy, Orders } from '@/components';
+import { Header, Main, Home, Footer, Performers, Categories, TopPerformers, FAQ, Guides, Terms, Privacy, Orders, UserProfile, OrderInfo } from '@/components';
 import {ScrollToTop} from '@/lib/utils/index'
 
 // Lazy imports later
@@ -16,6 +16,8 @@ function App() {
         <Route element={<Main />}>
           <Route path="/" index element={<Home />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path='/orders/:orderId'element={<OrderInfo />}/>
+          <Route path="/profile/:userId" element={<UserProfile />}/>
           <Route path="/performers" element={<Performers />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/top-performers" element={<TopPerformers />} />
