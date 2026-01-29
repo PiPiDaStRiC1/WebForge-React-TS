@@ -26,7 +26,14 @@ export const CATEGORIES: Category[] = [
         freelancers: 450,
         avgPrice: 1500,
         trending: true,
-        subcategories: ['React', 'Vue.js', 'Node.js', 'WordPress']
+        subcategories: [
+            'React',
+            'Vue',
+            'Node.js',
+            'TypeScript',
+            'REST API',
+            'PostgreSQL'
+        ]
     },
     {
         id: 'design',
@@ -36,7 +43,13 @@ export const CATEGORIES: Category[] = [
         freelancers: 320,
         avgPrice: 1200,
         trending: false,
-        subcategories: ['UI/UX', 'Логотипы', 'Иллюстрация', 'Figma']
+        subcategories: [
+            'HTML/CSS',
+            'Tailwind CSS',
+            'Mobile UI',
+            'JavaScript',
+            'React'
+        ]
     },
     {
         id: 'data',
@@ -46,7 +59,13 @@ export const CATEGORIES: Category[] = [
         freelancers: 95,
         avgPrice: 1600,
         trending: true,
-        subcategories: ['Python', 'SQL', 'BI', 'Machine Learning']
+        subcategories: [
+            'Python',
+            'PostgreSQL',
+            'MongoDB',
+            'REST API',
+            'Node.js'
+        ]
     },
     {
         id: 'seo',
@@ -56,7 +75,13 @@ export const CATEGORIES: Category[] = [
         freelancers: 150,
         avgPrice: 1100,
         trending: false,
-        subcategories: ['Аудит', 'Продвижение', 'Ссылки', 'Контент-план']
+        subcategories: [
+            'SEO',
+            'HTML/CSS',
+            'JavaScript',
+            'Next.js',
+            'React'
+        ]
     },
     {
         id: 'marketing',
@@ -66,7 +91,13 @@ export const CATEGORIES: Category[] = [
         freelancers: 280,
         avgPrice: 1000,
         trending: true,
-        subcategories: ['SMM', 'Контекст', 'Email', 'Аналитика']
+        subcategories: [
+            'SEO',
+            'JavaScript',
+            'React',
+            'Next.js',
+            'REST API'
+        ]
     },
     {
         id: 'mobile',
@@ -76,6 +107,12 @@ export const CATEGORIES: Category[] = [
         freelancers: 180,
         avgPrice: 1800,
         trending: true,
-        subcategories: ['iOS', 'Android', 'React Native', 'Flutter']
-    },
+        subcategories: [
+            'React Native',
+            'TypeScript',
+            'Mobile UI',
+            'REST API',
+            'JavaScript'
+        ]
+    }
 ];

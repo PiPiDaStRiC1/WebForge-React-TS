@@ -1,6 +1,7 @@
-import {Clock, Users, Calendar, MessageCircle} from 'lucide-react'
+import {Clock, Calendar, MessageCircle} from 'lucide-react'
 import type {Order} from '@/types';
 import { Link } from 'react-router-dom';
+import { forwardRef } from 'react';
 
 interface OrderCardProps {
     order: Order;
@@ -13,11 +14,12 @@ const STATUS_CONFIG = {
     'completed': { label: 'Завершен', color: 'bg-gray-100 text-gray-700', icon: '✅' },
 };
 
-export const OrderCard = ({order, animDelay}: OrderCardProps) => {
+export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps>(({order, animDelay}, ref) => {
 
     return (
         <div
-            className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 animate-slide-in-left"
+            ref={ref}
+            className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
             style={{ animationDelay: `${animDelay * 50}ms` }}
         >
             <div className="flex items-start justify-between mb-4">
@@ -66,8 +68,7 @@ export const OrderCard = ({order, animDelay}: OrderCardProps) => {
                         <span>{order.responsesCount} откликов</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <Users size={16} />
-                        <span>{order.clientName}</span>
+                        ID: <span>#{order.id}</span>
                     </div>
                 </div>
                 <button
@@ -80,4 +81,4 @@ export const OrderCard = ({order, animDelay}: OrderCardProps) => {
             </div>
         </div>
     )
-}
+});

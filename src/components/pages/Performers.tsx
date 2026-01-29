@@ -30,16 +30,15 @@ export const Performers = () => {
     const {get, set, toggle, getRange} = useFilters();
     const page = get('page', Number, 1);
     const itemsPerPage = get('limit', Number, DEFAULT_ITEMS_PER_PAGE);
-
     
     const search = get('search', String, '');
     const categories = get('category', (v) => v.split(','), []);
-    const [priceLow, priceHigh] = getRange('price', ['1000', '5000']).map(Number);
+    const [priceLow, priceHigh] = getRange('price', ['1000', '10000']).map(Number);
     const skills = get('skills', (v) => v.split(','), []);
     const [ratingLow, ratingHigh] = getRange('rating', ['0', '5']).map(Number);
-    const [experienceLow, experienceHigh] = getRange('experience', ['0', '20']).map(Number);
+    const [experienceLow, experienceHigh] = getRange('experience', ['0', '10']).map(Number);
     const status = get('status', (v) => v.split(','), []);
-    const [ordersCountLow, ordersCountHigh] = getRange('ordersCount', ['0', '1000']).map(Number);
+    const [completedOrdersLow, completedOrdersHigh] = getRange('completedOrders', ['0', '1000']).map(Number);
 
 
     const filteredData = useMemo(() => {
@@ -48,14 +47,14 @@ export const Performers = () => {
         return data.filter((user) => (
             (user.login.includes(search) || user.name.includes(search)) &&
             (categories.length === 0 || categories.some(cat => user.category === cat)) &&
-            user.pricePerHour >= priceLow && user.pricePerHour <= priceHigh &&
+            (user.pricePerHour >= priceLow && user.pricePerHour <= priceHigh) &&
             (skills.length === 0 || skills.some(skill => user.skills.includes(skill))) &&
             (user.rating >= ratingLow && user.rating <= ratingHigh) &&
             (user.experience >= experienceLow && user.experience <= experienceHigh) &&
             (status.length === 0 || status.includes(user.status)) &&
-            user.completedOrders >= ordersCountLow && user.completedOrders <= ordersCountHigh
+            (user.completedOrders >= completedOrdersLow && user.completedOrders <= completedOrdersHigh)
         ));
-    }, [search, data, priceLow, priceHigh, skills, ratingLow, ratingHigh, experienceLow, experienceHigh, status, ordersCountHigh, ordersCountLow, categories]);
+    }, [search, data, priceLow, priceHigh, skills, ratingLow, ratingHigh, experienceLow, experienceHigh, status, completedOrdersHigh, completedOrdersLow, categories]);
 
     const sortedData = useFreelancerSort(filteredData, sortBy);
 
@@ -215,7 +214,7 @@ export const Performers = () => {
                         ratingLow={ratingLow}
                         status={status}
                         experience={[experienceLow, experienceHigh]}
-                        ordersCountLow={ordersCountLow}
+                        completedOrdersLow={completedOrdersLow}
                     />
                     <div className="lg:col-span-8 xl:col-span-9">
                         <div className="flex items-center justify-between mb-4">

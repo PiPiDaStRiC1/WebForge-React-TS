@@ -9,3 +9,4 @@ export * from './Terms';
 export * from './Orders';
 export * from './UserProfile';
 export * from './OrderInfo';
+export * from './CreateOrder';

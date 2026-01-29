@@ -23,6 +23,8 @@ export interface Freelancer {
     registeredAt: string,
 }
 
+export type FreelancerWithoutCompletedOrders = Omit<Freelancer, 'completedOrders'>;
+
 export interface Client {
     gender: 'male' | 'female',
     email: string,
@@ -37,7 +39,6 @@ export interface Client {
     name: string,
     role: 'client',
     rating: number,
-    completedOrders: null,
     skills: null,
     pricePerHour: null,
     bio: string,

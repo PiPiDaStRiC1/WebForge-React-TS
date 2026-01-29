@@ -10,7 +10,7 @@ import { useMemo, useState } from 'react';
 
 export const UserProfile = () => {   
     const {userId} = useParams<{userId: string}>();
-    const {data, isLoading, isError} = useQuery<Client | Freelancer | undefined>({
+    const {data, isLoading, isError} = useQuery<Omit<Client, 'completedOrders'> | Omit<Freelancer, 'completedOrders'> | undefined>({
         queryKey: [`user${userId}`],
         queryFn: () => fetchOneUser(Number(userId)),
         staleTime: 30 * 60 * 1000,
@@ -166,7 +166,7 @@ export const UserProfile = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm text-gray-600">Выполнено заказов</p>
-                                                    <p className="text-xl font-bold text-gray-900">{data.completedOrders}</p>
+                                                    <p className="text-xl font-bold text-gray-900">{userOrders.length}</p>
                                                 </div>
                                             </div>
                                         </div>

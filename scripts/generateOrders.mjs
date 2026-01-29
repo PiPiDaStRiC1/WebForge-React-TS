@@ -4,8 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const SEED = 'abc';
-const ORDERS_COUNT = 500;
+const SEED = 'SEED1';
+const ORDERS_COUNT = 1500;
 
 faker.seed(SEED);
 
@@ -89,8 +89,6 @@ function generateOrders(count) {
             responsesCount: status === 'completed' ? 0 : faker.number.int({min: 0, max: 25}),
             createdAt: faker.date.past({ years: 1 }).toISOString().split('T')[0],
             clientId: selectedClient.id,
-            clientName: selectedClient.name,
-            completedBy: selectedFreelancer ? selectedFreelancer.name : null,
             completedById: selectedFreelancer ? selectedFreelancer.id : null,
         };
     });

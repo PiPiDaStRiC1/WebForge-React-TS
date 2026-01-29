@@ -25,7 +25,7 @@ export const UserCard = memo(({user}: UserCardProps) => {
                                 onLoad={() => setIsLoadingAvatar(false)}
                             />
                         </Link>
-                        {user.status === 'verified' && (
+                        {!isLoadingAvatar && user.status === 'verified' && (
                             <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
                                 <BadgeCheck size={14} className="text-white" />
                             </span>

@@ -1,23 +1,39 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Preloader, ErrorAlert } from '@/features';
 import { useQuery } from '@tanstack/react-query';
-import {useFilters} from '@/hooks'
-import {AsideFilter, OrderCard} from '@/components/ui/Orders'
+import {useFilters} from '@/hooks';
+import {AsideFilter, OrderCard} from '@/components/ui';
 import { Briefcase, DollarSign, TrendingUp, Search } from 'lucide-react';
-import {fetchAllOrders} from '@/lib/api/fetchAllOrders'
+import {fetchAllOrders} from '@/lib/api/fetchAllOrders';
 import {useOrdersSort} from '@/hooks';
 import type {Order} from '@/types';
-import {CATEGORIES} from '@/lib/constants/categories'
+import {CATEGORIES} from '@/lib/constants/categories';
 
 type SortOption = 'date-desc' | 'date-asc' | 'budget-desc' | 'budget-asc' | 'responses-desc';
 
+const initShowingCount = () => {
+    try {
+        const saved = Number(sessionStorage.getItem('orders_showing_count') || '20');
+        sessionStorage.removeItem('orders_showing_count');
+        return saved;
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(error.message);
+        }
+    }
+    return 20;
+}
+
 export const Orders = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const currentListElRef = useRef<HTMLDivElement>(null);
+    const observerRef = useRef<IntersectionObserver>(null);
+    const [showingCount, setShowingCount] = useState(initShowingCount);
     const {get, set} = useFilters();
     const {data, isLoading, isError} = useQuery<Array<Order>>({
         queryKey: ['orders'],
         queryFn: fetchAllOrders,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 30 * 60 * 1000,
     });
 
     const sortBy = get<SortOption>('sortBy', v => v as SortOption, 'date-desc');
@@ -25,7 +41,7 @@ export const Orders = () => {
     const category = get('category', String, 'web-dev');
     
     const filteredOrders = useMemo(() => {
-        if (!data) return [];
+        if (!data || data.length === 0) return [];
 
         return data.filter(order => {
             const matchesSearch = 
@@ -47,6 +63,45 @@ export const Orders = () => {
         newOrders: sortedData.filter(o => o.status === 'new').length,
     };
 
+    
+    const visibleData = useMemo(() => {
+        return sortedData.slice(0, showingCount);
+    }, [sortedData, showingCount]);
+    
+    const hasMore = visibleData.length < sortedData.length;
+
+    const loadMore = useCallback(() => {
+        setShowingCount(prev => prev + 20);
+    }, []);
+
+    useEffect(() => {
+        if (!hasMore || !currentListElRef.current) return;
+        if (observerRef.current) observerRef.current.disconnect();
+
+        observerRef.current = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        loadMore();
+                    }
+                })
+            }, 
+            {
+                rootMargin: '200px 0px',
+            }
+        );
+
+        observerRef.current.observe(currentListElRef.current)
+
+        return () => { 
+            if (observerRef.current) observerRef.current.disconnect();
+        }
+    }, [loadMore, visibleData, hasMore, showingCount]);
+    
+    useEffect(() => {
+        sessionStorage.setItem('orders_showing_count', String(showingCount));
+    }, [showingCount]);
+
+    
 
     return (
         <div className="min-h-screen">
@@ -85,17 +140,35 @@ export const Orders = () => {
                     <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <Briefcase className="mx-auto mb-2 text-indigo-500" size={32} />
-                            <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
+                            {isLoading ? (
+                                <div className='animate-pulse flex justify-center items-center'>
+                                    <div className="h-9 bg-gray-200 rounded w-1/3" />
+                                </div>
+                            ) : (
+                                <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
+                            )}
                             <div className="text-sm text-gray-600">Всего заказов</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <DollarSign className="mx-auto mb-2 text-green-500" size={32} />
-                            <div className="text-3xl font-bold text-gray-900">{stats.avgBudget.toLocaleString()}₽</div>
+                            {isLoading ? (
+                                <div className='animate-pulse flex justify-center items-center'>
+                                    <div className="h-9 bg-gray-200 rounded w-1/3" />
+                                </div>
+                            ) : (
+                                <div className="text-3xl font-bold text-gray-900">{stats.avgBudget.toLocaleString()}₽</div>
+                            )}
                             <div className="text-sm text-gray-600">Средний бюджет</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <TrendingUp className="mx-auto mb-2 text-blue-500" size={32} />
-                            <div className="text-3xl font-bold text-gray-900">{stats.newOrders}</div>
+                            {isLoading ? (
+                                <div className='animate-pulse flex justify-center items-center'>
+                                    <div className="h-9 bg-gray-200 rounded w-1/3" />
+                                </div>
+                            ) : (
+                                <div className="text-3xl font-bold text-gray-900">{stats.newOrders}</div>
+                            )}
                             <div className="text-sm text-gray-600">Новых заказов</div>
                         </div>
                     </div>
@@ -104,7 +177,10 @@ export const Orders = () => {
                             <button
                                 key={cat.id}
                                 type="button"
-                                onClick={() => set('category', cat.id)}
+                                onClick={() => {
+                                    set('category', cat.id);
+                                    setShowingCount(20);
+                                }}
                                 className={`cursor-pointer px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
                                     category === cat.id
                                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
@@ -126,7 +202,7 @@ export const Orders = () => {
                     <div className="lg:col-span-9">
                         <div className="mb-4">
                             <p className="text-sm text-gray-600">
-                                Найдено <span className="font-semibold text-gray-900">{sortedData.length}</span> заказов
+                                Показано <span className="font-semibold text-gray-900">{visibleData.length}</span> из <span className="font-semibold text-gray-900">{sortedData.length}</span> заказов
                             </p>
                         </div>
                         {isLoading ? 
@@ -134,7 +210,7 @@ export const Orders = () => {
                                 isError ? 
                                     <ErrorAlert /> :
                                         <>
-                                            {sortedData.length === 0 ? (
+                                            {visibleData.length === 0 ? (
                                                 <div className="text-center py-20">
                                                     <div className="text-6xl mb-4">📋</div>
                                                     <h3 className="text-2xl font-bold text-gray-900 mb-2">Заказы не найдены</h3>
@@ -142,13 +218,16 @@ export const Orders = () => {
                                                 </div>
                                             ) : (
                                                 <div className="space-y-4">
-                                                    {sortedData.map((order, index) => (
-                                                        <OrderCard 
-                                                            key={order.id} 
-                                                            order={order}
-                                                            animDelay={index}
-                                                        />
-                                                    ))}
+                                                    {visibleData.map((order, index) => {
+                                                        const isLast = index === visibleData.length - 1;
+
+                                                        return <OrderCard 
+                                                                    key={order.id} 
+                                                                    order={order}
+                                                                    animDelay={index}
+                                                                    ref={isLast ? currentListElRef : null}
+                                                                />
+                                                    })}
                                                 </div>
                                             )}
                                         </>

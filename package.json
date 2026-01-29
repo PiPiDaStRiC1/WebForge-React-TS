@@ -6,6 +6,7 @@
   "scripts": {
     "generate-users": "node ./scripts/generateUsers.mjs",
     "generate-orders": "node ./scripts/generateOrders.mjs",
+    "generate-data": "npm run generate-users && npm run generate-orders",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

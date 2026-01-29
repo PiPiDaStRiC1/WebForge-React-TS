@@ -6,10 +6,10 @@ interface AsideFiltersProps {
     ratingLow: number,
     status: string[],
     experience: number[],
-    ordersCountLow: number
+    completedOrdersLow: number
 }
 
-export const AsideFilters = ({experience, ordersCountLow, price, ratingLow, status}: AsideFiltersProps) => {
+export const AsideFilters = ({experience, completedOrdersLow, price, ratingLow, status}: AsideFiltersProps) => {
     const [experienceLow, experienceHigh] = experience;
     const [priceLow, priceHigh] = price;
     const {resetFilters, toggle, setRange} = useFilters();
@@ -200,35 +200,35 @@ export const AsideFilters = ({experience, ordersCountLow, price, ratingLow, stat
                             <div className="space-y-2">
                                 <label className="flex items-center gap-2 cursor-pointer group">
                                     <input
-                                        checked={ordersCountLow === 100} 
+                                        checked={completedOrdersLow === 15} 
                                         type="checkbox" 
                                         className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
-                                        onChange={() => setRange('ordersCount', ['100', '10000'])}
+                                        onChange={() => setRange('completedOrders', ['15', '1000'])}
                                     />
                                     <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                        Более 100 <span className="text-gray-400">(18)</span>
+                                        Более 15 
                                     </span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
                                     <input 
-                                        checked={ordersCountLow === 50}
+                                        checked={completedOrdersLow === 10}
                                         type="checkbox" 
                                         className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
-                                        onChange={() => setRange('ordersCount', ['50', '10000'])}
+                                        onChange={() => setRange('completedOrders', ['10', '1000'])}
                                     />
                                     <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                        Более 50 <span className="text-gray-400">(54)</span>
+                                        Более 10 
                                     </span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
                                     <input 
-                                        checked={ordersCountLow === 10}
+                                        checked={completedOrdersLow === 5}
                                         type="checkbox" 
                                         className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
-                                        onChange={() => setRange('ordersCount', ['10', '10000'])}
+                                        onChange={() => setRange('completedOrders', ['5', '1000'])}
                                     />
                                     <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                        Более 10 <span className="text-gray-400">(98)</span>
+                                        Более 5 
                                     </span>
                                 </label>
                             </div>

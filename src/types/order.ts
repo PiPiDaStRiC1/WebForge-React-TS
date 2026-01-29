@@ -10,8 +10,6 @@ export interface Order {
     status: 'new' | 'in-progress' | 'completed';
     responsesCount: number;
     createdAt: string;
-    clientName: string;
     clientId: number;
-    completedBy: string;
     completedById: number | null;
 }
