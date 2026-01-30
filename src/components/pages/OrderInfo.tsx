@@ -24,26 +24,26 @@ export const OrderInfo = () => {
     const { orderId } = useParams<{ orderId: string }>();
     
     const { data: order, isLoading, isError } = useQuery<Order | undefined>({
-        queryKey: [`order${orderId}`],
+        queryKey: ['orders', orderId],
         queryFn: () => fetchOneOrder(Number(orderId)),
         enabled: !!orderId,
         staleTime: 30 * 60 * 1000,
     });
 
     const { data: user } = useQuery<Client | Freelancer | undefined>({
-        queryKey: [`user${order?.clientId}`],
+        queryKey: ['users', order?.clientId],
         queryFn: () => fetchOneUser(order!.clientId),
         enabled: !!order?.clientId,
         staleTime: 30 * 60 * 1000,
     });
 
     const { data: freelancers } = useQuery<Freelancer[]>({
-        queryKey: [`freelancers`],
+        queryKey: ['freelancers'],
         queryFn: fetchAllFreelancers
     });
 
     const { data: responses } = useQuery<OrderResponse[]>({
-        queryKey: [`responses${orderId}`],
+        queryKey: ['responses', orderId],
         queryFn: () => fetchResponses(Number(orderId)),
         enabled: !!orderId,
         staleTime: 60 * 60 * 1000,

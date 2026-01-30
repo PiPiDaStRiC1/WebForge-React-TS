@@ -11,3 +11,5 @@ export * from './UserProfile';
 export * from './OrderInfo';
 export * from './CreateOrder';
 export * from './NotFound';
+export * from './MyProfile';
+export * from './AuthModal';

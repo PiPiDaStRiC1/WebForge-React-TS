@@ -5,13 +5,14 @@ import { fetchOneUser } from '@/lib/api/fetchOneUser';
 import {fetchAllOrders} from '@/lib/api/fetchAllOrders';
 import type {Client, Freelancer} from '@/types'
 import {ErrorAlert} from '@/features/ErrorAlert'
-import {UserProfileSkeleton, OrderCardSmall, OrderCardSkeleton} from '@/components/ui/UserProfile'
+import {UserProfileSkeleton, OrderCardSmall} from '@/components/ui';
+import { OrderCardSkeleton } from '@/components/common'
 import { useMemo, useState } from 'react';
 
 export const UserProfile = () => {   
     const {userId} = useParams<{userId: string}>();
     const {data, isLoading, isError} = useQuery<Omit<Client, 'completedOrders'> | Omit<Freelancer, 'completedOrders'> | undefined>({
-        queryKey: [`user${userId}`],
+        queryKey: ['users', userId],
         queryFn: () => fetchOneUser(Number(userId)),
         staleTime: 30 * 60 * 1000,
     });

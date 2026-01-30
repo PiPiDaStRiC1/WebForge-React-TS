@@ -32,7 +32,7 @@ export const Hero = () => {
                                 <div className="text-gray-600">Исполнителей</div>
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-gray-900">300+</div>
+                                <div className="text-2xl font-bold text-gray-900">1500+</div>
                                 <div className="text-gray-600">Заказов</div>
                             </div>
                         </div>

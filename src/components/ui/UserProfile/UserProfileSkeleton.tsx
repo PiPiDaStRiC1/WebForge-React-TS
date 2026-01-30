@@ -1,4 +1,4 @@
-import {OrderCardSkeleton} from './OrderCardSkeleton'
+import {OrderCardSkeleton} from '../../common/OrderCardSkeleton'
 
 export const UserProfileSkeleton = () => {
     return (
