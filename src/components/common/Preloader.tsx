@@ -4,6 +4,6 @@ export const Preloader = () => (
             <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
             <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-indigo-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
         </div>
-        <span>Loading...</span>
+        <span>Загрузка...</span>
     </div>
 )

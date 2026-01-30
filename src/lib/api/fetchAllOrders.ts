@@ -1,4 +1,5 @@
-import {allOrders} from '@/lib/data/orders'
+import {allOrders} from '@/lib/data/orders';
+import {allOrderResponses} from '@/lib/data/ordersResponses'
 import type {Order} from '@/types'
 
 export const fetchAllOrders = async (): Promise<Array<Order>> => {
@@ -6,5 +7,14 @@ export const fetchAllOrders = async (): Promise<Array<Order>> => {
         setTimeout(() => resolve(true), 300);
     })
 
-    return allOrders
+    const ordersWithResponsesCount = allOrders.map(order => {
+        const responsesCount = allOrderResponses.filter(response => response.orderId === order.id).length;
+
+        return {
+            ...order,
+            responsesCount: responsesCount
+        }
+    });
+    
+    return ordersWithResponsesCount
 }

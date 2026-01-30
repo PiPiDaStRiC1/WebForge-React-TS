@@ -1,11 +1,11 @@
-import {Clock, Calendar, MessageCircle} from 'lucide-react'
+import { memo } from 'react';
+import {Clock, Calendar, MessageCircle, DollarSign} from 'lucide-react'
 import type {Order} from '@/types';
 import { Link } from 'react-router-dom';
 import { forwardRef } from 'react';
 
 interface OrderCardProps {
     order: Order;
-    animDelay: number;
 }
 
 const STATUS_CONFIG = {
@@ -14,13 +14,12 @@ const STATUS_CONFIG = {
     'completed': { label: 'Завершен', color: 'bg-gray-100 text-gray-700', icon: '✅' },
 };
 
-export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps>(({order, animDelay}, ref) => {
+export const OrderCard = memo(forwardRef<HTMLDivElement, OrderCardProps>(({order}, ref) => {
 
     return (
         <div
             ref={ref}
             className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
-            style={{ animationDelay: `${animDelay * 50}ms` }}
         >
             <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -64,6 +63,10 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps>(({order, ani
                         <span>{order.deadline} дней</span>
                     </div>
                     <div className="flex items-center gap-1">
+                        <DollarSign size={16} />
+                        <span>{order.category}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
                         <MessageCircle size={16} />
                         <span>{order.responsesCount} откликов</span>
                     </div>
@@ -81,4 +84,4 @@ export const OrderCard = forwardRef<HTMLDivElement, OrderCardProps>(({order, ani
             </div>
         </div>
     )
-});
+}));

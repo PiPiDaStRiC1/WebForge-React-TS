@@ -86,7 +86,6 @@ function generateOrders(count) {
             skills: faker.helpers.arrayElements(selectedCategory.subcategories, { min: 2, max: 4 }),
             status: status,
             deadline: faker.number.int({min: 3, max: 60}),
-            responsesCount: status === 'completed' ? 0 : faker.number.int({min: 0, max: 25}),
             createdAt: faker.date.past({ years: 1 }).toISOString().split('T')[0],
             clientId: selectedClient.id,
             completedById: selectedFreelancer ? selectedFreelancer.id : null,
@@ -95,5 +94,5 @@ function generateOrders(count) {
 }
 const outputPath = path.join(__dirname, '../src/lib/data/orders.json');
 
-const orders = generateOrders(ORDERS_COUNT);
+export const orders = generateOrders(ORDERS_COUNT);
 fs.writeFileSync(outputPath, JSON.stringify({ orders }, null, 2), 'utf-8');

@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link } from 'react-router-dom';
-import { Calendar, Clock, DollarSign, MessageCircle, Briefcase, Star, MapPin, BadgeCheck, TrendingUp } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { Calendar, Clock, DollarSign, MessageCircle, Briefcase, TrendingUp } from 'lucide-react';
 import { fetchOneOrder } from '@/lib/api/fetchOneOrder';
 import { fetchOneUser } from '@/lib/api/fetchOneUser';
+import { fetchResponses } from '@/lib/api/fetchResponses';
+import { fetchAllFreelancers } from '@/lib/api/fetchAllFreelancers';
 import { ErrorAlert } from '@/features';
-import type { Order, Client, Freelancer } from '@/types';
-import {AvatarPreloader} from '@/components/common'
-import { useState } from 'react';
+import { Preloader } from '@/components/common';
+import type { Order, Client, Freelancer, OrderResponse } from '@/types';
+import { ClientCard, ResponseCard } from '@/components/ui'
 
 const STATUS_CONFIG = {
     'new': { label: 'Новый', color: 'bg-green-100 text-green-700 border-green-200', icon: '🆕' },
@@ -20,11 +22,11 @@ const isClient = (user: Client | Freelancer | undefined): user is Client => {
 
 export const OrderInfo = () => {
     const { orderId } = useParams<{ orderId: string }>();
-    const [isLoadingAvatar, setIsLoadingAvatar] = useState(true);
     
     const { data: order, isLoading, isError } = useQuery<Order | undefined>({
         queryKey: [`order${orderId}`],
         queryFn: () => fetchOneOrder(Number(orderId)),
+        enabled: !!orderId,
         staleTime: 30 * 60 * 1000,
     });
 
@@ -35,17 +37,22 @@ export const OrderInfo = () => {
         staleTime: 30 * 60 * 1000,
     });
 
+    const { data: freelancers } = useQuery<Freelancer[]>({
+        queryKey: [`freelancers`],
+        queryFn: fetchAllFreelancers
+    });
+
+    const { data: responses } = useQuery<OrderResponse[]>({
+        queryKey: [`responses${orderId}`],
+        queryFn: () => fetchResponses(Number(orderId)),
+        enabled: !!orderId,
+        staleTime: 60 * 60 * 1000,
+    })
+
     const client = isClient(user) ? user : undefined;
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-gray-600">Загрузка заказа...</p>
-                </div>
-            </div>
-        );
+        return <Preloader />
     }
 
     if (isError || !order) {
@@ -89,7 +96,7 @@ export const OrderInfo = () => {
                             </div>
                             <div className="flex items-center gap-2">
                                 <MessageCircle size={18} />
-                                <span className="text-sm">{order.responsesCount} откликов</span>
+                                <span className="text-sm">{responses?.length ?? 0} откликов</span>
                             </div>
                         </div>
                     </div>
@@ -130,7 +137,7 @@ export const OrderInfo = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Откликов</p>
-                                        <p className="text-xl font-bold text-gray-900">{order.responsesCount}</p>
+                                        <p className="text-xl font-bold text-gray-900">{responses?.length ?? 0}</p>
                                     </div>
                                 </div>
                             </div>
@@ -138,7 +145,7 @@ export const OrderInfo = () => {
                             {order.status === 'new' && (
                                 <button
                                     type="button"
-                                    className="w-full mt-6 h-12 flex items-center justify-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                    className="cursor-pointer w-full mt-6 h-12 flex items-center justify-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
                                 >
                                     <MessageCircle size={20} />
                                     Откликнуться на заказ
@@ -146,45 +153,7 @@ export const OrderInfo = () => {
                             )}
                         </div>
 
-                        {client && (
-                            <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
-                                <h2 className="text-lg font-bold text-gray-900 mb-4">Заказчик</h2>
-                                <Link to={`/profile/${client.id}`} className="block group">
-                                    <div className="flex items-start gap-3">
-                                        <div className="relative flex-shrink-0">
-                                            {isLoadingAvatar && <AvatarPreloader />}
-                                            <img
-                                                src={client.picture.medium}
-                                                alt={client.name}
-                                                className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform"
-                                                onLoad={() => setIsLoadingAvatar(false)}
-                                            />
-                                            {!isLoadingAvatar && client.status === 'verified' && (
-                                                <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
-                                                    <BadgeCheck size={14} className="text-white" />
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                                                {client.name}
-                                            </h3>
-                                            <p className="text-sm text-gray-600">@{client.login}</p>
-                                            <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
-                                                <div className="flex items-center gap-1">
-                                                    <Star size={12} className="text-amber-400 fill-amber-400" />
-                                                    <span>{client.rating.toFixed(1)}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <MapPin size={12} />
-                                                    <span>{client.location}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
-                            </div>
-                        )}
+                        {client && <ClientCard client={client}/>}
                     </aside>
 
                     <div className="lg:col-span-2 space-y-6">
@@ -210,12 +179,23 @@ export const OrderInfo = () => {
                         </div>
 
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4">Отклики ({order.responsesCount})</h2>
-                            <div className="text-center py-12">
-                                <div className="text-5xl mb-4">💬</div>
-                                <p className="text-gray-600">Откликов пока нет</p>
-                                <p className="text-sm text-gray-500 mt-1">Станьте первым исполнителем</p>
-                            </div>
+                            {(responses && responses.length !== 0) ? (
+                                <div>
+                                    {responses.map(response => (
+                                        <ResponseCard 
+                                            key={response.id} 
+                                            response={response}
+                                            freelancer={freelancers?.find(f => f.id === response.freelancerId)}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12">
+                                    <div className="text-5xl mb-4">💬</div>
+                                    <p className="text-gray-600">Откликов пока нет</p>
+                                    <p className="text-sm text-gray-500 mt-1">Станьте первым исполнителем</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

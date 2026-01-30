@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Briefcase, FileText, DollarSign, Clock, Tag, Layers, ChevronDown, X, Plus } from 'lucide-react';
 import { CATEGORIES, allSkills } from '@/lib/constants';
+import { Preview, OrderTips } from '@/components/ui'
 
 interface FormData {
     title: string;
@@ -35,6 +36,7 @@ export const CreateOrder = () => {
     const [selectedSkills, setSelectedSkills] = useState<string[]>(initSelectedSkills);
     const [customSkill, setCustomSkill] = useState('');
     const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
     const [errors, setErrors] = useState<Partial<ErrorData>>({});
 
     const handleInputChange = (field: keyof FormData, value: string) => {
@@ -114,7 +116,7 @@ export const CreateOrder = () => {
                         </div>
 
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-                            Разместите свой проект
+                            Разместите свой заказ
                         </h1>
                         <p className="text-lg text-gray-600">
                             Опишите задачу детально, чтобы исполнители могли дать точную оценку
@@ -263,7 +265,7 @@ export const CreateOrder = () => {
                                             addCustomSkill();
                                         }
                                     }}
-                                    placeholder="Или д`обавьте свой навык"
+                                    placeholder="Или добавьте свой навык"
                                     className="flex-1 h-10 px-4 bg-white border border-gray-200 rounded-lg outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-md"
                                 />
                                 <button
@@ -358,33 +360,19 @@ export const CreateOrder = () => {
                             <button
                                 type="button"
                                 className="cursor-pointer h-14 px-6 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-indigo-200 hover:text-indigo-700 transition-all"
+                                onClick={() => setShowPreview(true)}
                             >
                                 Предпросмотр
                             </button>
                         </div>
                     </form>
-
-                    <div className="mt-6 bg-blue-50/70 backdrop-blur-sm border border-blue-100 rounded-2xl p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-3">💡 Советы для успешного заказа</h3>
-                        <ul className="space-y-2 text-sm text-gray-700">
-                            <li className="flex items-start gap-2">
-                                <span className="text-blue-600 mt-0.5">•</span>
-                                <span><strong>Будьте конкретны:</strong> Чем детальнее описание, тем точнее будут предложения исполнителей</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-blue-600 mt-0.5">•</span>
-                                <span><strong>Укажите референсы:</strong> Примеры похожих работ помогут понять вашу задачу</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-blue-600 mt-0.5">•</span>
-                                <span><strong>Реалистичный бюджет:</strong> Адекватная оценка увеличит количество откликов</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-blue-600 mt-0.5">•</span>
-                                <span><strong>Выбирайте навыки:</strong> Это поможет найти специалистов с нужной экспертизой</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <OrderTips />
+                    {showPreview && (
+                        <Preview  
+                            onClose={() => setShowPreview(false)} 
+                            data={{...formData, skills: selectedSkills}} 
+                        />
+                    )}
                 </div>
             </section>
         </div>

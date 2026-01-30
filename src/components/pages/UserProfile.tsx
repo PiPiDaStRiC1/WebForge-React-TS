@@ -211,8 +211,8 @@ export const UserProfile = () => {
                                 )}
 
                                 <div className="flex items-center justify-between">
-                                    <div className="flex flex-col gap-3">
-                                        <div className='flex gap-5 items-center'>
+                                    <div className="flex flex-col gap-2">
+                                        <div className='flex gap-3 items-center'>
                                             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
                                                 <PhoneIcon size={20} />
                                             </div>
@@ -220,7 +220,7 @@ export const UserProfile = () => {
                                                 {data.phone}
                                             </a>
                                         </div>
-                                        <div className='flex gap-5 items-center'>
+                                        <div className='flex gap-3 items-center'>
                                             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
                                                 <Mail size={20} />
                                             </div>
@@ -266,7 +266,7 @@ export const UserProfile = () => {
                         {isFreelancer && (
                             <>
                                 <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
-                                    <h2 className="text-lg font-bold text-gray-900 mb-4">Завершенные проекты</h2>
+                                    <h2 className="text-lg font-bold text-gray-900 mb-4">Завершенные проекты <span>({userOrders.length})</span></h2>
                                     {isLoadingOrders ? (
                                         <div className="space-y-3">
                                             {[...Array(3)].map((_, i) => (
@@ -276,7 +276,7 @@ export const UserProfile = () => {
                                     ) : isErrorOrders ? (
                                         <ErrorAlert message="Не удалось загрузить проекты" />
                                     ) : userOrders.length > 0 ? (
-                                        <div className="space-y-3">
+                                        <div className="space-y-3 max-h-[27rem] overflow-y-scroll">
                                             {userOrders.map(order => (
                                                 <OrderCardSmall key={order.id} order={order} />
                                             ))}
@@ -290,14 +290,14 @@ export const UserProfile = () => {
                                     )}
                                 </div>
 
-                                <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
+                                {/* <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
                                     <h2 className="text-lg font-bold text-gray-900 mb-4">Отзывы</h2>
                                     <div className="text-center py-12">
                                         <div className="text-5xl mb-4">💬</div>
                                         <p className="text-gray-600">Отзывов пока нет</p>
                                         <p className="text-sm text-gray-500 mt-1">Станьте первым, кто оставит отзыв</p>
                                     </div>
-                                </div>
+                                </div> */}
                             </>
                         )}
                     </div>

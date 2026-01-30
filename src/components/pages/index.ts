@@ -10,3 +10,4 @@ export * from './Orders';
 export * from './UserProfile';
 export * from './OrderInfo';
 export * from './CreateOrder';
+export * from './NotFound';

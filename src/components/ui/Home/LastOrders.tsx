@@ -1,10 +1,24 @@
 import { Link } from "react-router-dom";
-import {ArrowRight} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { useQuery } from "@tanstack/react-query";
+import { fetchLastOrders } from '@/lib/api/fetchLastOrders';
+import type { Order } from '@/types';
+import { HomeOrdersPreloader } from "@/components/common";
 
 export const LastOrders = () => {
+
+    const {data: lastOrders, isLoading} = useQuery<Order[]>({
+        queryKey: ['orders', 'last'],
+        queryFn: () => fetchLastOrders(3),
+        staleTime: 5 * 60 * 1000,
+    });
+
+    if (!lastOrders || lastOrders.length === 0) {
+        return null;
+    }
     
     return (
-        <section className="py-16">
+        <div className="py-16">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">Последние заказы</h2>
@@ -15,61 +29,43 @@ export const LastOrders = () => {
                 </Link>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start justify-between mb-4">
-                        <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg">
-                            Frontend
-                        </span>
-                        <span className="text-sm text-gray-500">2 часа назад</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        Разработка лендинга для стартапа
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Нужен современный лендинг на React с анимациями. Дизайн готов в Figma.
-                    </p>
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="text-xl font-bold text-gray-900">₽25,000</div>
-                        <div className="text-sm text-gray-500">3 отклика</div>
-                    </div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start justify-between mb-4">
-                        <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg">
-                            Backend
-                        </span>
-                        <span className="text-sm text-gray-500">5 часов назад</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        API для мобильного приложения
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Требуется REST API на Node.js + PostgreSQL. Интеграция с платежной системой.
-                    </p>
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="text-xl font-bold text-gray-900">₽40,000</div>
-                        <div className="text-sm text-gray-500">7 откликов</div>
-                    </div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start justify-between mb-4">
-                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-lg">
-                            SEO
-                        </span>
-                        <span className="text-sm text-gray-500">1 день назад</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        Продвижение интернет-магазина
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        SEO-оптимизация и продвижение в Яндекс и Google. Магазин на WooCommerce.
-                    </p>
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="text-xl font-bold text-gray-900">₽30,000</div>
-                        <div className="text-sm text-gray-500">5 откликов</div>
-                    </div>
-                </div>
+                {isLoading ? (
+                    <>
+                    {Array.from({length: 3}, (_, i) => (
+                        <HomeOrdersPreloader key={i} />
+                    ))}
+                    </>
+                ) : (
+                    <>
+                        {lastOrders.map((order) => (
+                            <Link 
+                                to={`/orders/${order.id}`} 
+                                key={order.id}
+                            >
+                                <div className="bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg">
+                                            {order.category}
+                                        </span>
+                                        <span className="text-sm text-gray-500">
+                                            {new Date(order.createdAt).toLocaleDateString('ru-RU')}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                                        {order.title}
+                                    </h3>
+                                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                                        {order.description}
+                                    </p>
+                                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                                        <div className="text-xl font-bold text-gray-900">{order.budgetMax.toLocaleString()}₽</div>
+                                    </div>
+                                </div>
+                            </Link>
+                            ))}
+                    </>
+                )}
             </div>
-        </section>
+        </div>
     )
 }

@@ -224,7 +224,6 @@ export const Orders = () => {
                                                         return <OrderCard 
                                                                     key={order.id} 
                                                                     order={order}
-                                                                    animDelay={index}
                                                                     ref={isLast ? currentListElRef : null}
                                                                 />
                                                     })}

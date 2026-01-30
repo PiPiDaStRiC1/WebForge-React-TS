@@ -1,5 +1,5 @@
 import MainImg from '@/assets/Home/main-image.png'
-import { Search, Zap} from "lucide-react"
+import { Zap } from "lucide-react"
 
 export const Hero = () => {
     return (
@@ -25,20 +25,6 @@ export const Hero = () => {
                         <p className="text-lg lg:text-xl text-gray-600 mb-8">
                             Фриланс-платформа для веб-проектов. Frontend, Backend, SEO и все, что нужно для вашего сайта.
                         </p>
-                        
-                        <div className="flex gap-3 mb-6">
-                            <div className="flex-1 relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                <input
-                                    type="text"
-                                    placeholder="Найти заказ или исполнителя..."
-                                    className="w-full h-14 pl-12 pr-4 text-gray-900 bg-white rounded-xl border border-gray-200 shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                                />
-                            </div>
-                            <button className="px-8 h-14 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-500/40 transition-all">
-                                Найти
-                            </button>
-                        </div>
 
                         <div className="flex gap-8 text-sm">
                             <div>
