@@ -1,2 +1,1 @@
-export * from './Preview';
-export * from './OrderTips';    
+export * from './Preview';    

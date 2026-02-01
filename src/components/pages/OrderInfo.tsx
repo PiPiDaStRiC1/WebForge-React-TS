@@ -5,7 +5,7 @@ import { fetchOneOrder } from '@/lib/api/fetchOneOrder';
 import { fetchOneUser } from '@/lib/api/fetchOneUser';
 import { fetchResponses } from '@/lib/api/fetchResponses';
 import { fetchAllFreelancers } from '@/lib/api/fetchAllFreelancers';
-import { ErrorAlert } from '@/features';
+import { ErrorAlert } from '@/components/common';
 import { Preloader } from '@/components/common';
 import type { Order, Client, Freelancer, OrderResponse } from '@/types';
 import { ClientCard, ResponseCard } from '@/components/ui'
@@ -180,7 +180,7 @@ export const OrderInfo = () => {
 
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
                             {(responses && responses.length !== 0) ? (
-                                <div>
+                                <div className='max-h-[28rem] overflow-y-auto'>
                                     {responses.map(response => (
                                         <ResponseCard 
                                             key={response.id} 

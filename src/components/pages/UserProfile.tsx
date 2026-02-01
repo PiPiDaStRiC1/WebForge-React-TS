@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { fetchOneUser } from '@/lib/api/fetchOneUser';
 import {fetchAllOrders} from '@/lib/api/fetchAllOrders';
 import type {Client, Freelancer} from '@/types'
-import {ErrorAlert} from '@/features/ErrorAlert'
+import {ErrorAlert} from '@/components/common/ErrorAlert'
 import {UserProfileSkeleton, OrderCardSmall} from '@/components/ui';
 import { OrderCardSkeleton } from '@/components/common'
 import { useMemo, useState } from 'react';

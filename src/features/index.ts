@@ -1,2 +1,2 @@
-export * from '../components/common/Preloader';
-export * from './ErrorAlert';
+export * from './ProtectedRoute';
+export * from './PublicRoute';

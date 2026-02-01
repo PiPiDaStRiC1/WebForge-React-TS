@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Preloader, ErrorAlert } from '@/features';
+import { Preloader, ErrorAlert } from '@/components/common';
 import { useQuery } from '@tanstack/react-query';
 import {useFilters} from '@/hooks';
 import {AsideFilter, OrderCard} from '@/components/ui';

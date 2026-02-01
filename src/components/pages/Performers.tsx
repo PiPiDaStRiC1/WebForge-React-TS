@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown, X } from 'lucide-react';
-import { Preloader, ErrorAlert } from '@/features'
+import { Preloader, ErrorAlert } from '@/components/common'
 import {AsideFilters, UserCard} from '@/components/ui/Performers';
 import {useFilters, useFreelancerSort, type SortOption} from '@/hooks/index'
 import {fetchAllFreelancers} from '@/lib/api/fetchAllFreelancers';

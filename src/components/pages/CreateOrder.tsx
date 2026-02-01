@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Briefcase, FileText, DollarSign, Clock, Tag, Layers, ChevronDown, X, Plus } from 'lucide-react';
 import { CATEGORIES, allSkills } from '@/lib/constants';
-import { Preview, OrderTips } from '@/components/ui'
+import { Preview } from '@/components/ui'
 
 interface FormData {
     title: string;
@@ -18,6 +18,15 @@ interface ErrorData extends FormData {
 
 const BASE_CATEGORY = 'web-dev';
 
+const initialFormData: FormData = {
+    title: '',
+    description: '',
+    category: BASE_CATEGORY,
+    budgetMin: '',
+    budgetMax: '',
+    deadline: '',
+}
+
 const initSelectedSkills = () => {
     const category = BASE_CATEGORY;
     return CATEGORIES.find(cat => cat.id === category)?.subcategories || [];
@@ -25,14 +34,7 @@ const initSelectedSkills = () => {
 
 export const CreateOrder = () => {
     // ВОЗМОЖНО СДЕЛАТЬ ЧЕРЕЗ useRecuder
-    const [formData, setFormData] = useState<FormData>({
-        title: '',
-        description: '',
-        category: BASE_CATEGORY,
-        budgetMin: '',
-        budgetMax: '',
-        deadline: '',
-    });
+    const [formData, setFormData] = useState<FormData>(initialFormData);
     
     const [selectedSkills, setSelectedSkills] = useState<string[]>(initSelectedSkills);
     const [customSkill, setCustomSkill] = useState('');
@@ -367,7 +369,6 @@ export const CreateOrder = () => {
                             </button>
                         </div>
                     </form>
-                    <OrderTips />
                     {showPreview && (
                         <Preview  
                             onClose={() => setShowPreview(false)} 

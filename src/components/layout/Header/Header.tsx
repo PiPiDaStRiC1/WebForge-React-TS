@@ -1,16 +1,18 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, User, ChevronDown, X } from 'lucide-react';
+import { Search, User, ChevronDown, X, Bell, MessageSquare, UserX } from 'lucide-react';
 import { Logo } from '@/components/common/index'
 import { AboutUsers, Support } from './index'
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllOrders } from '@/lib/api/fetchAllOrders';
 import type { Order } from '@/types';
+import { useUser } from "@/hooks";
 
 
 export const Header = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { isAuthenticated, error } = useUser();
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUsersOpen, setIsUsersOpen] = useState(false);
@@ -193,21 +195,39 @@ export const Header = () => {
                     )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* <Link to="/notifications" className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors">
-                        <Bell size={20} />
-                    </Link>
-                    <Link to="/messages" className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors">
-                        <MessageSquare size={20} />
-                    </Link> */}
-                    <button 
-                        className="cursor-pointer flex items-center gap-2 py-1.5 px-3 pl-1.5 hover:bg-gray-50 rounded-xl transition-colors"
-                        onClick={() => navigate('/auth', {state: { background: location }})}
-                    >
-                        <div className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
-                            <User size={18} />
-                        </div>
-                        <span className="text-[15px] font-semibold text-gray-900 hidden md:block">Войти</span>
-                    </button>
+                    {isAuthenticated ? (
+                        <>
+                            <Link to="/notifications" className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors">
+                                <Bell size={20} />
+                            </Link>
+                            <Link to="/messages" className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors">
+                                <MessageSquare size={20} />
+                            </Link>
+                            <Link to='/my-profile' className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
+                                <User size={18} />
+                            </Link>
+                        </>
+                    ) : error ? (
+                        <button 
+                            className="cursor-pointer flex items-center gap-2 py-1.5 px-3 pl-1.5 hover:bg-gray-50 rounded-xl transition-colors"
+                            onClick={() => navigate('/auth', {state: { background: location }})}
+                        >
+                            <div className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
+                                <UserX size={18} />
+                            </div>
+                            <span className="text-[15px] font-semibold text-gray-900 hidden md:block">Войти</span>
+                        </button>
+                    ) : (
+                        <button 
+                            className="cursor-pointer flex items-center gap-2 py-1.5 px-3 pl-1.5 hover:bg-gray-50 rounded-xl transition-colors"
+                            onClick={() => navigate('/auth', {state: { background: location }})}
+                        >
+                            <div className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
+                                <User size={18} />
+                            </div>
+                            <span className="text-[15px] font-semibold text-gray-900 hidden md:block">Войти</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </header>

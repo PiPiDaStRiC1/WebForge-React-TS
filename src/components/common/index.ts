@@ -4,3 +4,4 @@ export * from './Preloader';
 export * from './UserCardPreloader';
 export * from './HomeOrdersPreloader';  
 export * from './OrderCardSkeleton';
+export * from './ErrorAlert';
