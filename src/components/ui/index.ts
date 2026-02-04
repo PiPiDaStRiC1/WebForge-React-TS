@@ -5,4 +5,4 @@ export { TopUserCard, OtherUserCard } from './TopPerformers';
 export { Preview } from './CreateOrder';
 export { ClientCard, ResponseCard } from './OrderInfo';
 export { AuthTab, RegisterTab } from './AuthModal';
-export { ProfileSkeleton, SettingsProfile, VerificationProfile } from './MyProfile';
+export { ProfileSkeleton, SettingsTab, VerificationProfile, ProfileTab } from './MyProfile';

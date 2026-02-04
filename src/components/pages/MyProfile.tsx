@@ -1,22 +1,16 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/hooks';
-import { Camera, Mail, Code, Briefcase, DollarSign, MapPin, Globe, Settings, LogOut, User } from 'lucide-react';
-import { ProfileSkeleton, VerificationProfile, SettingsProfile } from '@/components/ui';
+import { useUser, useProfile } from '@/hooks';
+import { Camera, Mail, Code, Briefcase, Settings, LogOut, User } from 'lucide-react';
+import { ProfileSkeleton, SettingsTab, ProfileTab } from '@/components/ui';
 import { ErrorAlert } from '@/components/common';
 
 type TabType = 'profile' | 'settings';
 
 export const MyProfile = () => {
-    const navigate = useNavigate();
-    const {user, error, logOutUser} = useUser();
-    const [isEditing, setIsEditing] = useState(false);
+    const { user, error } = useUser();
+    const { handleLogOut } = useProfile();
     const [activeTab, setActiveTab] = useState<TabType>('profile');
     
-    const handleSave = () => {
-        localStorage.setItem('user-data', JSON.stringify(user));
-        setIsEditing(false);
-    };
 
     if (error) {
         return <ErrorAlert />
@@ -70,22 +64,14 @@ export const MyProfile = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                                        className="cursor-pointer px-4 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
-                                    >
-                                        {isEditing ? 'Сохранить' : 'Редактировать'}
-                                    </button>
-                                    <button
-                                        onClick={logOutUser}
-                                        className="cursor-pointer px-4 py-2 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
-                                        title="Выйти"
-                                    >
-                                        <LogOut size={18} />
-                                        <span>Выйти</span>
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleLogOut}
+                                    className="cursor-pointer px-4 py-2 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
+                                    title="Выйти"
+                                >
+                                    <LogOut size={18} />
+                                    <span>Выйти</span>
+                                </button>
                             </div>
 
                             <div className="flex items-center gap-2 text-gray-600">
@@ -122,157 +108,9 @@ export const MyProfile = () => {
                 </div>
 
                 {activeTab === 'profile' ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">О себе</h2>
-                            {isEditing ? (
-                                <textarea
-                                    placeholder="Расскажите о себе, своем опыте и навыках..."
-                                    className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                    defaultValue="Добро пожаловать! Заполните информацию о себе."
-                                />
-                            ) : (
-                                <p className="text-gray-600">
-                                    Добро пожаловать! Заполните информацию о себе.
-                                </p>
-                            )}
-                        </div>
-
-                        {user.role === 'freelancer' ? (
-                            <>
-                                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4">Навыки</h2>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            placeholder="React, TypeScript, Node.js..."
-                                            className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                        />
-                                    ) : (
-                                        <div className="flex flex-wrap gap-2">
-                                            <span className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm">
-                                                Добавьте навыки
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4">Портфолио</h2>
-                                    <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
-                                        <p className="text-gray-500">Добавьте свои работы</p>
-                                        <button className="mt-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                                            Загрузить проект
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4">Активные заказы</h2>
-                                    <div className="text-center py-12">
-                                        <p className="text-gray-500 mb-4">У вас пока нет активных заказов</p>
-                                        <button
-                                            onClick={() => navigate('/create-order')}
-                                            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
-                                        >
-                                            Создать заказ
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    <div className="space-y-6">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Статистика</h3>
-                            <div className="space-y-4">
-                                {user.role === 'freelancer' ? (
-                                    <>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-600">Выполнено заказов</span>
-                                            <span className="text-lg font-bold text-gray-900">0</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-600">Рейтинг</span>
-                                            <span className="text-lg font-bold text-gray-900">—</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-600">Заработано</span>
-                                            <span className="text-lg font-bold text-gray-900">0 ₽</span>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-600">Размещено заказов</span>
-                                            <span className="text-lg font-bold text-gray-900">0</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-600">Потрачено</span>
-                                            <span className="text-lg font-bold text-gray-900">0 ₽</span>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Дополнительно</h3>
-                            <div className="space-y-3">
-                                {isEditing ? (
-                                    <>
-                                        <div>
-                                            <label className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                                                <MapPin size={14} />
-                                                Локация
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Город, Страна"
-                                                className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                                                <Globe size={14} />
-                                                Веб-сайт
-                                            </label>
-                                            <input
-                                                type="url"
-                                                placeholder="https://example.com"
-                                                className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                            />
-                                        </div>
-                                        {user.role === 'freelancer' && (
-                                            <div>
-                                                <label className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                                                    <DollarSign size={14} />
-                                                    Ставка в час
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    placeholder="1000"
-                                                    className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                                />
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="text-sm text-gray-500">
-                                        Заполните дополнительную информацию
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        <VerificationProfile />
-                    </div>
-                </div>
+                    <ProfileTab />
                 ) : (
-                    <SettingsProfile />
+                    <SettingsTab />
                 )}
             </div>
         </div>

@@ -11,15 +11,58 @@ export const UserProvider = ({children}: UserProviderProps) => {
     const [error, setError] = useState<Error | null>(null);
     const isAuthenticated = !!userData;
 
+    const changeUserData = useCallback(async <T extends keyof UserData>(changes : [T, UserData[T]][], signal: AbortSignal) => {
+        await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                setUserData(prev => {
+                    if (!prev) return prev;
+                    const newUserData = { ...prev };
+        
+                    changes.forEach(([field, value]) => {
+                        newUserData[field] = value;
+                    });
+        
+                    return newUserData;
+                });
+                resolve(true);
+            }, 1500);
+
+            if (signal) {
+                if (signal.aborted) {
+                    clearTimeout(timeout);
+                    reject(new DOMException('Aborted', 'AbortError'));
+                    return;
+                }
+
+                signal.addEventListener('abort', () => {
+                    clearTimeout(timeout);
+                    reject(new DOMException('Aborted', 'AbortError'));
+                }, {once: true} );
+            }
+        })
+    }, []);
+
     const registerUser = useCallback((userData: UserData) => {
         setUserData(userData);
-        localStorage.setItem('user-data', JSON.stringify(userData));
     }, []);
 
     const logOutUser = useCallback(() => {
-        localStorage.removeItem('user-data');
         setUserData(null);
-        window.location.href = '/';
+    }, []);
+
+    const logInUser = useCallback((email: string) => {
+        const raw = localStorage.getItem('user-data');
+        if (!raw) throw new Error('Неверно указан email или пароль');
+        
+        const parsed: UserData = JSON.parse(raw);
+        if (parsed.email !== email) throw new Error('Неверно указан email или пароль');
+          
+        setUserData(parsed);
+    }, []);
+
+    const deleteUser = useCallback(() => {
+        setUserData(null);
+        localStorage.removeItem('user-data');
     }, []);
 
     // подготовка для бекенда
@@ -35,13 +78,22 @@ export const UserProvider = ({children}: UserProviderProps) => {
         } 
     }, []);
 
+    useEffect(() => {
+        if (userData) {
+            localStorage.setItem('user-data', JSON.stringify(userData));
+        }
+    }, [userData]);
+
     const value: UserContextType = useMemo(() => ({
         user: userData,
         error,
         isAuthenticated,
         registerUser,
-        logOutUser
-    }), [userData, error, isAuthenticated, registerUser, logOutUser]);
+        logOutUser,
+        logInUser,
+        deleteUser,
+        changeUserData
+    }), [userData, error, isAuthenticated, registerUser, logOutUser, logInUser, deleteUser, changeUserData]);
     
     return (
         <UserContext.Provider value={value}>

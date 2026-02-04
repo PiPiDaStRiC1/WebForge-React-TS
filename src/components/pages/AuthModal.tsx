@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuthTab, RegisterTab } from '@/components/ui';
 import { emailRegExp, nameRegExp, passwordRegExp } from '@/lib/constants/regExpFormValidation';
-import type { FormData } from '@/types';
+import type { FormData, UserData } from '@/types';
 import toast from 'react-hot-toast';
 import { useUser } from '@/hooks';
 
@@ -28,11 +28,13 @@ const initialFormData: FormData = {
     confirmPassword: '',
 };
 
+const LOG_TIMER = 1500;
+
 // УБРАТЬ confirmPassword ИЗ СОХРАНЕНИЯ В LOCALSTORAGE
 
 export const AuthModal = () => {
     const navigate = useNavigate();
-    const { registerUser } = useUser();
+    const { registerUser, logInUser } = useUser();
     const [activeTab, setActiveTab] = useState<TabType>('login');
     const [selectedRole, setSelectedRole] = useState<RoleType>('freelancer');
     const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -57,40 +59,64 @@ export const AuthModal = () => {
 
         if (activeTab === 'register' && isRegisterTabValid) {
             try {
-                await new Promise((resolve) => setTimeout(resolve, 1500));
+                await new Promise((resolve) => setTimeout(resolve, LOG_TIMER));
     
-                // const userId = crypto.randomUUID();
                 const hashedPass = await hashPassword(formData.password);
                 const createdAt = new Date().toLocaleDateString('ru-RU');
+                // eslint-disable-next-line
+                const {confirmPassword, ...restFormData} = formData;
 
-                const userData = {
-                    ...formData, 
+                const userData: UserData = selectedRole === 'freelancer' ? {
+                    ...restFormData, 
                     password: hashedPass, 
-                    role: selectedRole,
-                    createdAt
+                    role: 'freelancer',
+                    createdAt,
+                    status: 'unverified',
+                    bio: '',
+                    location: '',
+                    website: '',
+                    skills: [],
+                    hourlyRate: null,
+                    rating: 0,
+                    completedOrders: 0,
+                    earning: 0,
+                    experience: 0,
+                } : {
+                    ...restFormData, 
+                    password: hashedPass, 
+                    role: 'client',
+                    createdAt,
+                    status: 'unverified',
+                    bio: '',
+                    location: '',
+                    website: '',
+                    placedOrders: 0,
+                    spending: 0,
                 }
-                
+
+                 
                 registerUser(userData);
                 toast.success("Успешно!");
                 navigate('/my-profile');
             } catch (error) {
-                console.error(error);
-                toast.error('Ошибка при создании аккаунта. Пожалуйста, попробуйте еще раз.');
+                toast.error(error instanceof Error ? error.message : 'Ошибка при создании аккаунта. Пожалуйста, попробуйте еще раз.');
+            } finally {
+                setLoadingSubmit(false);
             }
-
         } else if (activeTab === 'login' && isLoginTabValid) {
             try {
-                await new Promise((resolve) => setTimeout(resolve, 1500));
+                await new Promise((resolve) => setTimeout(resolve, LOG_TIMER));
     
-                // Проверка, что аккаунт юзера уже есть
+                logInUser(formData.email);
+                toast.success("Успешно!");
+                navigate('/my-profile');
     
             } catch (error) {
-                console.error(error);
-                toast.error('Ошибка при создании аккаунта. Пожалуйста, попробуйте еще раз.');
+                toast.error(error instanceof Error ? error.message : 'Ошибка при входе. Пожалуйста, попробуйте еще раз.');
+            } finally {
+                setLoadingSubmit(false);
             }
         }
-
-        setLoadingSubmit(false);
     };
 
     const handleInputChange = (field: keyof FormData, value: string) => {

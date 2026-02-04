@@ -1,3 +1,4 @@
 export * from './ProfileSkeleton';
-export * from './SettingProfile';;
-export * from './VerificationProfile';
+export * from './SettingsTab';
+export * from './ProfileTab/VerificationProfile';
+export * from './ProfileTab/ProfileTab';    

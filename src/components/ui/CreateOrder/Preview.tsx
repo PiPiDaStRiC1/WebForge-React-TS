@@ -133,12 +133,6 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
                         >
                             Вернуться к редактированию
                         </button>
-                        <button
-                            type="button"
-                            className="cursor-pointer flex-1 h-12 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
-                        >
-                            Опубликовать заказ
-                        </button>
                     </div>
                 </div>
             </div>

@@ -21,11 +21,7 @@ export const ProfileSkeleton = () => {
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                             <div className="h-6 bg-gray-200 rounded w-24 mb-4" />
-                            <div className="space-y-2">
-                                <div className="h-4 bg-gray-200 rounded w-full" />
-                                <div className="h-4 bg-gray-200 rounded w-5/6" />
-                                <div className="h-4 bg-gray-200 rounded w-4/6" />
-                            </div>
+                            <div className="h-25 bg-gray-200 rounded w-full" />
                         </div>
 
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -64,10 +60,7 @@ export const ProfileSkeleton = () => {
 
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                             <div className="h-6 bg-gray-200 rounded w-32 mb-4" />
-                            <div className="space-y-3">
-                                <div className="h-4 bg-gray-200 rounded w-full" />
-                                <div className="h-4 bg-gray-200 rounded w-5/6" />
-                            </div>
+                            <div className="h-25 bg-gray-200 rounded w-full" />
                         </div>
 
                         <div className="bg-gray-200 rounded-2xl p-6">

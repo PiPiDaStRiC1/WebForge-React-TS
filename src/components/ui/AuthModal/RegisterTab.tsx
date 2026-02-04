@@ -214,7 +214,7 @@ export const RegisterTab = ({ formData, handleChange, selectedRole, setSelectedR
                 {loadingSubmit ? (
                     <button
                         type="button"
-                        className="cursor-pointer w-full mt-4 h-11 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="cursor-pointer w-full mt-4 h-11 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 opacity-50"
                     >
                         <div className="w-7 h-7 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
                     </button>

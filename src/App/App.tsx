@@ -7,7 +7,11 @@ import { UserProvider } from '@/contexts';
 import { Toaster } from 'react-hot-toast';
 
 // Lazy imports later
-// Maybe do separated page for auth
+// TODO:
+// 1) Сделать отдельную страницу для auth
+// 2) Возможно убрать логику 2 флагов для сохранения и изменения (isEditing, isSaving), а также сделать так, чтобы, если изменения
+// полей не произошли, то сохранения, а значит и задержки не будет
+// 3)
 
 function App() {
   const location = useLocation();
@@ -33,7 +37,7 @@ function App() {
             <Route path="/guides" element={<Guides />} />
             <Route path="/terms" element={<Terms />}/>
             <Route path="/privacy" element={<Privacy />}/>
-            <Route path="create-order" element={<ProtectedRoute><CreateOrder /></ProtectedRoute>}/>
+            <Route path="/create-order" element={<ProtectedRoute><CreateOrder /></ProtectedRoute>}/>
             <Route path="/auth" element={<PublicRoute><AuthModal /></PublicRoute>} />
             <Route path="*" element={<NotFound />}/>
           </Route>

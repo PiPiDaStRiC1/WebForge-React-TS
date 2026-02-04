@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
     <StrictMode>
-      <BrowserRouter>
+      <BrowserRouter basename='/WebForge-React-TS/'>
         <App />
       </BrowserRouter>
     </StrictMode>

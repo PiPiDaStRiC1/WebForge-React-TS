@@ -12,7 +12,5 @@ export const PublicRoute = ({children}: PublicRouteProps) => {
         return <Navigate to='/my-profile' replace/>
     }
 
-    return (
-        <>{children}</>
-    )
+    return children;
 }

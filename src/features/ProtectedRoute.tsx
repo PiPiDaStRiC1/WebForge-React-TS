@@ -6,13 +6,12 @@ interface PublicRouteProps {
 }
 
 export const ProtectedRoute = ({children}: PublicRouteProps) => {
-    const { isAuthenticated } = useUser();
+    const { isAuthenticated, isLoadingLogOut } = useUser();
+    if (isLoadingLogOut) return null;
 
     if (!isAuthenticated) {
         return <Navigate to='/auth' replace/>
     }
 
-    return (
-        <>{children}</>
-    )
+    return children;
 }
