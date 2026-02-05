@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker';
-import {clients, freelancers} from './generateUsers.mjs'
+import { clientsById, freelancersById } from './generateUsers.mjs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const SEED = 'SEED1';
+const SEED = 12345;
 const ORDERS_COUNT = 1500;
 
 faker.seed(SEED);
@@ -67,32 +67,35 @@ const ORDERS_DESC = [
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function generateOrders(count) {
-    return Array.from({length: count}, (_, i) => {
-        const selectedClient = faker.helpers.arrayElement(clients);
+function generateOrders() {
+    return Object.fromEntries(Array.from({length: ORDERS_COUNT}, (_, i) => {
+        const selectedClient = faker.helpers.arrayElement(Object.values(clientsById));
         const selectedCategory = faker.helpers.arrayElement(CATEGORIES);
         const budgetMin = faker.number.int({min: 5000, max: 50000, multipleOf: 500});
         const budgetMax = faker.number.int({min: budgetMin + 5000, max: budgetMin + 100000, multipleOf: 500});
         const status = faker.helpers.arrayElement(['new', 'in-progress', 'completed', 'completed', 'completed']);
-        const selectedFreelancer = status === 'completed' ? faker.helpers.arrayElement(freelancers) : null;
+        const selectedFreelancer = status === 'completed' ? faker.helpers.arrayElement(Object.values(freelancersById)) : null;
         
-        return {
-            id: i + 1,
-            title: faker.helpers.arrayElement(ORDERS_TITLES),   
-            description: faker.helpers.arrayElement(ORDERS_DESC),
-            budgetMin: budgetMin,
-            budgetMax: budgetMax,
-            category: selectedCategory.id,
-            skills: faker.helpers.arrayElements(selectedCategory.subcategories, { min: 2, max: 4 }),
-            status: status,
-            deadline: faker.number.int({min: 3, max: 60}),
-            createdAt: faker.date.past({ years: 1 }).toISOString().split('T')[0],
-            clientId: selectedClient.id,
-            completedById: selectedFreelancer ? selectedFreelancer.id : null,
-        };
-    });
+        return [
+            i + 1, 
+            {
+                id: i + 1,
+                title: faker.helpers.arrayElement(ORDERS_TITLES),   
+                description: faker.helpers.arrayElement(ORDERS_DESC),
+                budgetMin: budgetMin,
+                budgetMax: budgetMax,
+                category: selectedCategory.id,
+                skills: faker.helpers.arrayElements(selectedCategory.subcategories, { min: 2, max: 4 }),
+                status: status,
+                deadline: faker.number.int({min: 3, max: 60}),
+                createdAt: faker.date.past({ years: 1 }).toISOString(),
+                clientId: selectedClient.id,
+                completedById: selectedFreelancer ? selectedFreelancer.id : null,
+            }
+        ]
+    }));
 }
 const outputPath = path.join(__dirname, '../src/lib/data/orders.json');
 
-export const orders = generateOrders(ORDERS_COUNT);
-fs.writeFileSync(outputPath, JSON.stringify({ orders }, null, 2), 'utf-8');
+export const orders = generateOrders();
+fs.writeFileSync(outputPath, JSON.stringify({ ordersById: orders, 'allIds':  Array.from({length: ORDERS_COUNT}, (_, i) => i + 1) }, null, 2), 'utf-8');

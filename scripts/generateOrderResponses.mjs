@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { freelancers } from './generateUsers.mjs';
+import { freelancersById } from './generateUsers.mjs';
 import { orders } from './generateOrders.mjs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const SEED = 'SEED1';
+const SEED = 12345;
 const RESPONSES_COUNT = 3000;
 
 faker.seed(SEED);
@@ -117,16 +117,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const generateOrderResponses = () => {
-    return Array.from({length: RESPONSES_COUNT}, (_, i) => ({
-        id: i + 1000,
-        text: faker.helpers.arrayElement(RESPONSES_TEXTS),
-        freelancerId: faker.helpers.arrayElement(freelancers).id,
-        orderId: faker.helpers.arrayElement(orders).id,
-        createdAt: faker.date.between({from: faker.helpers.arrayElement(orders).createdAt, to: new Date()}).toISOString(),
-    }));
+    return Object.fromEntries(Array.from({length: RESPONSES_COUNT}, (_, i) => ([
+        i + 1000, 
+        {
+            id: i + 1000,
+            text: faker.helpers.arrayElement(RESPONSES_TEXTS),
+            freelancerId: faker.helpers.arrayElement(Object.values(freelancersById)).id,
+            orderId: faker.helpers.arrayElement(Object.values(orders)).id,
+            createdAt: faker.date.between({from: new Date(faker.helpers.arrayElement(Object.values(orders)).createdAt), to: new Date()}).toISOString(),
+        }
+    ])));
 }
 
 
-const responses = generateOrderResponses(RESPONSES_COUNT);
+const responses = generateOrderResponses();
 const outputPath = path.join(__dirname, '../src/lib/data/orderResponses.json');
-fs.writeFileSync(outputPath, JSON.stringify({ orderResponses: responses }, null, 2), 'utf-8');
+fs.writeFileSync(outputPath, JSON.stringify({responsesById: responses, 'allIds': Array.from({length: RESPONSES_COUNT}, (_, i) => i + 1000)}, null, 2), 'utf-8');

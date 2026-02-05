@@ -5,7 +5,7 @@ import { AboutUsers, Support } from './index'
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllOrders } from '@/lib/api/fetchAllOrders';
-import type { Order } from '@/types';
+import type { OrdersData } from '@/types';
 import { useUser } from "@/hooks";
 
 
@@ -21,12 +21,12 @@ export const Header = () => {
     const usersRef = useRef<HTMLDivElement>(null);
     const supportRef = useRef<HTMLDivElement>(null);
 
-    const {data: orders} = useQuery<Order[]>({
+    const {data: orders} = useQuery<OrdersData>({
         queryKey: ['orders'],
         queryFn: fetchAllOrders,
     });
 
-    const filteredOrders = orders?.filter(order => 
+    const filteredOrders = orders?.allIds.map(orderId => orders.ordersById[orderId]).filter(order => 
         searchQuery.trim().length > 0 && (
             order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             order.description.toLowerCase().includes(searchQuery.toLowerCase())

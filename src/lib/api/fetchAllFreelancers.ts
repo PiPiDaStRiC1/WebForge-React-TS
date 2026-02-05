@@ -1,19 +1,25 @@
-import {freelancers} from '@/lib/data/users';
-import {allOrders} from '@/lib/data/orders'
-import type {Freelancer} from '@/types';
+import { getAllFreelancers, getAllOrders } from '@/lib/storage/dataStore';
+import type { FreelancersData, Freelancer } from '@/types';
 
 
-export async function fetchAllFreelancers(): Promise<Array<Freelancer>> {
+export async function fetchAllFreelancers(): Promise<FreelancersData> {
     await new Promise<boolean>((resolve) => {
         setTimeout(() => resolve(true), 300);
     });
+    const {freelancersById, allIds} = getAllFreelancers();
+    const {ordersById} = getAllOrders();
     
-    return freelancers.map((freelancer) => {
-        const completedOrders = allOrders.filter(order => order.completedById === freelancer.id).length;
+    const FreelancersWithCompletedOrders = allIds.reduce((acc, freelancerId) => {
+        const freelancer = freelancersById[freelancerId];
+        const completedOrders = Object.values(ordersById).filter(order => order.completedById === freelancer.id).length;
 
-        return {
+        acc[freelancerId] = {
             ...freelancer,
             completedOrders: completedOrders
-        }
-    })
+        };
+        
+        return acc;
+    }, {} as Record<string, Freelancer>);
+
+    return { freelancersById: FreelancersWithCompletedOrders, allIds };
 }

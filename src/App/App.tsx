@@ -11,8 +11,10 @@ import { Toaster } from 'react-hot-toast';
 // 1) Сделать отдельную страницу для auth
 // 2) Возможно убрать логику 2 флагов для сохранения и изменения (isEditing, isSaving), а также сделать так, чтобы, если изменения
 // полей не произошли, то сохранения, а значит и задержки не будет
-// 3)
+// 3) Добавить возможность смена роли аккаунта в настройки (client и freelancer)
 
+
+// добавить gender, ник (с @)
 function App() {
   const location = useLocation();
   const state = location.state as { background?: Location };

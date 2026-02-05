@@ -30,7 +30,6 @@ const initialFormData: FormData = {
 
 const LOG_TIMER = 1500;
 
-// УБРАТЬ confirmPassword ИЗ СОХРАНЕНИЯ В LOCALSTORAGE
 
 export const AuthModal = () => {
     const navigate = useNavigate();
@@ -61,37 +60,52 @@ export const AuthModal = () => {
             try {
                 await new Promise((resolve) => setTimeout(resolve, LOG_TIMER));
     
+                const userId = Math.floor(Math.random() * 1000000000);
                 const hashedPass = await hashPassword(formData.password);
-                const createdAt = new Date().toLocaleDateString('ru-RU');
+                const registeredAt = new Date().toLocaleDateString('ru-RU');
                 // eslint-disable-next-line
                 const {confirmPassword, ...restFormData} = formData;
 
                 const userData: UserData = selectedRole === 'freelancer' ? {
                     ...restFormData, 
+                    id: userId,
                     password: hashedPass, 
                     role: 'freelancer',
-                    createdAt,
+                    registeredAt,
                     status: 'unverified',
                     bio: '',
                     location: '',
-                    website: '',
                     skills: [],
-                    hourlyRate: null,
-                    rating: 0,
+                    pricePerHour: 0,
                     completedOrders: 0,
+                    rating: 0,
                     earning: 0,
                     experience: 0,
+                    category: 'web-dev',
+                    gender: 'male',
+                    login: `${formData.name.toLowerCase()}${formData.lastName.toLowerCase()}${userId.toString().slice(0, 3)}`,
+                    phone: '',
+                    picture: null,
                 } : {
                     ...restFormData, 
+                    id: userId,
                     password: hashedPass, 
                     role: 'client',
-                    createdAt,
+                    registeredAt,
                     status: 'unverified',
                     bio: '',
                     location: '',
-                    website: '',
                     placedOrders: 0,
                     spending: 0,
+                    gender: 'male',
+                    login: `${formData.name.toLowerCase()}${formData.lastName.toLowerCase()}${userId.toString().slice(0, 3)}`,
+                    phone: '',
+                    picture: null,
+                    category: null,
+                    experience: null,
+                    pricePerHour: null,
+                    rating: 0,
+                    skills: null,
                 }
 
                  

@@ -1,20 +1,23 @@
-import {allOrders} from '@/lib/data/orders';
-import {allOrderResponses} from '@/lib/data/ordersResponses'
-import type {Order} from '@/types'
+import { getAllResponses, getAllOrders } from '@/lib/storage/dataStore';
+import type { OrdersData } from '@/types';
 
-export const fetchAllOrders = async (): Promise<Array<Order>> => {
+export const fetchAllOrders = async (): Promise<OrdersData> => {
     await new Promise<boolean>((resolve) => {
         setTimeout(() => resolve(true), 300);
-    })
+    });
 
-    const ordersWithResponsesCount = allOrders.map(order => {
-        const responsesCount = allOrderResponses.filter(response => response.orderId === order.id).length;
+    const {ordersById, allIds} = getAllOrders();
+    const currentOrderResponses = getAllResponses();
+
+    const ordersWithResponsesCount = allIds.map(orderId => {
+        const order = ordersById[orderId];
+        const responsesCount = Object.values(currentOrderResponses.responsesById).filter(response => response.orderId === order.id).length;
 
         return {
             ...order,
             responsesCount: responsesCount
         }
     });
-    
-    return ordersWithResponsesCount
+
+    return { ordersById: Object.fromEntries(ordersWithResponsesCount.map(order => [order.id, order])), allIds };
 }

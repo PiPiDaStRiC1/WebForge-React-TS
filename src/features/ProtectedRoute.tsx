@@ -1,16 +1,15 @@
 import { useUser } from '@/hooks';
 import { Navigate } from 'react-router-dom';
 
-interface PublicRouteProps {
+interface ProtectedRouteProps {
     children: React.ReactNode;
 }
 
-export const ProtectedRoute = ({children}: PublicRouteProps) => {
-    const { isAuthenticated, isLoadingLogOut } = useUser();
-    if (isLoadingLogOut) return null;
+export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
+    const { isAuthenticated } = useUser();
 
     if (!isAuthenticated) {
-        return <Navigate to='/auth' replace/>
+        return <Navigate to='/auth' replace />
     }
 
     return children;

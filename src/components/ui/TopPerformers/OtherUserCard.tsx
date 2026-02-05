@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
 import { AvatarPreloader } from '@/components/common';
 import type { Freelancer } from '@/types';
@@ -16,7 +17,10 @@ export const OtherUserCard = ({performer, index}: OtherUserCard) => {
             className="cursor-pointer bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 animate-slide-in-left"
             style={{ animationDelay: `${600 + (index * 100)}ms` }}
         >
-            <div className="relative flex justify-center items-center mb-4">
+            <Link 
+                to={`/profile/${performer.id}`}
+                className="relative flex justify-center items-center mb-4"
+            >
                 {isLoadingAvatar && <AvatarPreloader />}
                 <img
                     loading='lazy'
@@ -25,10 +29,15 @@ export const OtherUserCard = ({performer, index}: OtherUserCard) => {
                     className="w-16 h-16 rounded-full mx-auto"
                     onLoad={() => setIsLoadingAvatar(false)}
                 />
-            </div>
+            </Link>
             <div className="text-center">
                 <h3 className="font-bold text-gray-900 mb-1">{performer.name}</h3>
-                <p className="text-sm text-gray-600 mb-3">{performer.login}</p>
+                <Link 
+                    to={`/profile/${performer.id}`}
+                    className="text-sm text-gray-500 hover:underline mb-2 inline-block"
+                >
+                    @{performer.login}
+                </Link>
                 
                 <div className="flex items-center justify-center gap-1 text-yellow-500 mb-2">
                     <Star size={14} fill="currentColor" />

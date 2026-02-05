@@ -1,17 +1,10 @@
 import { X, Clock, Calendar, Briefcase, DollarSign, MessageCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import type { OrderFormData } from '@/components/pages/CreateOrder';
 
 interface PreviewProps {
     onClose: () => void;
-    data: {
-        title: string;
-        description: string;
-        category: string;
-        budgetMin: string;
-        budgetMax: string;
-        deadline: string;
-        skills: string[];
-    };
+    data: OrderFormData
 }
 
 export const Preview = ({ onClose, data }: PreviewProps) => {
@@ -26,6 +19,14 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
             document.body.removeEventListener('keydown', handleEscape);
         }
     });
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        
+        return () => {
+            document.body.style.overflow = '';
+        }
+    })
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
@@ -82,7 +83,7 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
                             Описание задачи будет здесь...
                         </p>
 
-                        {data.skills.length > 0 && (
+                        {data.skills && data.skills.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {data.skills.map(skill => (
                                     <span

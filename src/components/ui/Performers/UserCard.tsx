@@ -18,12 +18,25 @@ export const UserCard = memo(({user}: UserCardProps) => {
                     <div className="relative flex-shrink-0">
                         {isLoadingAvatar && <AvatarPreloader />}
                         <Link to={`/profile/${user.id}`}>
-                            <img
-                                src={user.picture.medium}
-                                alt={user.name}
-                                className="cursor-pointer w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
-                                onLoad={() => setIsLoadingAvatar(false)}
-                            />
+                            {user.picture ? (
+                                <>
+                                    <img
+                                        src={user.picture.medium}
+                                        alt={`${user.name} ${user.lastName}`}
+                                        className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform"
+                                        onLoad={() => setIsLoadingAvatar(false)}
+                                    />
+                                    {!isLoadingAvatar && user.status === 'verified' && (
+                                        <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
+                                            <BadgeCheck size={14} className="text-white" />
+                                        </span>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                            )}
                         </Link>
                         {!isLoadingAvatar && user.status === 'verified' && (
                             <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
@@ -33,7 +46,7 @@ export const UserCard = memo(({user}: UserCardProps) => {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-bold text-gray-900">{user.name}</h3>
+                        <h3 className="text-base font-bold text-gray-900">{user.name} {user.lastName}</h3>
                         <h4 className='text-gray-600 text-[0.8rem] mb-1'>@{user.login}</h4>
                         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-600">
                             <MapPin size={12} className="text-gray-400 flex-shrink-0" />

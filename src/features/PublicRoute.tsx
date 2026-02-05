@@ -1,5 +1,5 @@
 import { useUser } from '@/hooks';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 interface PublicRouteProps {
     children: React.ReactNode;
@@ -7,9 +7,11 @@ interface PublicRouteProps {
 
 export const PublicRoute = ({children}: PublicRouteProps) => {
     const { isAuthenticated } = useUser();
+    const location = useLocation()
+    const state = location.state as { background?: Location, redirectTo?: string };
 
     if (isAuthenticated) {
-        return <Navigate to='/my-profile' replace/>
+        return <Navigate to={state?.redirectTo || '/my-profile'} replace/>
     }
 
     return children;

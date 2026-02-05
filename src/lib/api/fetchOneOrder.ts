@@ -1,4 +1,4 @@
-import {allOrders} from '@/lib/data/orders'
+import { getAllOrders } from '@/lib/storage/dataStore';
 import type {Order} from '@/types';
 
 export const fetchOneOrder = async (orderId: number): Promise<Order | undefined> => {
@@ -6,5 +6,7 @@ export const fetchOneOrder = async (orderId: number): Promise<Order | undefined>
         setTimeout(() => resolve(true), 300)
     });
 
-    return allOrders.find(order => order.id === orderId);
+    const {ordersById, allIds} = getAllOrders();
+
+    return allIds.map(orderId => ordersById[orderId]).find(order => order.id === orderId);
 }

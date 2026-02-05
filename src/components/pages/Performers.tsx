@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown, X } from 'lucide-react';
 import { Preloader, ErrorAlert } from '@/components/common'
-import {AsideFilters, UserCard} from '@/components/ui/Performers';
-import {useFilters, useFreelancerSort, type SortOption} from '@/hooks/index'
-import {fetchAllFreelancers} from '@/lib/api/fetchAllFreelancers';
-import type {Freelancer} from '@/types';
-import {ITEMS_PER_PAGE_OPTIONS, DEFAULT_ITEMS_PER_PAGE, allSkills, allCategories} from '@/lib/constants';
+import { AsideFilters, UserCard } from '@/components/ui/Performers';
+import { useFilters, useFreelancerSort, useUser, type SortOption } from '@/hooks/index'
+import { fetchAllFreelancers } from '@/lib/api/fetchAllFreelancers';
+import type { FreelancersData, Freelancer } from '@/types';
+import { ITEMS_PER_PAGE_OPTIONS, DEFAULT_ITEMS_PER_PAGE, allSkills, allCategories } from '@/lib/constants';
 
 const SORT_OPTIONS = [
     { value: 'default' as const, label: 'По умолчанию' },
@@ -18,11 +18,13 @@ const SORT_OPTIONS = [
 ];
 
 export const Performers = () => {
-    const {data, isLoading, isError} = useQuery<Array<Freelancer>>({
+    const {data, isLoading, isError} = useQuery<FreelancersData>({
         queryKey: ['freelancers'],
         queryFn: fetchAllFreelancers,
         staleTime: 5 * 60 * 1000,
     });
+
+    const { user } = useUser();
     const [sortBy, setSortBy] = useState<SortOption>('default');
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [loadSkills, setLoadSkills] = useState(false);
@@ -31,6 +33,7 @@ export const Performers = () => {
     const page = get('page', Number, 1);
     const itemsPerPage = get('limit', Number, DEFAULT_ITEMS_PER_PAGE);
     
+
     const search = get('search', String, '');
     const categories = get('category', (v) => v.split(','), []);
     const [priceLow, priceHigh] = getRange('price', ['1000', '10000']).map(Number);
@@ -44,7 +47,7 @@ export const Performers = () => {
     const filteredData = useMemo(() => {
         if (!data) return [];
 
-        return data.filter((user) => (
+        return data.allIds.map(userId => data.freelancersById[userId]).filter((user) => (
             (user.login.includes(search) || user.name.includes(search)) &&
             (categories.length === 0 || categories.some(cat => user.category === cat)) &&
             (user.pricePerHour >= priceLow && user.pricePerHour <= priceHigh) &&
@@ -117,12 +120,14 @@ export const Performers = () => {
                                 Смотреть заказы
                                 <ArrowRight size={18} />
                             </Link>
-                            <Link
-                                to="/create-order"
-                                className="inline-flex items-center justify-center h-11 px-5 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
-                            >
-                                Разместить заказ
-                            </Link>
+                            {user?.role === 'client' && (
+                                <Link
+                                    to="/create-order"
+                                    className="inline-flex items-center justify-center h-11 px-5 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                >
+                                    Разместить заказ
+                                </Link>
+                            )}
                         </div>
                     </div>
 

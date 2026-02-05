@@ -60,7 +60,7 @@ export const MyProfile = () => {
                                             )}
                                         </span>
                                         <span className="text-sm text-gray-500">
-                                            {user.createdAt}
+                                            {user.registeredAt}
                                         </span>
                                     </div>
                                 </div>

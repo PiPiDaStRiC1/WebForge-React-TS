@@ -1,20 +1,20 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Preloader, ErrorAlert } from '@/components/common';
 import { useQuery } from '@tanstack/react-query';
-import {useFilters} from '@/hooks';
-import {AsideFilter, OrderCard} from '@/components/ui';
+import { useFilters } from '@/hooks';
+import { AsideFilter, OrderCard } from '@/components/ui';
 import { Briefcase, DollarSign, TrendingUp, Search } from 'lucide-react';
-import {fetchAllOrders} from '@/lib/api/fetchAllOrders';
-import {useOrdersSort} from '@/hooks';
-import type {Order} from '@/types';
-import {CATEGORIES} from '@/lib/constants/categories';
+import { fetchAllOrders } from '@/lib/api/fetchAllOrders';
+import { useOrdersSort } from '@/hooks';
+import type { OrdersData } from '@/types';
+import { CATEGORIES } from '@/lib/constants/categories';
 
 type SortOption = 'date-desc' | 'date-asc' | 'budget-desc' | 'budget-asc' | 'responses-desc';
 
 const initShowingCount = () => {
     try {
-        const saved = Number(sessionStorage.getItem('orders_showing_count') || '20');
-        sessionStorage.removeItem('orders_showing_count');
+        const saved = Number(sessionStorage.getItem('orders-showing-count') || '20');
+        sessionStorage.removeItem('orders-showing-count');
         return saved;
     } catch (error) {
         if (error instanceof Error) {
@@ -29,8 +29,8 @@ export const Orders = () => {
     const currentListElRef = useRef<HTMLDivElement>(null);
     const observerRef = useRef<IntersectionObserver>(null);
     const [showingCount, setShowingCount] = useState(initShowingCount);
-    const {get, set} = useFilters();
-    const {data, isLoading, isError} = useQuery<Array<Order>>({
+    const { get, set } = useFilters();
+    const {data, isLoading, isError} = useQuery<OrdersData>({
         queryKey: ['orders'],
         queryFn: fetchAllOrders,
         staleTime: 30 * 60 * 1000,
@@ -41,9 +41,9 @@ export const Orders = () => {
     const category = get('category', String, 'web-dev');
     
     const filteredOrders = useMemo(() => {
-        if (!data || data.length === 0) return [];
+        if (!data || data.allIds.length === 0) return [];
 
-        return data.filter(order => {
+        return data.allIds.map(orderId => data.ordersById[orderId]).filter(order => {
             const matchesSearch = 
                 order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 order.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -98,7 +98,7 @@ export const Orders = () => {
     }, [loadMore, visibleData, hasMore, showingCount]);
     
     useEffect(() => {
-        sessionStorage.setItem('orders_showing_count', String(showingCount));
+        sessionStorage.setItem('orders-showing-count', String(showingCount));
     }, [showingCount]);
 
     

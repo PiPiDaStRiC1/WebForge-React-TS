@@ -1,48 +1,114 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Briefcase, FileText, DollarSign, Clock, Tag, Layers, ChevronDown, X, Plus } from 'lucide-react';
 import { CATEGORIES, allSkills } from '@/lib/constants';
-import { Preview } from '@/components/ui'
+import { Preview } from '@/components/ui';
+import toast from 'react-hot-toast';
+import type { Order } from '@/types';
+import { useUser } from '@/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllOrders } from '@/lib/api/fetchAllOrders';
 
-interface FormData {
+export interface OrderFormData {
     title: string;
     description: string;
     category: string;
-    budgetMin: string;
-    budgetMax: string;
-    deadline: string;
+    budgetMin: number;
+    budgetMax: number;
+    deadline: number;
+    skills?: string[];
 }
 
-interface ErrorData extends FormData {
+interface ErrorData extends Omit<OrderFormData, 'skills' | 'budgetMin' | 'budgetMax' | 'deadline'> {
     skills: string;
+    budgetMax: string;
+    budgetMin: string;
+    deadline: string;
 }
 
 const BASE_CATEGORY = 'web-dev';
 
-const initialFormData: FormData = {
+const initialFormData: OrderFormData = {
     title: '',
     description: '',
     category: BASE_CATEGORY,
-    budgetMin: '',
-    budgetMax: '',
-    deadline: '',
+    budgetMin: 0,
+    budgetMax: 0,
+    deadline: 0,
 }
+
+const initFormData = (): OrderFormData => {
+    const raw = sessionStorage.getItem("create-order-draft");
+
+    if (!raw) {
+        sessionStorage.setItem("create-order-draft", JSON.stringify(initialFormData));
+        return initialFormData;
+    }
+
+    try {
+        const parsed = JSON.parse(raw) as OrderFormData;
+
+        if (typeof parsed !== "object" || parsed === null) return initialFormData;
+
+        return parsed;
+    } catch (error) {
+        console.error("Failed to parse auth-data:", error);
+
+        sessionStorage.setItem("create-order-draft", JSON.stringify(initialFormData));
+
+        return initialFormData;
+    }
+};
+
 
 const initSelectedSkills = () => {
     const category = BASE_CATEGORY;
     return CATEGORIES.find(cat => cat.id === category)?.subcategories || [];
 }
 
+const handleSubmitForm = async (data: Order, signal: AbortSignal): Promise<void> => {
+    await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            const raw = localStorage.getItem('custom-orders');
+            const customOrders = raw ? JSON.parse(raw) as Record<string, Order> : {};
+
+            localStorage.setItem('custom-orders', JSON.stringify({...customOrders, [data.id]: data}));
+            resolve(true);
+        }, 2000);
+
+        if (signal) {
+            if (signal.aborted) {
+                clearTimeout(timer);
+                reject(new DOMException('Aborted', 'AbortError'));
+                return;
+            }
+
+            signal.addEventListener('abort', () => {
+                clearTimeout(timer);
+                reject(new DOMException('Aborted', 'AbortError'));
+            }, { once: true })
+        }
+    })
+}   
+
 export const CreateOrder = () => {
-    // ВОЗМОЖНО СДЕЛАТЬ ЧЕРЕЗ useRecuder
-    const [formData, setFormData] = useState<FormData>(initialFormData);
+    const navigate = useNavigate();
+    const { refetch } = useQuery({
+        queryKey: ['orders'],
+        queryFn: fetchAllOrders 
+    });
+    const { user } = useUser();
+    const [formData, setFormData] = useState<OrderFormData>(initFormData);
     
     const [selectedSkills, setSelectedSkills] = useState<string[]>(initSelectedSkills);
     const [customSkill, setCustomSkill] = useState('');
     const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Partial<ErrorData>>({});
+    const controllerRef = useRef<AbortController | null>(null);
 
-    const handleInputChange = (field: keyof FormData, value: string) => {
+    const handleInputChange = (field: keyof OrderFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
@@ -59,12 +125,13 @@ export const CreateOrder = () => {
 
     const addSkillsFromSubCat = (category: string) => {
         const subCatSkills = CATEGORIES.find(cat => cat.id === category)?.subcategories;
-
+        
         if (subCatSkills) {
             setSelectedSkills(subCatSkills);
         } else {
             setSelectedSkills([]);
         }
+        setErrors(prev => ({ ...prev, skills: '' }));
     }
 
     const addCustomSkill = () => {
@@ -95,13 +162,58 @@ export const CreateOrder = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleAbort = () => {
+        controllerRef.current?.abort();
+        setLoading(false);
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (validateForm()) {
-            console.log('Order data:', { ...formData, skills: selectedSkills });
-            // Здесь будет отправка на бэкенд
+            setLoading(true);
+            controllerRef.current?.abort();
+            
+            controllerRef.current = new AbortController();
+            const signal = controllerRef.current.signal;
+            const data: Order = { 
+                ...formData, 
+                skills: selectedSkills,
+                id: Math.floor(Math.random() * 10000000),
+                status: 'new',
+                responsesCount: 0,
+                createdAt: new Date().toISOString().split('T')[0],
+                completedById: null,
+                clientId: user!.id // we are sure, what user exist, because this page is protected by ProtectedRoute
+            }
+
+            try {
+                await handleSubmitForm(data, signal);
+
+                toast.success('Заказ успешно создан!');
+                refetch();
+                navigate(`/orders?category=${formData.category}`);
+                setFormData(initialFormData);
+            } catch (error) {
+                if ((error as DOMException).name === 'AbortError') {
+                    toast.error('Публикация заказа отменена');
+                } else {
+                    toast.error('Что-то пошло не так');
+                }
+            } finally {
+                setLoading(false);
+                sessionStorage.removeItem('create-order-draft');
+                controllerRef.current = null;
+            }
         }
     };
+
+    useEffect(() => {
+        sessionStorage.setItem('create-order-draft', JSON.stringify(formData));
+    }, [formData]);
+
+    useEffect(() => {
+        return () => controllerRef.current?.abort();
+    }, []);
 
     return (
         <div className="min-h-screen pb-10">
@@ -296,9 +408,7 @@ export const CreateOrder = () => {
                                     type="number"
                                     value={formData.budgetMin}
                                     onChange={(e) => handleInputChange('budgetMin', e.target.value)}
-                                    placeholder="5000"
-                                    min="0"
-                                    step="1000"
+                                    placeholder="5000"    
                                     className={`w-full h-12 px-4 bg-white border ${
                                         errors.budgetMin ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
                                     } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
@@ -318,8 +428,6 @@ export const CreateOrder = () => {
                                     value={formData.budgetMax}
                                     onChange={(e) => handleInputChange('budgetMax', e.target.value)}
                                     placeholder="15000"
-                                    min="0"
-                                    step="1000"
                                     className={`w-full h-12 px-4 bg-white border ${
                                         errors.budgetMax ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
                                     } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
@@ -341,8 +449,6 @@ export const CreateOrder = () => {
                                 value={formData.deadline}
                                 onChange={(e) => handleInputChange('deadline', e.target.value)}
                                 placeholder="7"
-                                min="1"
-                                max="365"
                                 className={`w-full md:w-64 h-12 px-4 bg-white border ${
                                     errors.deadline ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
                                 } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
@@ -352,14 +458,31 @@ export const CreateOrder = () => {
                             )}
                         </div>
 
-                        <div className="flex items-center gap-4 pt-6 border-t border-gray-200">
+                        <div className="flex items-center gap-2 pt-6 border-t border-gray-200">
                             <button
                                 type="submit"
                                 className="cursor-pointer flex-1 md:flex-none h-14 px-8 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all flex items-center justify-center gap-2"
                             >
-                                <Briefcase size={20} />
-                                Опубликовать заказ
+                                {loading ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+                                        Публикуем...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Briefcase size={20} />
+                                        Опубликовать заказ
+                                    </>
+                                )}
                             </button>
+                            {loading && (
+                                <button 
+                                    className='cursor-pointer text-white rounded-md bg-indigo-600 h-14 w-14 flex items-center justify-center'
+                                    onClick={handleAbort}
+                                >
+                                    <X size={20} />
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 className="cursor-pointer h-14 px-6 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-indigo-200 hover:text-indigo-700 transition-all"

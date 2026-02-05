@@ -3,21 +3,21 @@ import { Star, MapPin, Heart, BadgeCheck, Briefcase, Share2, MessageCircle, Cale
 import { useParams } from 'react-router-dom';
 import { fetchOneUser } from '@/lib/api/fetchOneUser';
 import {fetchAllOrders} from '@/lib/api/fetchAllOrders';
-import type {Client, Freelancer} from '@/types'
 import {ErrorAlert} from '@/components/common/ErrorAlert'
 import {UserProfileSkeleton, OrderCardSmall} from '@/components/ui';
 import { OrderCardSkeleton } from '@/components/common'
 import { useMemo, useState } from 'react';
+import type {Client, FreelancerWithoutCompletedOrders, OrdersData } from '@/types'
 
 export const UserProfile = () => {   
     const {userId} = useParams<{userId: string}>();
-    const {data, isLoading, isError} = useQuery<Omit<Client, 'completedOrders'> | Omit<Freelancer, 'completedOrders'> | undefined>({
+    const {data: user, isLoading, isError} = useQuery<Client | FreelancerWithoutCompletedOrders | undefined>({
         queryKey: ['users', userId],
         queryFn: () => fetchOneUser(Number(userId)),
         staleTime: 30 * 60 * 1000,
     });
 
-    const {data: orders, isLoading: isLoadingOrders, isError: isErrorOrders } = useQuery({
+    const {data: orders, isLoading: isLoadingOrders, isError: isErrorOrders } = useQuery<OrdersData>({
         queryKey: ['orders'],
         queryFn: fetchAllOrders,
         staleTime: 30 * 60 * 1000,
@@ -26,10 +26,10 @@ export const UserProfile = () => {
     const userOrders = useMemo(() => {
         if (!orders) return [];
 
-        return orders.filter(order => order.completedById === Number(userId))
+        return orders.allIds.map(orderId => orders.ordersById[orderId]).filter(order => order.completedById === Number(userId))
     }, [orders, userId]);
 
-    const [isLoadingAvatar, setIsLoadingAvatar] = useState(true);
+    const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user?.picture);
     const [showShareToast, setShowShareToast] = useState(false);
 
     const handleShare = () => {
@@ -47,11 +47,11 @@ export const UserProfile = () => {
         return <UserProfileSkeleton />
     }
 
-    if (isError || !data) {
+    if (isError || !user) {
         return <ErrorAlert />
     }
 
-    const isFreelancer = data.role === 'freelancer';
+    const isFreelancer = user.role === 'freelancer';
 
     return (
         <div className="min-h-screen pb-10">
@@ -83,17 +83,23 @@ export const UserProfile = () => {
                             {isLoadingAvatar && (
                                 <div className="absolute w-32 h-32 rounded-2xl shadow-2xl bg-gray-200 animate-pulse" />
                             )}
-                            <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-white">
-                                <img
-                                    src={data.picture.medium}
-                                    alt={data.name}
-                                    className="w-full h-full object-cover"
-                                    onLoad={() => setIsLoadingAvatar(false)}
-                                />
-                            </div>
-                            {data.status === 'verified' && (
+                            {user.picture ? (
+                                <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-white">
+                                    <img
+                                        src={user.picture.medium}
+                                        alt={`${user.name} ${user.lastName}`}
+                                        className="w-full h-full object-cover"
+                                        onLoad={() => setIsLoadingAvatar(false)}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold" >
+                                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                            )}
+                            {user.status === 'verified' && (
                                 <span className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center shadow-lg">
-                                    <BadgeCheck size={20} className="text-white" />
+                                    <BadgeCheck size={20} className="text-white text-3xl" />
                                 </span>
                             )}
                         </div>
@@ -101,22 +107,22 @@ export const UserProfile = () => {
                         <div className="flex-1">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{data.name}</h1>
-                                    <p className="text-lg text-gray-600 mt-1">@{data.login}</p>
+                                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{user.name} {user.lastName}</h1>
+                                    <p className="text-lg text-gray-600 mt-1">@{user.login}</p>
                                     <div className="mt-3 flex flex-wrap items-center gap-4">
                                         <div className="flex items-center gap-1.5">
                                             <Star size={18} className="text-amber-400 fill-amber-400" />
-                                            <span className="text-lg font-bold text-gray-900">{data.rating.toFixed(1)}</span>
+                                            <span className="text-lg font-bold text-gray-900">{user.rating.toFixed(1)}</span>
                                             <span className="text-sm text-gray-500">рейтинг</span>
                                         </div>
                                         <div className="flex items-center gap-1.5 text-gray-600">
                                             <MapPin size={16} />
-                                            <span className="text-sm">{data.location}</span>
+                                            <span className="text-sm">{user.location ? user.location : 'Не указано'}</span>
                                         </div>
                                         {isFreelancer && (
                                             <div className="flex items-center gap-1.5 text-indigo-600">
                                                 <Briefcase size={16} />
-                                                <span className="text-sm font-medium">{data.experience === 0 ? 'Менее года' : data.experience <= 4 ? `${data.experience} года` : `${data.experience} лет`} опыта</span>
+                                                <span className="text-sm font-medium">{user.experience === 0 ? 'Менее года' : user.experience <= 4 ? `${user.experience} года` : `${user.experience} лет`} опыта</span>
                                             </div>
                                         )}
                                     </div>
@@ -179,7 +185,7 @@ export const UserProfile = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm text-gray-600">Опыт работы</p>
-                                                    <p className="text-xl font-bold text-gray-900">{data.experience} {data.experience <= 4 ? 'года' : 'лет'}</p>
+                                                    <p className="text-xl font-bold text-gray-900">{user.experience} {user.experience <= 4 ? 'года' : 'лет'}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -192,7 +198,7 @@ export const UserProfile = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm text-gray-600">Рейтинг</p>
-                                                    <p className="text-xl font-bold text-gray-900">{data.rating.toFixed(1)}/5.0</p>
+                                                    <p className="text-xl font-bold text-gray-900">{user.rating.toFixed(1)}/5.0</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -204,7 +210,7 @@ export const UserProfile = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm text-gray-600">Стоимость</p>
-                                                    <p className="text-xl font-bold text-gray-900">₽{data.pricePerHour.toLocaleString()}/час</p>
+                                                    <p className="text-xl font-bold text-gray-900">₽{user.pricePerHour.toLocaleString()}/час</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -217,16 +223,20 @@ export const UserProfile = () => {
                                             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
                                                 <PhoneIcon size={20} />
                                             </div>
-                                            <a href={`tel:${data.phone}`} className='text-lg font-bold text-gray-900 hover:text-indigo-600 transition-colors cursor-pointer'>
-                                                {data.phone}
-                                            </a>
+                                            {!user.phone ? (
+                                                <span className='text-lg font-bold text-gray-900'>Не указано</span>
+                                            ) : (
+                                                <a href={`tel:${user.phone}`} className='text-lg font-bold text-gray-900 hover:text-indigo-600 transition-colors cursor-pointer'>
+                                                    {user.phone}
+                                                </a>
+                                            )}
                                         </div>
                                         <div className='flex gap-3 items-center'>
                                             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
                                                 <Mail size={20} />
                                             </div>
-                                            <a href={`mailto:${data.email}`} className='text-lg font-bold text-gray-900 hover:text-indigo-600 transition-colors cursor-pointer'>
-                                                {data.email}
+                                            <a href={`mailto:${user.email}`} className='text-lg font-bold text-gray-900 hover:text-indigo-600 transition-colors cursor-pointer'>
+                                                {user.email}
                                             </a>
                                         </div>
                                     </div>
@@ -235,7 +245,7 @@ export const UserProfile = () => {
                                 <div className="pt-4 border-t border-gray-100">
                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                         <Calendar size={16} />
-                                        <span>На платформе с {new Date(data.registeredAt).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</span>
+                                        <span>На платформе с {new Date(user.registeredAt).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -245,7 +255,7 @@ export const UserProfile = () => {
                             <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
                                 <h2 className="text-lg font-bold text-gray-900 mb-4">Навыки</h2>
                                 <div className="flex flex-wrap gap-2">
-                                    {data.skills.map((skill) => (
+                                    {user.skills.map((skill) => (
                                         <span
                                             key={skill}
                                             className="px-3 py-1.5 text-sm font-medium bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100"
@@ -261,7 +271,7 @@ export const UserProfile = () => {
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
                             <h2 className="text-lg font-bold text-gray-900 mb-4">О себе</h2>
-                            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{data.bio}</p>
+                            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{user.bio ? user.bio : 'Этот пользователь не хочет рассказывать о себе'}</p>
                         </div>
 
                         {isFreelancer && (

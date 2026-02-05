@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useProfile, useUser } from '@/hooks';
-import { DollarSign, MapPin, Globe, X, Pencil } from 'lucide-react';
+import { DollarSign, MapPin, X, Pencil } from 'lucide-react';
 import { VerificationProfile } from './VerificationProfile';
 import { ErrorAlert } from '@/components/common'
 
@@ -169,19 +169,6 @@ export const ProfileTab = () => {
                                         onChange={(e) => handleChangeBaseUser('location', e.target.value)}
                                     />
                                 </div>
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                                        <Globe size={14} />
-                                        Веб-сайт
-                                    </label>
-                                    <input
-                                        type="url"
-                                        defaultValue={user.website}
-                                        placeholder="https://example.com"
-                                        className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                        onChange={(e) => handleChangeBaseUser('website', e.target.value)}
-                                    />
-                                </div>
                                 {user.role === 'freelancer' && (
                                     <div>
                                         <label className="flex items-center gap-2 text-sm text-gray-600 mb-2">
@@ -190,10 +177,10 @@ export const ProfileTab = () => {
                                         </label>
                                         <input
                                             type="number"
-                                            defaultValue={user.hourlyRate || ''}
+                                            defaultValue={user.pricePerHour || ''}
                                             placeholder="1000"
                                             className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                            onChange={(e) => handleChangeFreelancer('hourlyRate', Number(e.target.value))}
+                                            onChange={(e) => handleChangeFreelancer('pricePerHour', Number(e.target.value))}
                                         />
                                     </div>
                                 )}
@@ -208,21 +195,13 @@ export const ProfileTab = () => {
                                         <span className="text-sm">{user.location}</span>
                                     </div>
                                 ) : null}
-                                {user.website ? (
-                                    <div className="flex items-center gap-2 text-gray-700">
-                                        <Globe size={14} className="text-gray-400" />
-                                        <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline">
-                                            {user.website.replace(/^https?:\/\//, '')}
-                                        </a>
-                                    </div>
-                                ) : null}
-                                {user.role === 'freelancer' && user.hourlyRate ? (
+                                {user.role === 'freelancer' && user.pricePerHour ? (
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <DollarSign size={14} className="text-gray-400" />
-                                        <span className="text-sm">{user.hourlyRate.toLocaleString('ru-RU')} ₽/час</span>
+                                        <span className="text-sm">{user.pricePerHour.toLocaleString('ru-RU')} ₽/час</span>
                                     </div>
                                 ) : null}
-                                {!user.location && !user.website && (!user.role || user.role !== 'freelancer' || !user.hourlyRate) && (
+                                {!user.location && (!user.role || user.role !== 'freelancer' || !user.pricePerHour) && (
                                     <div className="text-sm text-gray-500">
                                         Заполните дополнительную информацию
                                     </div>
@@ -240,13 +219,13 @@ export const ProfileTab = () => {
                         <>
                             <button
                                 onClick={handleExit}
-                                className="px-4 py-3 bg-white text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all shadow-lg border border-gray-200"
+                                className="cursor-pointer px-4 py-3 bg-white text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all shadow-lg border border-gray-200"
                             >
                                 Отменить
                             </button>
                             <button
                                 onClick={handleSave}
-                                className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-lg flex items-center gap-2"
+                                className="cursor-pointer px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-lg flex items-center gap-2"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

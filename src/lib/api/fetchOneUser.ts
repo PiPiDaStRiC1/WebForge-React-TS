@@ -1,10 +1,14 @@
-import {allUsers} from '@/lib/data/users';
-import type {Client, Freelancer} from '@/types'
+import { getAllFreelancers, getAllClients } from '@/lib/storage/dataStore';
+import type {Client, FreelancerWithoutCompletedOrders} from '@/types'
 
-export const fetchOneUser = async (userId: number): Promise<Client | Freelancer | undefined> => {
+export const fetchOneUser = async (userId: number): Promise<Client | FreelancerWithoutCompletedOrders | undefined> => {
     await new Promise((resolve) => {
         setTimeout(() => resolve(true), 300)
     });
 
-    return allUsers.find(user => user.id === userId);
+    const {freelancersById} = getAllFreelancers();
+    const {clientsById} = getAllClients();
+    const currentUsers: Array<Client | FreelancerWithoutCompletedOrders> = [...Object.values(freelancersById), ...Object.values(clientsById)];
+
+    return currentUsers.find(user => user.id === userId);
 }
