@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Star, MapPin, Heart, BadgeCheck, Briefcase, Share2, MessageCircle, Calendar, Award, TrendingUp, DollarSign, Check, PhoneIcon, Mail } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { fetchOneUser } from '@/lib/api/fetchOneUser';
 import {fetchAllOrders} from '@/lib/api/fetchAllOrders';
 import {ErrorAlert} from '@/components/common/ErrorAlert'
@@ -144,13 +144,13 @@ export const UserProfile = () => {
                                     >
                                         <Share2 size={20} />
                                     </button>
-                                    <button
-                                        type="button"
+                                    <Link
+                                        to={`/messages/${user.id}`}
                                         className="h-11 px-6 flex items-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
                                     >
                                         <MessageCircle size={18} />
                                         Написать
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -255,14 +255,20 @@ export const UserProfile = () => {
                             <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
                                 <h2 className="text-lg font-bold text-gray-900 mb-4">Навыки</h2>
                                 <div className="flex flex-wrap gap-2">
-                                    {user.skills.map((skill) => (
-                                        <span
-                                            key={skill}
-                                            className="px-3 py-1.5 text-sm font-medium bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100"
-                                        >
-                                            {skill}
-                                        </span>
-                                    ))}
+                                    {user.skills.length ? (
+                                        <>
+                                            {user.skills.map((skill) => (
+                                                <span
+                                                    key={skill}
+                                                    className="px-3 py-1.5 text-sm font-medium bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100"
+                                                >
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <span>Навыки не указаны</span>
+                                    )}
                                 </div>
                             </div>
                         )}

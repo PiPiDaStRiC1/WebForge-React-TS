@@ -1,8 +1,13 @@
-import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Github, Twitter, Youtube } from "lucide-react";
-import {Logo} from '@/components/common/index'
+import {Link, useLocation} from "react-router-dom";
+import {Mail, Phone, MapPin, Github, Twitter, Youtube} from "lucide-react";
+import {Logo} from "@/components/common/index";
 
 export const Footer = () => {
+    const location = useLocation();
+    const isChatPage = location.pathname.includes("/messages/");
+
+    if (isChatPage) return null;
+
     return (
         <footer className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 border-t border-gray-200">
             <div className="max-w-7xl mx-auto px-6 py-12">
@@ -15,13 +20,25 @@ export const Footer = () => {
                             Фриланс-платформа для веб-разработки. Находите лучших специалистов или зарабатывайте на своих навыках.
                         </p>
                         <div className="flex gap-3">
-                            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-md transition-all">
+                            <a
+                                href="https://github.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-md transition-all">
                                 <Github size={20} />
                             </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-md transition-all">
+                            <a
+                                href="https://twitter.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-md transition-all">
                                 <Twitter size={20} />
                             </a>
-                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-md transition-all">
+                            <a
+                                href="https://youtube.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:shadow-md transition-all">
                                 <Youtube size={20} />
                             </a>
                         </div>
@@ -82,19 +99,15 @@ export const Footer = () => {
                             </div>
                             <div>
                                 <div className="text-sm text-gray-500">Адрес</div>
-                                <div className="font-medium">
-                                    Москва, Россия
-                                </div>
+                                <div className="font-medium">Москва, Россия</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div className="border-t border-gray-200 pt-8 flex items-center justify-center gap-4 text-sm text-gray-600">
-                    <p>
-                        © {new Date().getFullYear()} WebForge. Все права защищены.
-                    </p>
+                    <p>© {new Date().getFullYear()} WebForge. Все права защищены.</p>
                 </div>
             </div>
         </footer>
     );
-}
+};

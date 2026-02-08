@@ -9,7 +9,7 @@ interface UserCardProps {
 }
 
 export const UserCard = memo(({user}: UserCardProps) => {
-    const [isLoadingAvatar, setIsLoadingAvatar] = useState(true);
+    const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user.picture);
 
     return (
         <article className="group flex flex-col bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300">
@@ -33,16 +33,11 @@ export const UserCard = memo(({user}: UserCardProps) => {
                                     )}
                                 </>
                             ) : (
-                                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                                <div className="w-16 h-16 rounded-xl rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
                                     {user.name?.charAt(0).toUpperCase() || 'U'}
                                 </div>
                             )}
                         </Link>
-                        {!isLoadingAvatar && user.status === 'verified' && (
-                            <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-md">
-                                <BadgeCheck size={14} className="text-white" />
-                            </span>
-                        )}
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -82,7 +77,7 @@ export const UserCard = memo(({user}: UserCardProps) => {
 
             <div className="flex flex-col h-full p-4 space-y-2">
                 <div className="flex flex-col flex-grow gap-4">
-                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{user.bio}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{user.bio ? user.bio : 'Информация не указана'}</p>
                     <div className="flex flex-wrap gap-1.5">
                         {user.skills.map((s: string) => (
                             <span
@@ -110,7 +105,7 @@ export const UserCard = memo(({user}: UserCardProps) => {
                         Профиль
                     </Link>
                     <Link
-                        to="/messages"
+                        to={`/messages/${user.id}`}
                         className="h-10 inline-flex items-center justify-center bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
                     >
                         Написать

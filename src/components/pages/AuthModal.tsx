@@ -76,7 +76,7 @@ export const AuthModal = () => {
                     bio: '',
                     location: '',
                     skills: [],
-                    pricePerHour: 0,
+                    pricePerHour: 1000,
                     completedOrders: 0,
                     rating: 0,
                     earning: 0,

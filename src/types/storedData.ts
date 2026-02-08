@@ -1,11 +1,23 @@
-import type { UserData, Order, Client, OrderResponse, FreelancerWithoutCompletedOrders, Freelancer } from '@/types';
+import type {
+    UserData,
+    Order,
+    Client,
+    OrderResponse,
+    FreelancerWithoutCompletedOrders,
+    Freelancer,
+} from "@/types";
 
 export type StoredUsers = Record<string, UserData>;
 
 export interface AuthData {
     isLoggedIn: boolean;
-    userId: number | null;
+    currentUserId: number | null;
     token?: string;
+}
+
+export interface AllUserData {
+    usersById: Record<string, UserData>;
+    allIds: number[];
 }
 
 export interface OrdersData {

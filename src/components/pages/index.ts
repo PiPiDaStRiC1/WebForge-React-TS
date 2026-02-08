@@ -13,3 +13,5 @@ export * from './CreateOrder';
 export * from './NotFound';
 export * from './MyProfile';
 export * from './AuthModal';
+export * from './Messages';
+export * from './Chat';

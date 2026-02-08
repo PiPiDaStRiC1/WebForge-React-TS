@@ -1,17 +1,26 @@
-import { useNavigate } from 'react-router-dom';
-import { useProfile, useUser } from '@/hooks';
-import { DollarSign, MapPin, X, Pencil } from 'lucide-react';
-import { VerificationProfile } from './VerificationProfile';
-import { ErrorAlert } from '@/components/common'
-
+import { useNavigate } from "react-router-dom";
+import { useProfile, useUser } from "@/hooks";
+import { DollarSign, MapPin, X, Pencil } from "lucide-react";
+import { VerificationProfile } from "./VerificationProfile";
+import { ErrorAlert } from "@/components/common";
 
 export const ProfileTab = () => {
     const navigate = useNavigate();
     const { user } = useUser();
-    const { isEditing, isSaving, changedData, handleChangeBaseUser, handleChangeFreelancer, handleSave, handleAbort, handleEdit, handleExit } = useProfile();
+    const {
+        isEditing,
+        isSaving,
+        changedData,
+        handleChangeBaseUser,
+        handleChangeFreelancer,
+        handleSave,
+        handleAbort,
+        handleEdit,
+        handleExit,
+    } = useProfile();
 
     if (!user) {
-        return <ErrorAlert />
+        return <ErrorAlert />;
     }
 
     return (
@@ -26,14 +35,14 @@ export const ProfileTab = () => {
                                 className="cursor-pointer transition-opacity p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-indigo-600"
                                 title="Редактировать"
                             >
-                                <Pencil size={20}/>
+                                <Pencil size={20} />
                             </button>
                         )}
                     </div>
                     {isEditing ? (
                         <textarea
                             value={changedData.bio}
-                            onChange={(e) => handleChangeBaseUser('bio', e.target.value)}
+                            onChange={(e) => handleChangeBaseUser("bio", e.target.value)}
                             placeholder="Расскажите о себе, своем опыте и навыках..."
                             className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                         />
@@ -41,12 +50,12 @@ export const ProfileTab = () => {
                         <div className="h-32 bg-gray-200 rounded-xl animate-pulse" />
                     ) : (
                         <p className="text-gray-600 whitespace-pre-wrap">
-                            {user.bio || 'Добро пожаловать! Заполните информацию о себе.'}
+                            {user.bio || "Добро пожаловать! Заполните информацию о себе."}
                         </p>
                     )}
                 </div>
 
-                {user.role === 'freelancer' ? (
+                {user.role === "freelancer" ? (
                     <>
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Навыки</h2>
@@ -54,9 +63,14 @@ export const ProfileTab = () => {
                                 <input
                                     type="text"
                                     placeholder="React, TypeScript, Node.js..."
-                                    defaultValue={user.skills?.join(', ')}
+                                    defaultValue={user.skills?.join(", ")}
                                     className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                    onChange={(e) => handleChangeFreelancer('skills', e.target.value.split(',').map(skill => skill.trim()))}
+                                    onChange={(e) =>
+                                        handleChangeFreelancer(
+                                            "skills",
+                                            e.target.value.split(",").map((skill) => skill.trim()),
+                                        )
+                                    }
                                 />
                             ) : isSaving ? (
                                 <div className="flex flex-wrap gap-2">
@@ -68,7 +82,10 @@ export const ProfileTab = () => {
                                 <div className="flex flex-wrap gap-2">
                                     {user.skills && user.skills.length > 0 ? (
                                         user.skills.map((skill, index) => (
-                                            <span key={index} className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium">
+                                            <span
+                                                key={index}
+                                                className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium"
+                                            >
                                                 {skill}
                                             </span>
                                         ))
@@ -94,11 +111,15 @@ export const ProfileTab = () => {
                 ) : (
                     <>
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Активные заказы</h2>
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">
+                                Активные заказы
+                            </h2>
                             <div className="text-center py-12">
-                                <p className="text-gray-500 mb-4">У вас пока нет активных заказов</p>
+                                <p className="text-gray-500 mb-4">
+                                    У вас пока нет активных заказов
+                                </p>
                                 <button
-                                    onClick={() => navigate('/create-order')}
+                                    onClick={() => navigate("/create-order")}
                                     className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
                                 >
                                     Создать заказ
@@ -113,26 +134,32 @@ export const ProfileTab = () => {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">Статистика</h3>
                     <div className="space-y-4">
-                        {user.role === 'freelancer' ? (
+                        {user.role === "freelancer" ? (
                             <>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Выполнено заказов</span>
-                                    <span className="text-lg font-bold text-gray-900">{user.completedOrders}</span>
+                                    <span className="text-lg font-bold text-gray-900">
+                                        {user.completedOrders}
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Рейтинг</span>
                                     <span className="text-lg font-bold text-gray-900">
-                                        {user.rating > 0 ? `${user.rating.toFixed(1)} ⭐` : '—'}
+                                        {user.rating > 0 ? `${user.rating.toFixed(1)} ⭐` : "—"}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Заработано</span>
-                                    <span className="text-lg font-bold text-gray-900">{user.earning.toLocaleString('ru-RU')} ₽</span>
+                                    <span className="text-lg font-bold text-gray-900">
+                                        {user.earning.toLocaleString("ru-RU")} ₽
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Опыт</span>
                                     <span className="text-lg font-bold text-gray-900">
-                                        {user.experience > 0 ? `${user.experience} ${user.experience === 1 ? 'год' : user.experience < 5 ? 'года' : 'лет'}` : 'Новичок'}
+                                        {user.experience > 0
+                                            ? `${user.experience} ${user.experience === 1 ? "год" : user.experience < 5 ? "года" : "лет"}`
+                                            : "Новичок"}
                                     </span>
                                 </div>
                             </>
@@ -140,11 +167,15 @@ export const ProfileTab = () => {
                             <>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Размещено заказов</span>
-                                    <span className="text-lg font-bold text-gray-900">{user.placedOrders}</span>
+                                    <span className="text-lg font-bold text-gray-900">
+                                        {user.placedOrders}
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Потрачено</span>
-                                    <span className="text-lg font-bold text-gray-900">{user.spending.toLocaleString('ru-RU')} ₽</span>
+                                    <span className="text-lg font-bold text-gray-900">
+                                        {user.spending.toLocaleString("ru-RU")} ₽
+                                    </span>
                                 </div>
                             </>
                         )}
@@ -166,10 +197,12 @@ export const ProfileTab = () => {
                                         defaultValue={user.location}
                                         placeholder="Город, Страна"
                                         className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                        onChange={(e) => handleChangeBaseUser('location', e.target.value)}
+                                        onChange={(e) =>
+                                            handleChangeBaseUser("location", e.target.value)
+                                        }
                                     />
                                 </div>
-                                {user.role === 'freelancer' && (
+                                {user.role === "freelancer" && (
                                     <div>
                                         <label className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                                             <DollarSign size={14} />
@@ -177,10 +210,15 @@ export const ProfileTab = () => {
                                         </label>
                                         <input
                                             type="number"
-                                            defaultValue={user.pricePerHour || ''}
+                                            defaultValue={user.pricePerHour || ""}
                                             placeholder="1000"
                                             className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                            onChange={(e) => handleChangeFreelancer('pricePerHour', Number(e.target.value))}
+                                            onChange={(e) =>
+                                                handleChangeFreelancer(
+                                                    "pricePerHour",
+                                                    Number(e.target.value),
+                                                )
+                                            }
                                         />
                                     </div>
                                 )}
@@ -195,24 +233,29 @@ export const ProfileTab = () => {
                                         <span className="text-sm">{user.location}</span>
                                     </div>
                                 ) : null}
-                                {user.role === 'freelancer' && user.pricePerHour ? (
+                                {user.role === "freelancer" && user.pricePerHour ? (
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <DollarSign size={14} className="text-gray-400" />
-                                        <span className="text-sm">{user.pricePerHour.toLocaleString('ru-RU')} ₽/час</span>
+                                        <span className="text-sm">
+                                            {user.pricePerHour.toLocaleString("ru-RU")} ₽/час
+                                        </span>
                                     </div>
                                 ) : null}
-                                {!user.location && (!user.role || user.role !== 'freelancer' || !user.pricePerHour) && (
-                                    <div className="text-sm text-gray-500">
-                                        Заполните дополнительную информацию
-                                    </div>
-                                )}
+                                {!user.location &&
+                                    (!user.role ||
+                                        user.role !== "freelancer" ||
+                                        !user.pricePerHour) && (
+                                        <div className="text-sm text-gray-500">
+                                            Заполните дополнительную информацию
+                                        </div>
+                                    )}
                             </div>
                         )}
                     </div>
                 </div>
                 <VerificationProfile />
             </div>
-            
+
             {(isEditing || isSaving) && (
                 <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 animate-in slide-in-from-bottom">
                     {!isSaving ? (
@@ -227,8 +270,18 @@ export const ProfileTab = () => {
                                 onClick={handleSave}
                                 className="cursor-pointer px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-lg flex items-center gap-2"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M5 13l4 4L19 7"
+                                    />
                                 </svg>
                                 Сохранить изменения
                             </button>
@@ -251,5 +304,5 @@ export const ProfileTab = () => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
