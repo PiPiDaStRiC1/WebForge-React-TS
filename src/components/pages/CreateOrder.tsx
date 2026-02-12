@@ -1,13 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Briefcase, FileText, DollarSign, Clock, Tag, Layers, ChevronDown, X, Plus } from 'lucide-react';
-import { CATEGORIES, allSkills } from '@/lib/constants';
-import { Preview } from '@/components/ui';
-import toast from 'react-hot-toast';
-import type { Order } from '@/types';
-import { useUser } from '@/hooks';
-import { useQuery } from '@tanstack/react-query';
-import { fetchAllOrders } from '@/lib/api/fetchAllOrders';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    Briefcase,
+    FileText,
+    DollarSign,
+    Clock,
+    Tag,
+    Layers,
+    ChevronDown,
+    X,
+    Plus,
+} from "lucide-react";
+import { CATEGORIES, allSkills } from "@/lib/constants";
+import { Preview } from "@/components/ui";
+import toast from "react-hot-toast";
+import type { Order } from "@/types";
+import { useUser } from "@/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllOrders } from "@/lib/api/fetchAllOrders";
 
 export interface OrderFormData {
     title: string;
@@ -19,23 +29,23 @@ export interface OrderFormData {
     skills?: string[];
 }
 
-interface ErrorData extends Omit<OrderFormData, 'skills' | 'budgetMin' | 'budgetMax' | 'deadline'> {
+interface ErrorData extends Omit<OrderFormData, "skills" | "budgetMin" | "budgetMax" | "deadline"> {
     skills: string;
     budgetMax: string;
     budgetMin: string;
     deadline: string;
 }
 
-const BASE_CATEGORY = 'web-dev';
+const BASE_CATEGORY = "web-dev";
 
 const initialFormData: OrderFormData = {
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     category: BASE_CATEGORY,
     budgetMin: 0,
     budgetMax: 0,
     deadline: 0,
-}
+};
 
 const initFormData = (): OrderFormData => {
     const raw = sessionStorage.getItem("create-order-draft");
@@ -60,48 +70,51 @@ const initFormData = (): OrderFormData => {
     }
 };
 
-
 const initSelectedSkills = () => {
     const category = BASE_CATEGORY;
-    return CATEGORIES.find(cat => cat.id === category)?.subcategories || [];
-}
+    return CATEGORIES.find((cat) => cat.id === category)?.subcategories || [];
+};
 
 const handleSubmitForm = async (data: Order, signal: AbortSignal): Promise<void> => {
     await new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
-            const raw = localStorage.getItem('custom-orders');
-            const customOrders = raw ? JSON.parse(raw) as Record<string, Order> : {};
+            const raw = localStorage.getItem("custom-orders");
+            const customOrders = raw ? (JSON.parse(raw) as Record<string, Order>) : {};
 
-            localStorage.setItem('custom-orders', JSON.stringify({...customOrders, [data.id]: data}));
+            localStorage.setItem(
+                "custom-orders",
+                JSON.stringify({ ...customOrders, [data.id]: data }),
+            );
             resolve(true);
         }, 2000);
 
         if (signal) {
             if (signal.aborted) {
                 clearTimeout(timer);
-                reject(new DOMException('Aborted', 'AbortError'));
+                reject(new DOMException("Aborted", "AbortError"));
                 return;
             }
 
-            signal.addEventListener('abort', () => {
-                clearTimeout(timer);
-                reject(new DOMException('Aborted', 'AbortError'));
-            }, { once: true })
+            signal.addEventListener(
+                "abort",
+                () => {
+                    clearTimeout(timer);
+                    reject(new DOMException("Aborted", "AbortError"));
+                },
+                { once: true },
+            );
         }
-    })
-}   
+    });
+};
 
 export const CreateOrder = () => {
     const navigate = useNavigate();
-    const { refetch } = useQuery({
-        queryKey: ['orders'],
-        queryFn: fetchAllOrders 
-    });
+    const { refetch } = useQuery({ queryKey: ["orders"], queryFn: fetchAllOrders });
     const { user } = useUser();
     const [formData, setFormData] = useState<OrderFormData>(initFormData);
-    
+
     const [selectedSkills, setSelectedSkills] = useState<string[]>(initSelectedSkills);
-    const [customSkill, setCustomSkill] = useState('');
+    const [customSkill, setCustomSkill] = useState("");
     const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -109,54 +122,52 @@ export const CreateOrder = () => {
     const controllerRef = useRef<AbortController | null>(null);
 
     const handleInputChange = (field: keyof OrderFormData, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData((prev) => ({ ...prev, [field]: value }));
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors((prev) => ({ ...prev, [field]: "" }));
         }
     };
 
     const toggleSkill = (skill: string) => {
-        setSelectedSkills(prev => (
-            prev.includes(skill) 
-                ? prev.filter(s => s !== skill)
-                : [...prev, skill]
-        ));
+        setSelectedSkills((prev) =>
+            prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
+        );
     };
 
     const addSkillsFromSubCat = (category: string) => {
-        const subCatSkills = CATEGORIES.find(cat => cat.id === category)?.subcategories;
-        
+        const subCatSkills = CATEGORIES.find((cat) => cat.id === category)?.subcategories;
+
         if (subCatSkills) {
             setSelectedSkills(subCatSkills);
         } else {
             setSelectedSkills([]);
         }
-        setErrors(prev => ({ ...prev, skills: '' }));
-    }
+        setErrors((prev) => ({ ...prev, skills: "" }));
+    };
 
     const addCustomSkill = () => {
         if (customSkill.trim() && !selectedSkills.includes(customSkill.trim())) {
-            setSelectedSkills(prev => [...prev, customSkill.trim()]);
-            setCustomSkill('');
+            setSelectedSkills((prev) => [...prev, customSkill.trim()]);
+            setCustomSkill("");
         }
     };
 
     const removeSkill = (skill: string) => {
-        setSelectedSkills(prev => prev.filter(s => s !== skill));
+        setSelectedSkills((prev) => prev.filter((s) => s !== skill));
     };
 
     const validateForm = () => {
         const newErrors: Partial<ErrorData> = {};
 
-        if (!formData.title.trim()) newErrors.title = 'Введите название заказа';
-        if (!formData.description.trim()) newErrors.description = 'Опишите задачу';
-        if (selectedSkills.length === 0) newErrors.skills = 'Выберите хотя бы один навык';
-        if (!formData.budgetMin) newErrors.budgetMin = 'Укажите минимальный бюджет';
-        if (!formData.budgetMax) newErrors.budgetMax = 'Укажите максимальный бюджет';
+        if (!formData.title.trim()) newErrors.title = "Введите название заказа";
+        if (!formData.description.trim()) newErrors.description = "Опишите задачу";
+        if (selectedSkills.length === 0) newErrors.skills = "Выберите хотя бы один навык";
+        if (!formData.budgetMin) newErrors.budgetMin = "Укажите минимальный бюджет";
+        if (!formData.budgetMax) newErrors.budgetMax = "Укажите максимальный бюджет";
         if (Number(formData.budgetMin) >= Number(formData.budgetMax)) {
-            newErrors.budgetMax = 'Максимум должен быть больше минимума';
+            newErrors.budgetMax = "Максимум должен быть больше минимума";
         }
-        if (!formData.deadline) newErrors.deadline = 'Укажите срок выполнения';
+        if (!formData.deadline) newErrors.deadline = "Укажите срок выполнения";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -165,50 +176,50 @@ export const CreateOrder = () => {
     const handleAbort = () => {
         controllerRef.current?.abort();
         setLoading(false);
-    }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (validateForm()) {
             setLoading(true);
             controllerRef.current?.abort();
-            
+
             controllerRef.current = new AbortController();
             const signal = controllerRef.current.signal;
-            const data: Order = { 
-                ...formData, 
+            const data: Order = {
+                ...formData,
                 skills: selectedSkills,
                 id: Math.floor(Math.random() * 10000000),
-                status: 'new',
+                status: "new",
                 responsesCount: 0,
-                createdAt: new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString().split("T")[0],
                 completedById: null,
-                clientId: user!.id // we are sure, what user exist, because this page is protected by ProtectedRoute
-            }
+                clientId: user!.id, // we are sure, what user exist, because this page is protected by ProtectedRoute
+            };
 
             try {
                 await handleSubmitForm(data, signal);
 
-                toast.success('Заказ успешно создан!');
+                toast.success("Заказ успешно создан!");
                 refetch();
                 navigate(`/orders?category=${formData.category}`);
                 setFormData(initialFormData);
             } catch (error) {
-                if ((error as DOMException).name === 'AbortError') {
-                    toast.error('Публикация заказа отменена');
+                if ((error as DOMException).name === "AbortError") {
+                    toast.error("Публикация заказа отменена");
                 } else {
-                    toast.error('Что-то пошло не так');
+                    toast.error("Что-то пошло не так");
                 }
             } finally {
                 setLoading(false);
-                sessionStorage.removeItem('create-order-draft');
+                sessionStorage.removeItem("create-order-draft");
                 controllerRef.current = null;
             }
         }
     };
 
     useEffect(() => {
-        sessionStorage.setItem('create-order-draft', JSON.stringify(formData));
+        sessionStorage.setItem("create-order-draft", JSON.stringify(formData));
     }, [formData]);
 
     useEffect(() => {
@@ -242,7 +253,10 @@ export const CreateOrder = () => {
 
             <section className="relative -mt-20">
                 <div className="max-w-4xl mx-auto">
-                    <form onSubmit={handleSubmit} className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-xl p-8">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-xl p-8"
+                    >
                         <div className="mb-6">
                             <label className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
                                 <FileText size={18} className="text-indigo-500" />
@@ -252,10 +266,12 @@ export const CreateOrder = () => {
                             <input
                                 type="text"
                                 value={formData.title}
-                                onChange={(e) => handleInputChange('title', e.target.value)}
+                                onChange={(e) => handleInputChange("title", e.target.value)}
                                 placeholder="Например: Разработка landing page для стартапа"
                                 className={`w-full h-12 px-4 bg-white border ${
-                                    errors.title ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
+                                    errors.title
+                                        ? "border-red-300 focus:ring-red-500/10"
+                                        : "border-gray-200 focus:ring-indigo-500/10"
                                 } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
                             />
                             {errors.title && (
@@ -271,18 +287,21 @@ export const CreateOrder = () => {
                             </label>
                             <textarea
                                 value={formData.description}
-                                onChange={(e) => handleInputChange('description', e.target.value)}
+                                onChange={(e) => handleInputChange("description", e.target.value)}
                                 placeholder="Подробно опишите что нужно сделать, требования к работе, желаемый результат..."
                                 rows={6}
                                 className={`w-full px-4 py-3 bg-white border ${
-                                    errors.description ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
+                                    errors.description
+                                        ? "border-red-300 focus:ring-red-500/10"
+                                        : "border-gray-200 focus:ring-indigo-500/10"
                                 } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all resize-none`}
                             />
                             {errors.description && (
                                 <p className="mt-1 text-sm text-red-600">{errors.description}</p>
                             )}
                             <p className="mt-1 text-xs text-gray-500">
-                                Минимум 20 символов. Чем детальнее описание, тем точнее будут предложения исполнителей
+                                Минимум 20 символов. Чем детальнее описание, тем точнее будут
+                                предложения исполнителей
                             </p>
                         </div>
 
@@ -295,16 +314,21 @@ export const CreateOrder = () => {
                                 <select
                                     value={formData.category}
                                     onChange={(e) => {
-                                        handleInputChange('category', e.target.value);
+                                        handleInputChange("category", e.target.value);
                                         addSkillsFromSubCat(e.target.value);
                                     }}
                                     className="w-full h-12 px-4 pr-10 bg-white border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
                                 >
-                                    {CATEGORIES.map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    {CATEGORIES.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
                                     ))}
                                 </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                                <ChevronDown
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                                    size={20}
+                                />
                             </div>
                         </div>
 
@@ -314,10 +338,10 @@ export const CreateOrder = () => {
                                 Требуемые навыки
                                 <span className="text-red-500">*</span>
                             </label>
-                            
+
                             {selectedSkills.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mb-3 p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl">
-                                    {selectedSkills.map(skill => (
+                                    {selectedSkills.map((skill) => (
                                         <span
                                             key={skill}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-indigo-200 text-indigo-700 rounded-lg text-sm font-medium"
@@ -328,7 +352,7 @@ export const CreateOrder = () => {
                                                 onClick={() => removeSkill(skill)}
                                                 className="hover:text-red-600 transition-colors"
                                             >
-                                                <X size={14} className='cursor-pointer' />
+                                                <X size={14} className="cursor-pointer" />
                                             </button>
                                         </span>
                                     ))}
@@ -340,25 +364,28 @@ export const CreateOrder = () => {
                                     type="button"
                                     onClick={() => setShowSkillsDropdown(!showSkillsDropdown)}
                                     className={`cursor-pointer w-full h-12 px-4 bg-white border ${
-                                        errors.skills ? 'border-red-300' : 'border-gray-200'
+                                        errors.skills ? "border-red-300" : "border-gray-200"
                                     } rounded-xl text-left text-gray-600 hover:border-indigo-200 transition-all flex items-center justify-between`}
                                 >
                                     <span>Выберите из популярных навыков</span>
-                                    <ChevronDown size={20} className={`transition-transform ${showSkillsDropdown ? 'rotate-180' : ''}`} />
+                                    <ChevronDown
+                                        size={20}
+                                        className={`transition-transform ${showSkillsDropdown ? "rotate-180" : ""}`}
+                                    />
                                 </button>
 
                                 {showSkillsDropdown && (
                                     <div className="absolute top-full left-0 right-0 mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-10 max-h-64 overflow-y-auto">
                                         <div className="flex flex-wrap gap-2">
-                                            {allSkills.map(skill => (
+                                            {allSkills.map((skill) => (
                                                 <button
                                                     key={skill}
                                                     type="button"
                                                     onClick={() => toggleSkill(skill)}
                                                     className={`cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                                                         selectedSkills.includes(skill)
-                                                            ? 'bg-indigo-600 text-white'
-                                                            : 'bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700'
+                                                            ? "bg-indigo-600 text-white"
+                                                            : "bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
                                                     }`}
                                                 >
                                                     {skill}
@@ -375,7 +402,7 @@ export const CreateOrder = () => {
                                     value={customSkill}
                                     onChange={(e) => setCustomSkill(e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
+                                        if (e.key === "Enter") {
                                             e.preventDefault();
                                             addCustomSkill();
                                         }
@@ -407,10 +434,12 @@ export const CreateOrder = () => {
                                 <input
                                     type="number"
                                     value={formData.budgetMin}
-                                    onChange={(e) => handleInputChange('budgetMin', e.target.value)}
-                                    placeholder="5000"    
+                                    onChange={(e) => handleInputChange("budgetMin", e.target.value)}
+                                    placeholder="5000"
                                     className={`w-full h-12 px-4 bg-white border ${
-                                        errors.budgetMin ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
+                                        errors.budgetMin
+                                            ? "border-red-300 focus:ring-red-500/10"
+                                            : "border-gray-200 focus:ring-indigo-500/10"
                                     } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
                                 />
                                 {errors.budgetMin && (
@@ -426,10 +455,12 @@ export const CreateOrder = () => {
                                 <input
                                     type="number"
                                     value={formData.budgetMax}
-                                    onChange={(e) => handleInputChange('budgetMax', e.target.value)}
+                                    onChange={(e) => handleInputChange("budgetMax", e.target.value)}
                                     placeholder="15000"
                                     className={`w-full h-12 px-4 bg-white border ${
-                                        errors.budgetMax ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
+                                        errors.budgetMax
+                                            ? "border-red-300 focus:ring-red-500/10"
+                                            : "border-gray-200 focus:ring-indigo-500/10"
                                     } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
                                 />
                                 {errors.budgetMax && (
@@ -447,10 +478,12 @@ export const CreateOrder = () => {
                             <input
                                 type="number"
                                 value={formData.deadline}
-                                onChange={(e) => handleInputChange('deadline', e.target.value)}
+                                onChange={(e) => handleInputChange("deadline", e.target.value)}
                                 placeholder="7"
                                 className={`w-full md:w-64 h-12 px-4 bg-white border ${
-                                    errors.deadline ? 'border-red-300 focus:ring-red-500/10' : 'border-gray-200 focus:ring-indigo-500/10'
+                                    errors.deadline
+                                        ? "border-red-300 focus:ring-red-500/10"
+                                        : "border-gray-200 focus:ring-indigo-500/10"
                                 } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
                             />
                             {errors.deadline && (
@@ -476,8 +509,8 @@ export const CreateOrder = () => {
                                 )}
                             </button>
                             {loading && (
-                                <button 
-                                    className='cursor-pointer text-white rounded-md bg-indigo-600 h-14 w-14 flex items-center justify-center'
+                                <button
+                                    className="cursor-pointer text-white rounded-md bg-indigo-600 h-14 w-14 flex items-center justify-center"
                                     onClick={handleAbort}
                                 >
                                     <X size={20} />
@@ -493,9 +526,9 @@ export const CreateOrder = () => {
                         </div>
                     </form>
                     {showPreview && (
-                        <Preview  
-                            onClose={() => setShowPreview(false)} 
-                            data={{...formData, skills: selectedSkills}} 
+                        <Preview
+                            onClose={() => setShowPreview(false)}
+                            data={{ ...formData, skills: selectedSkills }}
                         />
                     )}
                 </div>

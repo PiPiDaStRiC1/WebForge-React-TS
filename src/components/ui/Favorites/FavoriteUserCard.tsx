@@ -1,21 +1,21 @@
 import { memo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useFavorites } from "@/hooks";
-import { Star, MapPin, Heart, BadgeCheck, Briefcase } from "lucide-react";
+import { BadgeCheck, MapPin, Heart } from "lucide-react";
 import { AvatarPreloader } from "@/components/common";
-import type { Freelancer } from "@/types";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser, useFavorites } from "@/hooks";
+import type { UserData } from "@/types";
 
 interface UserCardProps {
-    user: Freelancer;
+    user: UserData;
 }
 
-export const UserCard = memo(({ user }: UserCardProps) => {
+export const FavoriteUserCard = memo(({ user }: UserCardProps) => {
     const location = useLocation();
     const { toggleFavorite, isFavorite } = useFavorites();
     const { data: currentUser } = useCurrentUser();
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user.picture);
     const [isFavoriteUser, setIsFavoriteUser] = useState(isFavorite(user.id));
+
     const isOwnProfile = currentUser?.id === user.id;
 
     const handleToggleFavorite = () => {
@@ -61,29 +61,7 @@ export const UserCard = memo(({ user }: UserCardProps) => {
                             <MapPin size={12} className="text-gray-400 flex-shrink-0" />
                             <span className="truncate">{user.location}</span>
                         </div>
-
-                        <div className="mt-2 flex items-center flex-col gap-2">
-                            <div className="flex justify-between w-full gap-4">
-                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700">
-                                    <Star size={12} className="text-amber-400 fill-amber-400" />
-                                    {user.rating.toFixed(1)}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                    {user.completedOrders} заказов
-                                </span>
-                            </div>
-                            <span className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
-                                <Briefcase size={12} className="text-indigo-500" />
-                                {user.experience === 0
-                                    ? "Менее года"
-                                    : user.experience <= 4
-                                      ? `${user.experience} года`
-                                      : `${user.experience} лет`}{" "}
-                                опыта
-                            </span>
-                        </div>
                     </div>
-
                     <button
                         className={`${isFavoriteUser ? "text-rose-500 border-rose-300 bg-rose-50" : "text-gray-400 border-gray-200 bg-white"} cursor-pointer flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg hover:scale-110 active:scale-95 transition-all duration-200`}
                         aria-label="В избранное"
@@ -102,16 +80,6 @@ export const UserCard = memo(({ user }: UserCardProps) => {
                     <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
                         {user.bio ? user.bio : "Информация не указана"}
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
-                        {user.skills.map((s: string) => (
-                            <span
-                                key={s}
-                                className="px-2.5 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100"
-                            >
-                                {s}
-                            </span>
-                        ))}
-                    </div>
                 </div>
                 <div className="pt-2 border-t border-gray-100">
                     <div className="flex items-center justify-between">

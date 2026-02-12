@@ -1,20 +1,20 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Preloader, ErrorAlert } from '@/components/common';
-import { useQuery } from '@tanstack/react-query';
-import { useFilters } from '@/hooks';
-import { AsideFilter, OrderCard } from '@/components/ui';
-import { Briefcase, DollarSign, TrendingUp, Search } from 'lucide-react';
-import { fetchAllOrders } from '@/lib/api/fetchAllOrders';
-import { useOrdersSort } from '@/hooks';
-import type { OrdersData } from '@/types';
-import { CATEGORIES } from '@/lib/constants/categories';
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { Preloader, ErrorAlert } from "@/components/common";
+import { useQuery } from "@tanstack/react-query";
+import { useFilters } from "@/hooks";
+import { AsideFilter, OrderCard } from "@/components/ui";
+import { Briefcase, DollarSign, TrendingUp, Search } from "lucide-react";
+import { fetchAllOrders } from "@/lib/api/fetchAllOrders";
+import { useOrdersSort } from "@/hooks";
+import type { OrdersData } from "@/types";
+import { CATEGORIES } from "@/lib/constants/categories";
 
-type SortOption = 'date-desc' | 'date-asc' | 'budget-desc' | 'budget-asc' | 'responses-desc';
+type SortOption = "date-desc" | "date-asc" | "budget-desc" | "budget-asc" | "responses-desc";
 
 const initShowingCount = () => {
     try {
-        const saved = Number(sessionStorage.getItem('orders-showing-count') || '20');
-        sessionStorage.removeItem('orders-showing-count');
+        const saved = Number(sessionStorage.getItem("orders-showing-count") || "20");
+        sessionStorage.removeItem("orders-showing-count");
         return saved;
     } catch (error) {
         if (error instanceof Error) {
@@ -22,86 +22,87 @@ const initShowingCount = () => {
         }
     }
     return 20;
-}
+};
 
 export const Orders = () => {
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
     const currentListElRef = useRef<HTMLDivElement>(null);
     const observerRef = useRef<IntersectionObserver>(null);
     const [showingCount, setShowingCount] = useState(initShowingCount);
     const { get, set } = useFilters();
-    const {data, isLoading, isError} = useQuery<OrdersData>({
-        queryKey: ['orders'],
+    const { data, isLoading, isError } = useQuery<OrdersData>({
+        queryKey: ["orders"],
         queryFn: fetchAllOrders,
         staleTime: 30 * 60 * 1000,
     });
 
-    const sortBy = get<SortOption>('sortBy', v => v as SortOption, 'date-desc');
-    const status = get('status', v => v.split(','), []);
-    const category = get('category', String, 'web-dev');
-    
+    const sortBy = get<SortOption>("sortBy", (v) => v as SortOption, "date-desc");
+    const status = get("status", (v) => v.split(","), []);
+    const category = get("category", String, "web-dev");
+
     const filteredOrders = useMemo(() => {
         if (!data || data.allIds.length === 0) return [];
 
-        return data.allIds.map(orderId => data.ordersById[orderId]).filter(order => {
-            const matchesSearch = 
-                order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                order.description.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesCategory = category === 'all' || order.category === category;
-            const matchesStatus = status.length === 0 || status.includes(order.status);
-            
-            return matchesSearch && matchesCategory && matchesStatus;
-        });
+        return data.allIds
+            .map((orderId) => data.ordersById[orderId])
+            .filter((order) => {
+                const matchesSearch =
+                    order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    order.description.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesCategory = category === "all" || order.category === category;
+                const matchesStatus = status.length === 0 || status.includes(order.status);
 
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
     }, [searchQuery, category, status, data]);
 
     const sortedData = useOrdersSort(filteredOrders, sortBy);
 
     const stats = {
         total: sortedData.length,
-        avgBudget: Math.round(sortedData.reduce((sum, o) => sum + (o.budgetMin + o.budgetMax) / 2, 0) / sortedData.length) || 0,
-        newOrders: sortedData.filter(o => o.status === 'new').length,
+        avgBudget:
+            Math.round(
+                sortedData.reduce((sum, o) => sum + (o.budgetMin + o.budgetMax) / 2, 0) /
+                    sortedData.length,
+            ) || 0,
+        newOrders: sortedData.filter((o) => o.status === "new").length,
     };
 
-    
     const visibleData = useMemo(() => {
         return sortedData.slice(0, showingCount);
     }, [sortedData, showingCount]);
-    
+
     const hasMore = visibleData.length < sortedData.length;
 
     const loadMore = useCallback(() => {
-        setShowingCount(prev => prev + 20);
+        setShowingCount((prev) => prev + 20);
     }, []);
 
     useEffect(() => {
         if (!hasMore || !currentListElRef.current) return;
         if (observerRef.current) observerRef.current.disconnect();
 
-        observerRef.current = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         loadMore();
                     }
-                })
-            }, 
-            {
-                rootMargin: '200px 0px',
-            }
+                });
+            },
+            { rootMargin: "200px 0px" },
         );
 
-        observerRef.current.observe(currentListElRef.current)
+        observerRef.current.observe(currentListElRef.current);
 
-        return () => { 
+        return () => {
             if (observerRef.current) observerRef.current.disconnect();
-        }
+        };
     }, [loadMore, visibleData, hasMore, showingCount]);
-    
-    useEffect(() => {
-        sessionStorage.setItem('orders-showing-count', String(showingCount));
-    }, [showingCount]);
 
-    
+    useEffect(() => {
+        sessionStorage.setItem("orders-showing-count", String(showingCount));
+    }, [showingCount]);
 
     return (
         <div className="min-h-screen">
@@ -126,7 +127,10 @@ export const Orders = () => {
                         </p>
                         <div className="mt-8 max-w-2xl mx-auto">
                             <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <Search
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                                    size={20}
+                                />
                                 <input
                                     type="text"
                                     value={searchQuery}
@@ -141,33 +145,39 @@ export const Orders = () => {
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <Briefcase className="mx-auto mb-2 text-indigo-500" size={32} />
                             {isLoading ? (
-                                <div className='animate-pulse flex justify-center items-center'>
+                                <div className="animate-pulse flex justify-center items-center">
                                     <div className="h-9 bg-gray-200 rounded w-1/3" />
                                 </div>
                             ) : (
-                                <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {stats.total}
+                                </div>
                             )}
                             <div className="text-sm text-gray-600">Всего заказов</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <DollarSign className="mx-auto mb-2 text-green-500" size={32} />
                             {isLoading ? (
-                                <div className='animate-pulse flex justify-center items-center'>
+                                <div className="animate-pulse flex justify-center items-center">
                                     <div className="h-9 bg-gray-200 rounded w-1/3" />
                                 </div>
                             ) : (
-                                <div className="text-3xl font-bold text-gray-900">{stats.avgBudget.toLocaleString()}₽</div>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {stats.avgBudget.toLocaleString()}₽
+                                </div>
                             )}
                             <div className="text-sm text-gray-600">Средний бюджет</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <TrendingUp className="mx-auto mb-2 text-blue-500" size={32} />
                             {isLoading ? (
-                                <div className='animate-pulse flex justify-center items-center'>
+                                <div className="animate-pulse flex justify-center items-center">
                                     <div className="h-9 bg-gray-200 rounded w-1/3" />
                                 </div>
                             ) : (
-                                <div className="text-3xl font-bold text-gray-900">{stats.newOrders}</div>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {stats.newOrders}
+                                </div>
                             )}
                             <div className="text-sm text-gray-600">Новых заказов</div>
                         </div>
@@ -178,13 +188,13 @@ export const Orders = () => {
                                 key={cat.id}
                                 type="button"
                                 onClick={() => {
-                                    set('category', cat.id);
+                                    set("category", cat.id);
                                     setShowingCount(20);
                                 }}
                                 className={`cursor-pointer px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
                                     category === cat.id
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
-                                        : 'bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700'
+                                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                                        : "bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700"
                                 }`}
                             >
                                 {cat.name}
@@ -195,45 +205,57 @@ export const Orders = () => {
             </section>
             <section className="py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <AsideFilter 
-                        sortBy={sortBy} 
-                        status={status}
-                    />
+                    <AsideFilter sortBy={sortBy} status={status} />
                     <div className="lg:col-span-9">
                         <div className="mb-4">
                             <p className="text-sm text-gray-600">
-                                Показано <span className="font-semibold text-gray-900">{visibleData.length}</span> из <span className="font-semibold text-gray-900">{sortedData.length}</span> заказов
+                                Показано{" "}
+                                <span className="font-semibold text-gray-900">
+                                    {visibleData.length}
+                                </span>{" "}
+                                из{" "}
+                                <span className="font-semibold text-gray-900">
+                                    {sortedData.length}
+                                </span>{" "}
+                                заказов
                             </p>
                         </div>
-                        {isLoading ? 
-                            <Preloader /> :
-                                isError ? 
-                                    <ErrorAlert /> :
-                                        <>
-                                            {visibleData.length === 0 ? (
-                                                <div className="text-center py-20">
-                                                    <div className="text-6xl mb-4">📋</div>
-                                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Заказы не найдены</h3>
-                                                    <p className="text-gray-600">Попробуйте изменить фильтры или поисковый запрос</p>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-4">
-                                                    {visibleData.map((order, index) => {
-                                                        const isLast = index === visibleData.length - 1;
+                        {isLoading ? (
+                            <Preloader />
+                        ) : isError ? (
+                            <ErrorAlert />
+                        ) : (
+                            <>
+                                {visibleData.length === 0 ? (
+                                    <div className="text-center py-20">
+                                        <div className="text-6xl mb-4">📋</div>
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                            Заказы не найдены
+                                        </h3>
+                                        <p className="text-gray-600">
+                                            Попробуйте изменить фильтры или поисковый запрос
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {visibleData.map((order, index) => {
+                                            const isLast = index === visibleData.length - 1;
 
-                                                        return <OrderCard 
-                                                                    key={order.id} 
-                                                                    order={order}
-                                                                    ref={isLast ? currentListElRef : null}
-                                                                />
-                                                    })}
-                                                </div>
-                                            )}
-                                        </>
-                        }
+                                            return (
+                                                <OrderCard
+                                                    key={order.id}
+                                                    order={order}
+                                                    ref={isLast ? currentListElRef : null}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
         </div>
     );
-}
+};

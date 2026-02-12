@@ -1,4 +1,4 @@
-import type {Message} from "@/types";
+import type { Message } from "@/types";
 
 export const useMessages = () => {
     const getAllMessages = async () => {
@@ -32,10 +32,19 @@ export const useMessages = () => {
         const currentMessages = allMessages[userId] || [];
 
         const updatedMessages = [...currentMessages, message];
-        const newAllMessages = {...allMessages, [userId]: updatedMessages};
+        const newAllMessages = { ...allMessages, [userId]: updatedMessages };
 
         localStorage.setItem("chat-messages", JSON.stringify(newAllMessages));
     };
 
-    return {getAllMessages, getMessagesById, saveMessage};
+    const resetMessages = async (userId: number) => {
+        const allMessages = await getAllMessages();
+
+        //eslint-disable-next-line
+        const { [userId]: _, ...restMessages } = allMessages;
+
+        localStorage.setItem("chat-messages", JSON.stringify(restMessages));
+    };
+
+    return { getAllMessages, getMessagesById, saveMessage, resetMessages };
 };

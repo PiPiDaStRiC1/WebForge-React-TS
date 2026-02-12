@@ -1,5 +1,5 @@
 import "@/styles/style.css";
-import {Routes, Route, useLocation} from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import {
     Header,
     Main,
@@ -21,11 +21,12 @@ import {
     AuthModal,
     Messages,
     Chat,
+    Favorites,
 } from "@/components";
-import {ScrollToTop} from "@/lib/utils/index";
-import {PublicRoute, ProtectedRoute} from "@/features";
-import {UserProvider} from "@/contexts";
-import {Toaster} from "react-hot-toast";
+import { ScrollToTop } from "@/lib/utils/index";
+import { PublicRoute, ProtectedRoute, ChatGuard } from "@/features";
+import { UserProvider } from "@/contexts";
+import { Toaster } from "react-hot-toast";
 
 // Lazy imports later
 // TODO:
@@ -41,14 +42,17 @@ import {Toaster} from "react-hot-toast";
 // 4) добавить возможность отправки файлов (например, изображений) в чат (очень маловероятно)
 // 5) добавить возможность Заблокировать пользователя
 
+// AuthModal:
+// 1) Переписать синтаксис в AuthModal, а также добавить валидацию при помощи Zod
+
 function App() {
     const location = useLocation();
-    const state = location.state as {background?: Location};
+    const state = location.state as { background?: Location };
 
     return (
         <>
             <UserProvider>
-                <Toaster toastOptions={{duration: 1000}} reverseOrder={false} />
+                <Toaster toastOptions={{ duration: 1000 }} reverseOrder={false} />
                 <Header />
                 <ScrollToTop />
                 <Routes location={state?.background || location}>
@@ -57,8 +61,22 @@ function App() {
                         <Route path="/orders" element={<Orders />} />
                         <Route path="/orders/:orderId" element={<OrderInfo />} />
                         <Route path="/profile/:userId" element={<UserProfile />} />
-                        <Route path="/messages" element={<Messages />} />
-                        <Route path="/messages/:userId" element={<Chat />} />
+                        <Route
+                            path="/messages"
+                            element={
+                                <ProtectedRoute>
+                                    <Messages />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/messages/:userId"
+                            element={
+                                <ChatGuard>
+                                    <Chat />
+                                </ChatGuard>
+                            }
+                        />
                         <Route
                             path="/my-profile"
                             element={
@@ -74,6 +92,14 @@ function App() {
                         <Route path="/guides" element={<Guides />} />
                         <Route path="/terms" element={<Terms />} />
                         <Route path="/privacy" element={<Privacy />} />
+                        <Route
+                            path="/favorites"
+                            element={
+                                <ProtectedRoute>
+                                    <Favorites />
+                                </ProtectedRoute>
+                            }
+                        />
                         <Route
                             path="/create-order"
                             element={

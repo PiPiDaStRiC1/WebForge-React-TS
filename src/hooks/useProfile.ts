@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks";
 import toast from "react-hot-toast";
-import type { UserData, FreelancerData } from "@/types";
+import type { UserData, FreelancerEditingProfile } from "@/types";
 
 export const useProfile = () => {
     const navigate = useNavigate();
@@ -61,9 +61,9 @@ export const useProfile = () => {
         setChangedData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleChangeFreelancer = <T extends keyof FreelancerData>(
+    const handleChangeFreelancer = <T extends keyof FreelancerEditingProfile>(
         field: T,
-        value: FreelancerData[T],
+        value: FreelancerEditingProfile[T],
     ) => {
         setChangedData((prev) => ({ ...prev, [field]: value }));
     };

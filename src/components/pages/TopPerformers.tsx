@@ -1,39 +1,50 @@
-import { useState, useMemo } from 'react';
-import { Trophy, Medal, Star, Award, Users, TrendingUp, Zap } from 'lucide-react';
-import type {Freelancer} from '@/types';
-import {fetchAllFreelancers} from '@/lib/api/fetchAllFreelancers';
-import {USERS_IN_TOP} from '@/lib/constants/index';
-import { useQuery } from '@tanstack/react-query';
-import {TopUserCard, OtherUserCard} from '@/components/ui';
+import { useState, useMemo } from "react";
+import { Trophy, Medal, Star, Award, Users, TrendingUp, Zap } from "lucide-react";
+import { fetchAllFreelancers } from "@/lib/api";
+import { USERS_IN_TOP } from "@/lib/constants/index";
+import { ErrorAlert } from "@/components/common";
+import { useQuery } from "@tanstack/react-query";
+import { TopUserCard, OtherUserCard } from "@/components/ui";
+import type { FreelancersData } from "@/types";
 
 const CATEGORIES = [
-    { id: 'all', name: 'Все категории', icon: Users },
-    { id: 'web-dev', name: 'Веб-разработка', icon: TrendingUp },
-    { id: 'design', name: 'Дизайн', icon: Award },
-    { id: 'mobile', name: 'Мобильная разработка', icon: Zap },
-    { id: 'marketing', name: 'Маркетинг', icon: Trophy },
-    { id: 'data', name: 'Аналитика', icon: Medal },
+    { id: "all", name: "Все категории", icon: Users },
+    { id: "web-dev", name: "Веб-разработка", icon: TrendingUp },
+    { id: "design", name: "Дизайн", icon: Award },
+    { id: "mobile", name: "Мобильная разработка", icon: Zap },
+    { id: "marketing", name: "Маркетинг", icon: Trophy },
+    { id: "data", name: "Аналитика", icon: Medal },
 ];
 
 export const TopPerformers = () => {
-    const {data, isLoading} = useQuery<Array<Freelancer>>({
-        queryKey: ['freelancers', 'top-performers'],
+    const { data, isLoading } = useQuery<FreelancersData>({
+        queryKey: ["freelancers", "top-performers"],
         queryFn: fetchAllFreelancers,
-    })
-    const [selectedCategory, setSelectedCategory] = useState('all');
+    });
+    const [selectedCategory, setSelectedCategory] = useState("all");
 
     const filteredPerformers = useMemo(() => {
         if (!data) return [];
 
-        if (selectedCategory === 'all') return data.slice(0, USERS_IN_TOP);
-        return data.filter(p => p.category === selectedCategory).slice(0, USERS_IN_TOP);
+        if (selectedCategory === "all")
+            return data.allIds.slice(0, USERS_IN_TOP).map((id) => data.freelancersById[id]);
+        return data.allIds
+            .filter((p) => data.freelancersById[p].category === selectedCategory)
+            .slice(0, USERS_IN_TOP)
+            .map((id) => data.freelancersById[id]);
     }, [selectedCategory, data]);
 
     const topThree = filteredPerformers.slice(0, 3);
     const restPerformers = filteredPerformers.slice(3);
 
+    if (!data && !isLoading) {
+        return <ErrorAlert />;
+    }
+
     const stats = {
-        avgRating: (filteredPerformers.reduce((sum, p) => sum + p.rating, 0) / filteredPerformers.length).toFixed(2),
+        avgRating: (
+            filteredPerformers.reduce((sum, p) => sum + p.rating, 0) / filteredPerformers.length
+        ).toFixed(2),
         totalOrders: filteredPerformers.reduce((sum, p) => sum + p.completedOrders, 0),
         totalPerformers: filteredPerformers.length,
     };
@@ -57,7 +68,8 @@ export const TopPerformers = () => {
                             Топ исполнителей
                         </h1>
                         <p className="text-lg text-gray-600">
-                            Проверенные специалисты с высоким рейтингом и сотнями выполненных заказов
+                            Проверенные специалисты с высоким рейтингом и сотнями выполненных
+                            заказов
                         </p>
                     </div>
 
@@ -65,33 +77,39 @@ export const TopPerformers = () => {
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <Star className="mx-auto mb-2 text-yellow-500" size={32} />
                             {isLoading ? (
-                                <div className='animate-pulse flex justify-center items-center'>
+                                <div className="animate-pulse flex justify-center items-center">
                                     <div className="h-9 bg-gray-200 rounded w-1/3" />
                                 </div>
                             ) : (
-                                <div className="text-3xl font-bold text-gray-900">{stats.avgRating}</div>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {stats.avgRating}
+                                </div>
                             )}
                             <div className="text-sm text-gray-600">Средний рейтинг</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <Award className="mx-auto mb-2 text-indigo-500" size={32} />
                             {isLoading ? (
-                                <div className='animate-pulse flex justify-center items-center'>
+                                <div className="animate-pulse flex justify-center items-center">
                                     <div className="h-9 bg-gray-200 rounded w-1/3" />
                                 </div>
                             ) : (
-                                <div className="text-3xl font-bold text-gray-900">{stats.totalOrders}</div>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {stats.totalOrders}
+                                </div>
                             )}
                             <div className="text-sm text-gray-600">Выполнено заказов</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
                             <Users className="mx-auto mb-2 text-green-500" size={32} />
                             {isLoading ? (
-                                <div className='animate-pulse flex justify-center items-center'>
+                                <div className="animate-pulse flex justify-center items-center">
                                     <div className="h-9 bg-gray-200 rounded w-1/3" />
                                 </div>
                             ) : (
-                                <div className="text-3xl font-bold text-gray-900">{stats.totalPerformers}</div>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {stats.totalPerformers}
+                                </div>
                             )}
                             <div className="text-sm text-gray-600">Топ исполнителей</div>
                         </div>
@@ -107,8 +125,8 @@ export const TopPerformers = () => {
                                     onClick={() => setSelectedCategory(cat.id)}
                                     className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
                                         selectedCategory === cat.id
-                                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
-                                            : 'bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700'
+                                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                                            : "bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700"
                                     }`}
                                 >
                                     <Icon size={16} />
@@ -121,28 +139,24 @@ export const TopPerformers = () => {
             </section>
 
             <section className="py-10">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">🏆 Тройка лидеров</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                    🏆 Тройка лидеров
+                </h2>
                 <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                     {topThree.map((performer, index) => (
-                        <TopUserCard 
-                            key={performer.id} 
-                            performer={performer}
-                            index={index}
-                        />
+                        <TopUserCard key={performer.id} performer={performer} index={index} />
                     ))}
                 </div>
             </section>
 
             {restPerformers.length > 0 && (
                 <section className="py-10">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Топ 4-{filteredPerformers.length}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        Топ 4-{filteredPerformers.length}
+                    </h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {restPerformers.map((performer, index) => (
-                            <OtherUserCard 
-                                key={performer.id}
-                                performer={performer}
-                                index={index}
-                            />
+                            <OtherUserCard key={performer.id} performer={performer} index={index} />
                         ))}
                     </div>
                 </section>
@@ -150,10 +164,12 @@ export const TopPerformers = () => {
             {filteredPerformers.length === 0 && (
                 <div className="text-center py-20">
                     <div className="text-6xl mb-4">🔍</div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Нет исполнителей в этой категории</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                        Нет исполнителей в этой категории
+                    </h3>
                     <p className="text-gray-600">Попробуйте выбрать другую категорию</p>
                 </div>
             )}
         </div>
     );
-}
+};

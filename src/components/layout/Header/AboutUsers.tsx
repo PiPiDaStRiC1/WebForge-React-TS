@@ -8,33 +8,33 @@ interface AboutUsersProps {
 }
 
 export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const location = useLocation();
     const { user, isAuthenticated } = useUser();
 
     const handleClick = () => {
-        navigate('/auth', { state: { background: location, redirectTo: '/create-order' } });
+        navigate("/auth", { state: { background: location, redirectTo: "/create-order" } });
         setIsOpen(false);
-    }
+    };
 
     return (
-        <div 
+        <div
             className={`absolute top-full left-0 mt-2 w-72 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl overflow-hidden transition-all duration-300 origin-top ${
-                isOpen 
-                    ? 'opacity-100 scale-y-100 translate-y-0' 
-                    : 'opacity-0 scale-y-0 -translate-y-2 pointer-events-none'
+                isOpen
+                    ? "opacity-100 scale-y-100 translate-y-0"
+                    : "opacity-0 scale-y-0 -translate-y-2 pointer-events-none"
             }`}
         >
             <div className="p-4">
                 <div className="mb-3">
-                    {((user && user.role === 'client') || !isAuthenticated) && (
+                    {((user && user.role === "client") || !isAuthenticated) && (
                         <>
                             <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                                 Для заказчиков
                             </h3>
                             <div className="space-y-1">
-                                <Link 
-                                    to="/orders" 
+                                <Link
+                                    to="/orders"
                                     className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-colors group"
                                     onClick={() => setIsOpen(false)}
                                 >
@@ -43,11 +43,13 @@ export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
                                     </div>
                                     <div className="flex-1">
                                         <div className="font-medium">Все заказы</div>
-                                        <div className="text-xs text-gray-500">Просмотр активных заказов</div>
+                                        <div className="text-xs text-gray-500">
+                                            Просмотр активных заказов
+                                        </div>
                                     </div>
                                 </Link>
 
-                                <button 
+                                <button
                                     className="cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-colors group"
                                     onClick={handleClick}
                                 >
@@ -56,11 +58,13 @@ export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
                                     </div>
                                     <div className="flex flex-col items-start">
                                         <div className="font-medium">Разместить заказ</div>
-                                        <div className="text-xs text-gray-500">Создать новую задачу</div>
+                                        <div className="text-xs text-gray-500">
+                                            Создать новую задачу
+                                        </div>
                                     </div>
                                 </button>
-                                <Link 
-                                    to="/top-performers" 
+                                <Link
+                                    to="/top-performers"
                                     className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-colors group"
                                     onClick={() => setIsOpen(false)}
                                 >
@@ -69,7 +73,9 @@ export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
                                     </div>
                                     <div className="flex-1">
                                         <div className="font-medium">Топ фрилансеров</div>
-                                        <div className="text-xs text-gray-500">Лучшие специалисты</div>
+                                        <div className="text-xs text-gray-500">
+                                            Лучшие специалисты
+                                        </div>
                                     </div>
                                 </Link>
                             </div>
@@ -77,14 +83,14 @@ export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
                     )}
                 </div>
 
-                {((user && user.role === 'freelancer') || !isAuthenticated) && (
+                {((user && user.role === "freelancer") || !isAuthenticated) && (
                     <>
                         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                             Для исполнителей
                         </h3>
                         <div className="space-y-1">
-                            <Link 
-                                to="/performers" 
+                            <Link
+                                to="/performers"
                                 className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-colors group"
                                 onClick={() => setIsOpen(false)}
                             >
@@ -96,8 +102,8 @@ export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
                                     <div className="text-xs text-gray-500">База фрилансеров</div>
                                 </div>
                             </Link>
-                            <Link 
-                                to="/top-performers" 
+                            <Link
+                                to="/top-performers"
                                 className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-colors group"
                                 onClick={() => setIsOpen(false)}
                             >
@@ -110,12 +116,11 @@ export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
                                 </div>
                             </Link>
                         </div>
-
                     </>
                 )}
                 <div className="border-t border-gray-100 mt-3 pt-3">
-                    <Link 
-                        to="/categories" 
+                    <Link
+                        to="/categories"
                         className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-colors group"
                         onClick={() => setIsOpen(false)}
                     >
@@ -130,5 +135,5 @@ export const AboutUsers = ({ isOpen, setIsOpen }: AboutUsersProps) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};

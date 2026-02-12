@@ -1,10 +1,10 @@
-import {Filter, ArrowUp} from 'lucide-react';
-import {useFilters} from '@/hooks';
+import { Filter, ArrowUp } from "lucide-react";
+import { useFilters } from "@/hooks";
 
 const STATUS_CONFIG = {
-    'new': { label: 'Новый', color: 'bg-green-100 text-green-700', icon: '🆕' },
-    'in-progress': { label: 'В работе', color: 'bg-blue-100 text-blue-700', icon: '⚡' },
-    'completed': { label: 'Завершен', color: 'bg-gray-100 text-gray-700', icon: '✅' },
+    new: { label: "Новый", color: "bg-green-100 text-green-700", icon: "🆕" },
+    "in-progress": { label: "В работе", color: "bg-blue-100 text-blue-700", icon: "⚡" },
+    completed: { label: "Завершен", color: "bg-gray-100 text-gray-700", icon: "✅" },
 };
 
 interface AsideFilterProps {
@@ -12,8 +12,8 @@ interface AsideFilterProps {
     status: string[];
 }
 
-export const AsideFilter = ({sortBy, status} : AsideFilterProps) => {
-    const {set, toggle, resetFilters} = useFilters();
+export const AsideFilter = ({ sortBy, status }: AsideFilterProps) => {
+    const { set, toggle, resetFilters } = useFilters();
 
     return (
         <aside className="lg:col-span-3">
@@ -31,7 +31,7 @@ export const AsideFilter = ({sortBy, status} : AsideFilterProps) => {
                                     <input
                                         type="checkbox"
                                         checked={status.includes(key)}
-                                        onChange={() => toggle('status', key)}
+                                        onChange={() => toggle("status", key)}
                                         className="cursor-pointer w-4 h-4 text-indigo-600 rounded"
                                     />
                                     <span className="text-sm text-gray-700">{config.label}</span>
@@ -43,7 +43,7 @@ export const AsideFilter = ({sortBy, status} : AsideFilterProps) => {
                         <h4 className="text-sm font-semibold text-gray-700 mb-3">Сортировка</h4>
                         <select
                             value={sortBy}
-                            onChange={(e) => set('sortBy', e.target.value)}
+                            onChange={(e) => set("sortBy", e.target.value)}
                             className="cursor-pointer w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm"
                         >
                             <option value="date-desc">Сначала новые</option>
@@ -62,13 +62,13 @@ export const AsideFilter = ({sortBy, status} : AsideFilterProps) => {
                         Сбросить фильтры
                     </button>
                 </div>
-                <div 
-                    className='cursor-pointer w-full p-1 flex justify-center items-center bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg'
-                    onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+                <div
+                    className="cursor-pointer w-full p-1 flex justify-center items-center bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg"
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
-                    <ArrowUp size={30}/>
+                    <ArrowUp size={30} />
                 </div>
             </div>
         </aside>
-    )
-}
+    );
+};

@@ -5,7 +5,7 @@ import { Send, Paperclip, MoreVertical, ArrowLeft, MessageCircle, Star } from "l
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOneUser } from "@/lib/api/fetchOneUser";
 import { InlineMessage } from "@/components/ui";
-import type { Message } from "@/types";
+import type { Message, UserData } from "@/types";
 
 const freelancerReplies: string[] = [
     "Привет! Да, конечно, могу помочь — расскажите чуть подробнее, что именно нужно сделать 🙂",
@@ -88,7 +88,7 @@ export const Chat = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { user: ownUser } = useUser();
-    const { getMessagesById, saveMessage } = useMessages();
+    const { getMessagesById, saveMessage, resetMessages } = useMessages();
     const [openMore, setOpenMore] = useState(false);
     const moreOptionsRef = useRef<HTMLDivElement>(null);
 
@@ -98,20 +98,19 @@ export const Chat = () => {
         data: currentUser,
         isError,
         isLoading,
-    } = useQuery({
+    } = useQuery<UserData | undefined>({
         queryKey: ["user", userId],
         queryFn: () => fetchOneUser(Number(userId)),
         staleTime: 5 * 60 * 1000,
         enabled: !!userId,
     });
-    const { data: messages } = useQuery({
+    const { data: messages } = useQuery<Message[]>({
         queryKey: ["messages", userId],
         queryFn: () => getMessagesById(Number(userId)),
         staleTime: 0,
         enabled: !!userId,
     });
     const { mutate } = useMutation({
-        mutationKey: ["sendMessage", userId],
         onMutate: async (messageText: string) => {
             // race conditions
             await queryClient.cancelQueries({ queryKey: ["messages", userId] });
@@ -177,9 +176,12 @@ export const Chat = () => {
 
                     saveMessage(Number(userId), replyMessage);
 
-                    queryClient.invalidateQueries({ queryKey: ["messages", userId] });
+                    queryClient.setQueryData(["messages", userId], (prevData: Message[]) => [
+                        ...prevData,
+                        replyMessage,
+                    ]);
                 },
-                Math.random() * 2000 + 1000,
+                Math.random() * 5000 + 1000,
             );
         },
     });
@@ -187,8 +189,8 @@ export const Chat = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const handleClear = () => {
-        localStorage.setItem("chat-messages", JSON.stringify({}));
         queryClient.setQueryData(["messages", userId], []);
+        resetMessages(Number(userId));
         setOpenMore(false);
     };
 
@@ -247,7 +249,7 @@ export const Chat = () => {
     }
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 py-18">
+        <div className="bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 py-6">
             <div className="max-w-5xl mx-auto px-4">
                 <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-t-2xl shadow-lg px-6 py-4">
                     <div className="flex items-center justify-between">

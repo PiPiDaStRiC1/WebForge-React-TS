@@ -1,19 +1,17 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, User, ChevronDown, X, Bell, MessageSquare, UserX } from 'lucide-react';
-import { Logo } from '@/components/common/index'
-import { AboutUsers, Support } from './index'
 import { useState, useRef, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Search, User, ChevronDown, X, Heart, MessageSquare, UserX } from "lucide-react";
+import { Logo } from "@/components/common/index";
+import { AboutUsers, Support } from "./index";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllOrders } from '@/lib/api/fetchAllOrders';
-import type { OrdersData } from '@/types';
-import { useUser } from "@/hooks";
-
+import { fetchAllOrders } from "@/lib/api/fetchAllOrders";
+import { useUser, useFavorites } from "@/hooks";
+import type { OrdersData } from "@/types";
 
 export const Header = () => {
-    const navigate = useNavigate();
     const location = useLocation();
     const { isAuthenticated, error } = useUser();
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUsersOpen, setIsUsersOpen] = useState(false);
     const [isSupportOpen, setIsSupportOpen] = useState(false);
@@ -21,17 +19,24 @@ export const Header = () => {
     const usersRef = useRef<HTMLDivElement>(null);
     const supportRef = useRef<HTMLDivElement>(null);
 
-    const {data: orders} = useQuery<OrdersData>({
-        queryKey: ['orders'],
+    const { data: orders } = useQuery<OrdersData>({
+        queryKey: ["orders"],
         queryFn: fetchAllOrders,
     });
 
-    const filteredOrders = orders?.allIds.map(orderId => orders.ordersById[orderId]).filter(order => 
-        searchQuery.trim().length > 0 && (
-            order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.description.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    ).slice(0, 10) || [];
+    const { favoritesList } = useFavorites();
+    const favoritesCount = Object.keys(favoritesList).length;
+
+    const filteredOrders =
+        orders?.allIds
+            .map((orderId) => orders.ordersById[orderId])
+            .filter(
+                (order) =>
+                    searchQuery.trim().length > 0 &&
+                    (order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        order.description.toLowerCase().includes(searchQuery.toLowerCase())),
+            )
+            .slice(0, 10) || [];
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -46,8 +51,8 @@ export const Header = () => {
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
@@ -57,13 +62,22 @@ export const Header = () => {
                     <Logo />
                 </Link>
                 <nav className="hidden lg:flex items-center gap-1 flex-shrink-0">
-                    <Link to="/orders" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors">
+                    <Link
+                        to="/orders"
+                        className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
                         Заказы
                     </Link>
-                    <Link to="/performers" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors">
+                    <Link
+                        to="/performers"
+                        className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
                         Исполнители
                     </Link>
-                    <Link to="/categories" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors">
+                    <Link
+                        to="/categories"
+                        className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
                         Категории
                     </Link>
                     <div className="relative" ref={usersRef}>
@@ -73,16 +87,16 @@ export const Header = () => {
                                 setIsSupportOpen(false);
                             }}
                             className={`cursor-pointer flex items-center gap-1 px-4 py-2 text-[15px] font-medium rounded-lg transition-colors ${
-                                isUsersOpen 
-                                    ? 'text-indigo-600 bg-indigo-50' 
-                                    : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'
+                                isUsersOpen
+                                    ? "text-indigo-600 bg-indigo-50"
+                                    : "text-gray-600 hover:text-indigo-600 hover:bg-gray-50"
                             }`}
                         >
                             Пользователям
-                            <ChevronDown 
-                                size={16} 
+                            <ChevronDown
+                                size={16}
                                 className={`transition-transform duration-300 ${
-                                    isUsersOpen ? 'rotate-180' : 'rotate-0'
+                                    isUsersOpen ? "rotate-180" : "rotate-0"
                                 }`}
                             />
                         </button>
@@ -95,16 +109,16 @@ export const Header = () => {
                                 setIsUsersOpen(false);
                             }}
                             className={`cursor-pointer flex items-center gap-1 px-4 py-2 text-[15px] font-medium rounded-lg transition-colors ${
-                                isSupportOpen 
-                                    ? 'text-indigo-600 bg-indigo-50' 
-                                    : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'
+                                isSupportOpen
+                                    ? "text-indigo-600 bg-indigo-50"
+                                    : "text-gray-600 hover:text-indigo-600 hover:bg-gray-50"
                             }`}
                         >
                             Помощь
-                            <ChevronDown 
-                                size={16} 
+                            <ChevronDown
+                                size={16}
                                 className={`transition-transform duration-300 ${
-                                    isSupportOpen ? 'rotate-180' : 'rotate-0'
+                                    isSupportOpen ? "rotate-180" : "rotate-0"
                                 }`}
                             />
                         </button>
@@ -112,7 +126,10 @@ export const Header = () => {
                     </div>
                 </nav>
                 <div className="flex-1 max-w-2xl relative" ref={searchRef}>
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 z-10" size={20} />
+                    <Search
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 z-10"
+                        size={20}
+                    />
                     <label className="relative">
                         <input
                             type="text"
@@ -126,20 +143,22 @@ export const Header = () => {
                             <button
                                 type="button"
                                 className="cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
-                                onClick={() => setSearchQuery('')}
+                                onClick={() => setSearchQuery("")}
                             >
-                                <X size={18}/>
+                                <X size={18} />
                             </button>
                         )}
                     </label>
-                    
+
                     {isSearchOpen && searchQuery.trim().length > 0 && (
                         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-scale-in origin-top max-h-[420px] overflow-y-auto">
                             {filteredOrders.length > 0 ? (
                                 <>
                                     <div className="p-2 border-b border-gray-100 bg-gray-50">
                                         <p className="text-xs font-medium text-gray-500 px-2">
-                                            {filteredOrders.length < 10 ? `Найдено заказов: ${filteredOrders.length}` : 'Первые 10 результатов'}
+                                            {filteredOrders.length < 10
+                                                ? `Найдено заказов: ${filteredOrders.length}`
+                                                : "Первые 10 результатов"}
                                         </p>
                                     </div>
                                     {filteredOrders.map((order) => (
@@ -148,7 +167,7 @@ export const Header = () => {
                                             to={`/orders/${order.id}`}
                                             onClick={() => {
                                                 setIsSearchOpen(false);
-                                                setSearchQuery('');
+                                                setSearchQuery("");
                                             }}
                                             className="block p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
                                         >
@@ -165,7 +184,9 @@ export const Header = () => {
                                                             {order.category}
                                                         </span>
                                                         <span className="text-xs text-gray-500">
-                                                            {new Date(order.createdAt).toLocaleDateString('ru')}
+                                                            {new Date(
+                                                                order.createdAt,
+                                                            ).toLocaleDateString("ru")}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -197,36 +218,45 @@ export const Header = () => {
                 <div className="flex items-center gap-2 flex-shrink-0">
                     {isAuthenticated ? (
                         <>
-                            <Link to="/notifications" className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors">
-                                <Bell size={20} />
+                            <Link
+                                to="/favorites"
+                                className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors"
+                            >
+                                <div>
+                                    <Heart size={20} />
+                                    {favoritesCount > 0 && (
+                                        <span className="absolute -top-[0.5px] -right-[0.5px] w-4 h-4 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">
+                                            {favoritesCount}
+                                        </span>
+                                    )}
+                                </div>
                             </Link>
-                            <Link to="/messages" className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors">
+                            <Link
+                                to="/messages"
+                                className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors"
+                            >
                                 <MessageSquare size={20} />
                             </Link>
-                            <Link to='/my-profile' className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
+                            <Link
+                                to="/my-profile"
+                                className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white"
+                            >
                                 <User size={18} />
                             </Link>
                         </>
-                    ) : error ? (
-                        <button 
-                            className="cursor-pointer flex items-center gap-2 py-1.5 px-3 pl-1.5 hover:bg-gray-50 rounded-xl transition-colors"
-                            onClick={() => navigate('/auth', {state: { background: location }})}
-                        >
-                            <div className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
-                                <UserX size={18} />
-                            </div>
-                            <span className="text-[15px] font-semibold text-gray-900 hidden md:block">Войти</span>
-                        </button>
                     ) : (
-                        <button 
+                        <Link
+                            to="/auth"
+                            state={{ background: location }}
                             className="cursor-pointer flex items-center gap-2 py-1.5 px-3 pl-1.5 hover:bg-gray-50 rounded-xl transition-colors"
-                            onClick={() => navigate('/auth', {state: { background: location }})}
                         >
                             <div className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
-                                <User size={18} />
+                                {error ? <UserX size={18} /> : <User size={18} />}
                             </div>
-                            <span className="text-[15px] font-semibold text-gray-900 hidden md:block">Войти</span>
-                        </button>
+                            <span className="text-[15px] font-semibold text-gray-900 hidden md:block">
+                                Войти
+                            </span>
+                        </Link>
                     )}
                 </div>
             </div>
