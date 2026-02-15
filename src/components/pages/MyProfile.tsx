@@ -61,7 +61,10 @@ export const MyProfile = () => {
                                             )}
                                         </span>
                                         <span className="text-sm text-gray-500">
-                                            {user.registeredAt}
+                                            {new Date(user.registeredAt).toLocaleDateString(
+                                                "ru-RU",
+                                                { month: "long", year: "numeric" },
+                                            )}
                                         </span>
                                     </div>
                                 </div>

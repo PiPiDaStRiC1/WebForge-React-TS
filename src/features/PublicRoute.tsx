@@ -14,5 +14,5 @@ export const PublicRoute = ({ children }: PublicRouteProps) => {
         return <Navigate to={state?.redirectTo || "/my-profile"} replace />;
     }
 
-    return children;
+    return <>{children}</>;
 };

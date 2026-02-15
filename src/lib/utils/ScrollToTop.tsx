@@ -5,15 +5,12 @@ interface ScrollToTopProps {
     behavior?: ScrollBehavior;
 }
 
-export const ScrollToTop = ({ behavior = 'smooth' }: ScrollToTopProps) => {
+export const ScrollToTop = ({ behavior = "smooth" }: ScrollToTopProps) => {
     const location = useLocation();
 
     useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: behavior
-        });
+        if (location.pathname.includes("/auth")) return;
+        window.scrollTo({ top: 0, left: 0, behavior: behavior });
     }, [location.pathname, behavior]);
 
     return null;

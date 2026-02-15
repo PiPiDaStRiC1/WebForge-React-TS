@@ -1,7 +1,7 @@
-import { useCurrentUser } from "@/hooks";
-import { useEffect, useRef } from "react";
-import toast from "react-hot-toast";
 import { Navigate, useParams } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { AuthStore } from "@/lib/storage/authStore";
+import toast from "react-hot-toast";
 
 interface ChatGuardProps {
     children: React.ReactNode;
@@ -10,24 +10,19 @@ interface ChatGuardProps {
 export const ChatGuard = ({ children }: ChatGuardProps) => {
     const { userId } = useParams<{ userId: string }>();
     const isToastNotification = useRef(false);
-    const { data: currentUser } = useCurrentUser();
+    const currentUserId = new AuthStore().getUserId();
 
     useEffect(() => {
-        if (
-            currentUser &&
-            userId &&
-            currentUser.id === Number(userId) &&
-            !isToastNotification.current
-        ) {
+        if (userId && currentUserId === Number(userId) && !isToastNotification.current) {
             toast.error("Вы не можете отправлять сообщения самому себе", {
                 style: { textAlign: "center" },
                 duration: 3000,
             });
             isToastNotification.current = true;
         }
-    }, [currentUser, userId]);
+    }, [currentUserId, userId]);
 
-    if (!currentUser || currentUser.id === Number(userId)) {
+    if (currentUserId === Number(userId)) {
         return <Navigate to="/auth" replace />;
     }
 

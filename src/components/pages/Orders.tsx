@@ -13,9 +13,10 @@ type SortOption = "date-desc" | "date-asc" | "budget-desc" | "budget-asc" | "res
 
 const initShowingCount = () => {
     try {
-        const saved = Number(sessionStorage.getItem("orders-showing-count") || "20");
+        const saved = sessionStorage.getItem("orders-showing-count");
+        const parsed: number = saved ? JSON.parse(saved) : 20;
         sessionStorage.removeItem("orders-showing-count");
-        return saved;
+        return parsed;
     } catch (error) {
         if (error instanceof Error) {
             console.error(error.message);
@@ -101,7 +102,7 @@ export const Orders = () => {
     }, [loadMore, visibleData, hasMore, showingCount]);
 
     useEffect(() => {
-        sessionStorage.setItem("orders-showing-count", String(showingCount));
+        sessionStorage.setItem("orders-showing-count", JSON.stringify(showingCount));
     }, [showingCount]);
 
     return (

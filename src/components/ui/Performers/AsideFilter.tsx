@@ -89,7 +89,6 @@ export const AsideFilters = ({
                                                 className="text-amber-400 fill-amber-400"
                                             />
                                             <span className="font-medium">4.8+</span>
-                                            <span className="text-gray-400">(35)</span>
                                         </span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -105,7 +104,6 @@ export const AsideFilters = ({
                                                 className="text-amber-400 fill-amber-400"
                                             />
                                             <span className="font-medium">4.5+</span>
-                                            <span className="text-gray-400">(89)</span>
                                         </span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -121,7 +119,6 @@ export const AsideFilters = ({
                                                 className="text-amber-400 fill-amber-400"
                                             />
                                             <span className="font-medium">4.0+</span>
-                                            <span className="text-gray-400">(142)</span>
                                         </span>
                                     </label>
                                 </div>
@@ -142,7 +139,7 @@ export const AsideFilters = ({
                                             onChange={() => setRange("experience", ["0", "1"])}
                                         />
                                         <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                            Менее года <span className="text-gray-400">(22)</span>
+                                            Менее года
                                         </span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -153,7 +150,7 @@ export const AsideFilters = ({
                                             onChange={() => setRange("experience", ["1", "3"])}
                                         />
                                         <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                            1-3 года <span className="text-gray-400">(67)</span>
+                                            1-3 года
                                         </span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -164,7 +161,7 @@ export const AsideFilters = ({
                                             onChange={() => setRange("experience", ["3", "5"])}
                                         />
                                         <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                            3-5 лет <span className="text-gray-400">(45)</span>
+                                            3-5 лет
                                         </span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -175,7 +172,7 @@ export const AsideFilters = ({
                                             onChange={() => setRange("experience", ["5", "10"])}
                                         />
                                         <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                            Более 5 лет <span className="text-gray-400">(16)</span>
+                                            Более 5 лет
                                         </span>
                                     </label>
                                 </div>
@@ -197,8 +194,7 @@ export const AsideFilters = ({
                                         />
                                         <span className="flex items-center gap-1.5 text-sm text-gray-700 group-hover:text-gray-900">
                                             <BadgeCheck size={14} className="text-emerald-500" />
-                                            Верифицирован{" "}
-                                            <span className="text-gray-400">(112)</span>
+                                            Верифицирован
                                         </span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -210,8 +206,7 @@ export const AsideFilters = ({
                                         />
                                         <span className="flex items-center gap-1.5 text-sm text-gray-700 group-hover:text-gray-900">
                                             <Clock size={14} className="text-emerald-500" />
-                                            Доступен сейчас{" "}
-                                            <span className="text-gray-400">(28)</span>
+                                            Доступен сейчас
                                         </span>
                                     </label>
                                 </div>

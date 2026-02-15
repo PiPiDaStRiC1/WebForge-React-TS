@@ -22,18 +22,19 @@ import {
     Messages,
     Chat,
     Favorites,
+    Auth,
 } from "@/components";
 import { ScrollToTop } from "@/lib/utils/index";
-import { PublicRoute, ProtectedRoute, ChatGuard } from "@/features";
+import { PublicRoute, ProtectedRoute, ChatGuard, OrderGuard } from "@/features";
 import { UserProvider } from "@/contexts";
 import { Toaster } from "react-hot-toast";
 
 // Lazy imports later
 // TODO:
-// 1) Сделать отдельную страницу для auth
-// 2) Возможно убрать логику 2 флагов для сохранения и изменения (isEditing, isSaving), а также сделать так, чтобы, если изменения
-// полей не произошли, то сохранения, а значит и задержки не будет
-// 3) Добавить возможность смена роли аккаунта в настройки (client и freelancer)
+// 1) Добавить возможность смена роли аккаунта в настройки (client и freelancer)
+
+// Роутинг
+// 1) сделать корректное удаление желаемого при разлоге (возможно сделать guest аккаунт)
 
 // Чат:
 // 1) добавить gender, ник (с @), сделать валидацию через Zod или React Hook Form
@@ -42,8 +43,11 @@ import { Toaster } from "react-hot-toast";
 // 4) добавить возможность отправки файлов (например, изображений) в чат (очень маловероятно)
 // 5) добавить возможность Заблокировать пользователя
 
-// AuthModal:
-// 1) Переписать синтаксис в AuthModal, а также добавить валидацию при помощи Zod
+// AI
+// Error Boundary
+// Toast для всех мутаций
+// Возможная оптимизация изображений (Intersection Observer)
+// Непрочитанные сообщения
 
 function App() {
     const location = useLocation();
@@ -59,7 +63,14 @@ function App() {
                     <Route element={<Main />}>
                         <Route path="/" index element={<Home />} />
                         <Route path="/orders" element={<Orders />} />
-                        <Route path="/orders/:orderId" element={<OrderInfo />} />
+                        <Route
+                            path="/orders/:orderId"
+                            element={
+                                <OrderGuard>
+                                    <OrderInfo />
+                                </OrderGuard>
+                            }
+                        />
                         <Route path="/profile/:userId" element={<UserProfile />} />
                         <Route
                             path="/messages"
@@ -108,14 +119,16 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
-                        <Route
-                            path="/auth"
-                            element={
-                                <PublicRoute>
-                                    <AuthModal />
-                                </PublicRoute>
-                            }
-                        />
+                        {!state?.background && (
+                            <Route
+                                path="/auth"
+                                element={
+                                    <PublicRoute>
+                                        <Auth />
+                                    </PublicRoute>
+                                }
+                            />
+                        )}
                         <Route path="*" element={<NotFound />} />
                     </Route>
                 </Routes>

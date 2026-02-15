@@ -261,7 +261,7 @@ export const SettingsTab = () => {
                                             Изменить пароль
                                         </button>
                                         <div className="text-sm text-gray-500 mt-1">
-                                            Последнее изменение: {user.createdAt}
+                                            Последнее изменение: {user.registeredAt.split("T")[0]}
                                         </div>
                                     </div>
                                     <ChevronRight

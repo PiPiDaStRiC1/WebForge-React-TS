@@ -1,62 +1,88 @@
-import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
-import { Calendar, Clock, DollarSign, MessageCircle, Briefcase, TrendingUp } from 'lucide-react';
-import { fetchOneOrder } from '@/lib/api/fetchOneOrder';
-import { fetchOneUser } from '@/lib/api/fetchOneUser';
-import { fetchResponses } from '@/lib/api/fetchResponses';
-import { fetchAllFreelancers } from '@/lib/api/fetchAllFreelancers';
-import { ErrorAlert } from '@/components/common';
-import { Preloader } from '@/components/common';
-import type { Order, Client, Freelancer, OrderResponse } from '@/types';
-import { ClientCard, ResponseCard } from '@/components/ui'
+import { useQuery } from "@tanstack/react-query";
+import { useParams, Link } from "react-router-dom";
+import { Calendar, Clock, DollarSign, MessageCircle, Briefcase, TrendingUp } from "lucide-react";
+import { fetchOneOrder, fetchOneUser, fetchResponses, fetchAllFreelancers } from "@/lib/api";
+import { ErrorAlert } from "@/components/common";
+import { ClientCard, ResponseCard, OrderInfoSkeleton } from "@/components/ui";
+import type { Order, Client, Freelancer, OrderResponse, FreelancersData } from "@/types";
 
 const STATUS_CONFIG = {
-    'new': { label: 'Новый', color: 'bg-green-100 text-green-700 border-green-200', icon: '🆕' },
-    'in-progress': { label: 'В работе', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: '⚡' },
-    'completed': { label: 'Завершен', color: 'bg-gray-100 text-gray-700 border-gray-200', icon: '✅' },
+    new: { label: "Новый", color: "bg-green-100 text-green-700 border-green-200", icon: "🆕" },
+    "in-progress": {
+        label: "В работе",
+        color: "bg-blue-100 text-blue-700 border-blue-200",
+        icon: "⚡",
+    },
+    completed: {
+        label: "Завершен",
+        color: "bg-gray-100 text-gray-700 border-gray-200",
+        icon: "✅",
+    },
 };
 
 const isClient = (user: Client | Freelancer | undefined): user is Client => {
-    return user?.role === 'client';
+    return user?.role === "client";
 };
 
 export const OrderInfo = () => {
     const { orderId } = useParams<{ orderId: string }>();
-    
-    const { data: order, isLoading, isError } = useQuery<Order | undefined>({
-        queryKey: ['orders', orderId],
+
+    const {
+        data: order,
+        isLoading: isLoadingOrder,
+        isError: isErrorOrder,
+    } = useQuery<Order | undefined>({
+        queryKey: ["orders", orderId],
         queryFn: () => fetchOneOrder(Number(orderId)),
         enabled: !!orderId,
         staleTime: 30 * 60 * 1000,
     });
 
-    const { data: user } = useQuery<Client | Freelancer | undefined>({
-        queryKey: ['users', order?.clientId],
+    const {
+        data: user,
+        isLoading: isLoadingUser,
+        isError: isErrorUser,
+    } = useQuery<Client | Freelancer | undefined>({
+        queryKey: ["users", order?.clientId],
         queryFn: () => fetchOneUser(order!.clientId),
         enabled: !!order?.clientId,
         staleTime: 30 * 60 * 1000,
     });
 
-    const { data: freelancers } = useQuery<Freelancer[]>({
-        queryKey: ['freelancers'],
-        queryFn: fetchAllFreelancers
+    const {
+        data: freelancers,
+        isLoading: isLoadingFreelancers,
+        isError: isErrorFreelancers,
+    } = useQuery<FreelancersData>({
+        queryKey: ["freelancers"],
+        queryFn: fetchAllFreelancers,
+        enabled: !!order,
     });
 
-    const { data: responses } = useQuery<OrderResponse[]>({
-        queryKey: ['responses', orderId],
+    const {
+        data: responses,
+        isLoading: isLoadingResponses,
+        isError: isErrorResponses,
+    } = useQuery<OrderResponse[]>({
+        queryKey: ["responses", orderId],
         queryFn: () => fetchResponses(Number(orderId)),
         enabled: !!orderId,
-        staleTime: 60 * 60 * 1000,
-    })
+        staleTime: 10 * 60 * 1000,
+    });
 
     const client = isClient(user) ? user : undefined;
 
-    if (isLoading) {
-        return <Preloader />
+    if (isLoadingOrder || isLoadingUser || isLoadingFreelancers || isLoadingResponses) {
+        return <OrderInfoSkeleton />;
     }
 
-    if (isError || !order) {
-        return <ErrorAlert message="Заказ не найден" instructions="Возможно, он был удален или не существует" />;
+    if (isErrorOrder || isErrorUser || isErrorFreelancers || isErrorResponses || !order) {
+        return (
+            <ErrorAlert
+                message="Заказ не найден"
+                instructions="Возможно, он был удален или не существует"
+            />
+        );
     }
 
     const statusConfig = STATUS_CONFIG[order.status];
@@ -77,7 +103,9 @@ export const OrderInfo = () => {
                         </div>
 
                         <div className="flex items-start gap-3 mb-4">
-                            <span className={`px-4 py-1.5 rounded-xl text-sm font-semibold border ${statusConfig.color}`}>
+                            <span
+                                className={`px-4 py-1.5 rounded-xl text-sm font-semibold border ${statusConfig.color}`}
+                            >
                                 {statusConfig.icon} {statusConfig.label}
                             </span>
                             <span className="px-4 py-1.5 rounded-xl text-sm font-medium bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700">
@@ -92,11 +120,18 @@ export const OrderInfo = () => {
                         <div className="flex flex-wrap items-center gap-4 text-gray-600">
                             <div className="flex items-center gap-2">
                                 <Calendar size={18} />
-                                <span className="text-sm">Опубликовано {new Date(order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                <span className="text-sm">
+                                    Опубликовано{" "}
+                                    {new Date(order.createdAt).toLocaleDateString("ru-RU", {
+                                        day: "numeric",
+                                        month: "long",
+                                        year: "numeric",
+                                    })}
+                                </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <MessageCircle size={18} />
-                                <span className="text-sm">{responses?.length ?? 0} откликов</span>
+                                <span className="text-sm">{order.responsesCount} откликов</span>
                             </div>
                         </div>
                     </div>
@@ -116,7 +151,8 @@ export const OrderInfo = () => {
                                     <div>
                                         <p className="text-sm text-gray-600">Бюджет</p>
                                         <p className="text-xl font-bold text-gray-900">
-                                            ₽{order.budgetMin.toLocaleString()} - ₽{order.budgetMax.toLocaleString()}
+                                            ₽{order.budgetMin.toLocaleString()} - ₽
+                                            {order.budgetMax.toLocaleString()}
                                         </p>
                                     </div>
                                 </div>
@@ -127,7 +163,9 @@ export const OrderInfo = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Срок выполнения</p>
-                                        <p className="text-xl font-bold text-gray-900">{order.deadline} дней</p>
+                                        <p className="text-xl font-bold text-gray-900">
+                                            {order.deadline} дней
+                                        </p>
                                     </div>
                                 </div>
 
@@ -137,35 +175,41 @@ export const OrderInfo = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Откликов</p>
-                                        <p className="text-xl font-bold text-gray-900">{responses?.length ?? 0}</p>
+                                        <p className="text-xl font-bold text-gray-900">
+                                            {responses?.length ?? 0}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
-                            {order.status === 'new' && (
-                                <button
-                                    type="button"
+                            {order.status === "new" && (
+                                <Link
+                                    to={`/messages/${order.clientId}`}
                                     className="cursor-pointer w-full mt-6 h-12 flex items-center justify-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
                                 >
                                     <MessageCircle size={20} />
                                     Откликнуться на заказ
-                                </button>
+                                </Link>
                             )}
                         </div>
 
-                        {client && <ClientCard client={client}/>}
+                        {client && <ClientCard client={client} />}
                     </aside>
 
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4">Описание задачи</h2>
+                            <h2 className="text-lg font-bold text-gray-900 mb-4">
+                                Описание задачи
+                            </h2>
                             <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                                 {order.description}
                             </p>
                         </div>
 
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4">Требуемые навыки</h2>
+                            <h2 className="text-lg font-bold text-gray-900 mb-4">
+                                Требуемые навыки
+                            </h2>
                             <div className="flex flex-wrap gap-2">
                                 {order.skills.map((skill) => (
                                     <span
@@ -179,13 +223,15 @@ export const OrderInfo = () => {
                         </div>
 
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
-                            {(responses && responses.length !== 0) ? (
-                                <div className='max-h-[28rem] overflow-y-auto'>
-                                    {responses.map(response => (
-                                        <ResponseCard 
-                                            key={response.id} 
+                            {responses && freelancers && responses.length > 0 ? (
+                                <div className="max-h-[28rem] overflow-y-auto">
+                                    {responses.map((response) => (
+                                        <ResponseCard
+                                            key={response.id}
                                             response={response}
-                                            freelancer={freelancers?.find(f => f.id === response.freelancerId)}
+                                            freelancer={Object.values(
+                                                freelancers.freelancersById,
+                                            ).find((f) => f.id === response.freelancerId)}
                                         />
                                     ))}
                                 </div>
@@ -193,7 +239,9 @@ export const OrderInfo = () => {
                                 <div className="text-center py-12">
                                     <div className="text-5xl mb-4">💬</div>
                                     <p className="text-gray-600">Откликов пока нет</p>
-                                    <p className="text-sm text-gray-500 mt-1">Станьте первым исполнителем</p>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Станьте первым исполнителем
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -202,4 +250,4 @@ export const OrderInfo = () => {
             </section>
         </div>
     );
-}
+};

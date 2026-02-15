@@ -5,6 +5,8 @@ import type {
     OrderResponse,
     FreelancerWithoutCompletedOrders,
     Freelancer,
+    Message,
+    Favorite,
 } from "@/types";
 
 export type StoredUsers = Record<string, UserData>;
@@ -43,4 +45,10 @@ export interface FreelancersData {
 export interface ResponsesData {
     responsesById: Record<string, OrderResponse>;
     allIds: number[];
+}
+
+export interface AllUserLSData {
+    messages: Record<string, Message[]>;
+    favorites: Record<string, Favorite>;
+    createdOrders: Record<string, Order>;
 }

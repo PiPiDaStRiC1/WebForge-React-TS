@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { UserContext, type UserContextType } from "./UserContext";
-import type { StoredUsers, AuthData, UserData } from "@/types";
+import type { StoredUsers, AuthData, UserData, AllUserLSData } from "@/types";
 
 interface UserProviderProps {
     children: React.ReactNode;
@@ -96,6 +96,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
         localStorage.setItem("users", JSON.stringify({ ...users, [userData.id]: userData }));
 
+        const raw = localStorage.getItem("users-data");
+        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
+
+        if (!allUsersData[userData.id]) {
+            allUsersData[userData.id] = { messages: {}, favorites: {}, createdOrders: {} };
+            localStorage.setItem("users-data", JSON.stringify(allUsersData));
+        }
+
         setUserData(userData);
         setAuthData({ isLoggedIn: true, currentUserId: userData.id, token: crypto.randomUUID() });
     }, []);
@@ -124,6 +132,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         const { [authData.currentUserId]: _, ...restUsers } = users;
         localStorage.setItem("users", JSON.stringify(restUsers));
         setUserData(null);
+
+        const raw = localStorage.getItem("users-data");
+        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
+
+        // eslint-disable-next-line
+        const { [authData.currentUserId]: __, ...restUsersData } = allUsersData;
+        localStorage.setItem("users-data", JSON.stringify(restUsersData));
+
         setAuthData({ isLoggedIn: false, currentUserId: null, token: undefined });
     }, [authData.currentUserId]);
 

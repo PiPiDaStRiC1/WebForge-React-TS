@@ -1,10 +1,10 @@
-import { memo, useState } from "react";
+import { memo, useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useFavorites } from "@/hooks";
 import { Star, MapPin, Heart, BadgeCheck, Briefcase } from "lucide-react";
 import { AvatarPreloader } from "@/components/common";
+import { AuthStore } from "@/lib/storage/authStore";
 import type { Freelancer } from "@/types";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface UserCardProps {
     user: Freelancer;
@@ -13,10 +13,11 @@ interface UserCardProps {
 export const UserCard = memo(({ user }: UserCardProps) => {
     const location = useLocation();
     const { toggleFavorite, isFavorite } = useFavorites();
-    const { data: currentUser } = useCurrentUser();
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user.picture);
     const [isFavoriteUser, setIsFavoriteUser] = useState(isFavorite(user.id));
-    const isOwnProfile = currentUser?.id === user.id;
+    const currentUser = useMemo(() => new AuthStore(), []);
+    const isOwnProfile = currentUser.getUserId() === user.id;
+    const isAuthenticated = !!currentUser.getUserId();
 
     const handleToggleFavorite = () => {
         toggleFavorite(user.id);
@@ -130,14 +131,24 @@ export const UserCard = memo(({ user }: UserCardProps) => {
                     >
                         Профиль
                     </Link>
-                    {isOwnProfile ? (
-                        <button className="opacity-50 h-10 inline-flex items-center justify-center bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all">
-                            Написать
-                        </button>
-                    ) : (
+                    {!isAuthenticated ? (
                         <Link
                             to="/auth"
                             state={{ background: location, redirectTo: `/messages/${user.id}` }}
+                            className="h-10 inline-flex items-center justify-center bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
+                        >
+                            Написать
+                        </Link>
+                    ) : isOwnProfile ? (
+                        <button
+                            className="opacity-50 h-10 inline-flex items-center justify-center bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
+                            disabled
+                        >
+                            Это вы
+                        </button>
+                    ) : (
+                        <Link
+                            to={`/messages/${user.id}`}
                             className="h-10 inline-flex items-center justify-center bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
                         >
                             Написать

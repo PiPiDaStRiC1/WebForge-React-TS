@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeClosed } from "lucide-react";
-import type { FormData } from '@/types';
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
+import type { FormDataLogin } from "@/hooks/useAuth";
 
 interface AuthTabProps {
-    formData: FormData;
-    handleChange: (field: keyof FormData, value: string) => void;
-    validation: Partial<Record<keyof FormData, boolean>>;
+    register: UseFormRegister<FormDataLogin>;
+    errors: FieldErrors<FormDataLogin>;
     isLoginTabValid: boolean;
     loadingSubmit: boolean;
 }
 
-export const AuthTab = ({ formData, handleChange, validation, isLoginTabValid, loadingSubmit }: AuthTabProps) => {
+export const AuthTab = ({ register, errors, isLoginTabValid, loadingSubmit }: AuthTabProps) => {
     const [rememberMe, setRememberMe] = useState(true);
     const [showPass, setShowPass] = useState(false);
 
@@ -24,14 +24,12 @@ export const AuthTab = ({ formData, handleChange, validation, isLoginTabValid, l
                     </label>
                     <input
                         type="email"
-                        value={formData.email}
-                        onChange={(e) => handleChange('email', e.target.value)}
+                        {...register("email")}
                         placeholder="example@mail.com"
                         className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                        required
                     />
-                    {!validation.email && (
-                        <p className="mt-1 text-xs text-red-600">Некорректный email адрес</p>
+                    {errors.email && (
+                        <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
                     )}
                 </div>
 
@@ -42,12 +40,10 @@ export const AuthTab = ({ formData, handleChange, validation, isLoginTabValid, l
                     </label>
                     <label className="relative">
                         <input
-                            type={showPass ? 'text' : 'password'}
-                            value={formData.password}
-                            onChange={(e) => handleChange('password', e.target.value)}
+                            type={showPass ? "text" : "password"}
+                            {...register("password")}
                             placeholder="••••••••"
                             className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                            required
                         />
                         <button
                             onClick={(e) => {
@@ -59,8 +55,8 @@ export const AuthTab = ({ formData, handleChange, validation, isLoginTabValid, l
                             {showPass ? <Eye size={16} /> : <EyeClosed size={16} />}
                         </button>
                     </label>
-                    {!validation.password && (
-                        <p className="mt-1 text-xs text-red-600">Пароль должен содержать не менее 8 символов, включая заглавную букву и цифру</p>
+                    {errors.password && (
+                        <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
                     )}
                 </div>
 
@@ -99,5 +95,5 @@ export const AuthTab = ({ formData, handleChange, validation, isLoginTabValid, l
                 </button>
             )}
         </>
-    )
-}
+    );
+};

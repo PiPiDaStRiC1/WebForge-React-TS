@@ -3,7 +3,7 @@ export { AsideFilter, OrderCard } from "./Orders";
 export { UserProfileSkeleton, OrderCardSmall } from "./UserProfile";
 export { TopUserCard, OtherUserCard } from "./TopPerformers";
 export { Preview } from "./CreateOrder";
-export { ClientCard, ResponseCard } from "./OrderInfo";
+export { ClientCard, ResponseCard, OrderInfoSkeleton } from "./OrderInfo";
 export { AuthTab, RegisterTab } from "./AuthModal";
 export { ProfileSkeleton, SettingsTab, VerificationProfile, ProfileTab } from "./MyProfile";
 export { InlineMessage } from "./Chat";

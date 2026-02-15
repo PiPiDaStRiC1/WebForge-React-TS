@@ -1,21 +1,22 @@
-import type { Message } from "@/types";
+import { AuthStore } from "@/lib/storage/authStore";
+import { useMemo } from "react";
+import type { Message, AllUserLSData } from "@/types";
 
 export const useMessages = () => {
-    const getAllMessages = async () => {
-        const raw = localStorage.getItem("chat-messages");
+    const authStore = useMemo(() => new AuthStore(), []);
+    const currentUserId = authStore.getUserId();
 
-        if (!raw) {
-            localStorage.setItem("chat-messages", JSON.stringify({}));
-            return {};
-        }
+    const getAllMessages = async () => {
+        if (!currentUserId) return {};
+
+        const raw = localStorage.getItem("users-data");
+        if (!raw) return {};
 
         try {
-            const parsed = JSON.parse(raw) as Record<string, Message[]>;
-            if (typeof parsed !== "object" || parsed === null) return {};
-            return parsed;
+            const allUsersData: Record<string, AllUserLSData> = JSON.parse(raw);
+            return allUsersData[currentUserId]?.messages || {};
         } catch (error) {
             console.error("Failed to parse messages from localStorage:", error);
-            localStorage.setItem("chat-messages", JSON.stringify({}));
             return {};
         }
     };
@@ -28,22 +29,38 @@ export const useMessages = () => {
     };
 
     const saveMessage = async (userId: number, message: Message) => {
-        const allMessages = await getAllMessages();
-        const currentMessages = allMessages[userId] || [];
+        if (!currentUserId) {
+            console.error("Cannot save message: user not authenticated");
+            return;
+        }
 
-        const updatedMessages = [...currentMessages, message];
-        const newAllMessages = { ...allMessages, [userId]: updatedMessages };
+        const raw = localStorage.getItem("users-data");
+        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
 
-        localStorage.setItem("chat-messages", JSON.stringify(newAllMessages));
+        if (!allUsersData[currentUserId]) {
+            allUsersData[currentUserId] = { messages: {}, favorites: {}, createdOrders: {} };
+        }
+
+        if (!allUsersData[currentUserId].messages) {
+            allUsersData[currentUserId].messages = {};
+        }
+
+        const currentMessages = allUsersData[currentUserId].messages[userId] || [];
+        allUsersData[currentUserId].messages[userId] = [...currentMessages, message];
+
+        localStorage.setItem("users-data", JSON.stringify(allUsersData));
     };
 
     const resetMessages = async (userId: number) => {
-        const allMessages = await getAllMessages();
+        if (!currentUserId) return;
 
-        //eslint-disable-next-line
-        const { [userId]: _, ...restMessages } = allMessages;
+        const raw = localStorage.getItem("users-data");
+        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
 
-        localStorage.setItem("chat-messages", JSON.stringify(restMessages));
+        if (allUsersData[currentUserId]?.messages?.[userId]) {
+            delete allUsersData[currentUserId].messages[userId];
+            localStorage.setItem("users-data", JSON.stringify(allUsersData));
+        }
     };
 
     return { getAllMessages, getMessagesById, saveMessage, resetMessages };

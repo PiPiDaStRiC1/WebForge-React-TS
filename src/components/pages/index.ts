@@ -16,3 +16,4 @@ export * from "./AuthModal";
 export * from "./Messages";
 export * from "./Chat";
 export * from "./Favorites";
+export * from "./Auth";

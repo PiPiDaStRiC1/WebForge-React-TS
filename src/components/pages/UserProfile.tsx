@@ -15,22 +15,22 @@ import {
     PhoneIcon,
     Mail,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { fetchOneUser, fetchAllOrders } from "@/lib/api";
-import { useFavorites, useCurrentUser } from "@/hooks";
-import { ErrorAlert } from "@/components/common/ErrorAlert";
+import { useFavorites } from "@/hooks";
+import { ErrorAlert, OrderCardSkeleton } from "@/components/common";
 import { UserProfileSkeleton, OrderCardSmall } from "@/components/ui";
-import { OrderCardSkeleton } from "@/components/common";
-import { useMemo, useState } from "react";
+import { AuthStore } from "@/lib/storage/authStore";
 import type { Client, FreelancerWithoutCompletedOrders, OrdersData } from "@/types";
 
 export const UserProfile = () => {
     const { userId } = useParams<{ userId: string }>();
     const location = useLocation();
     const { toggleFavorite, isFavorite } = useFavorites();
-    const { data: currentUser } = useCurrentUser();
-
-    const isOwnProfile = currentUser?.id === Number(userId);
+    const currentUser = useMemo(() => new AuthStore(), []);
+    const isOwnProfile = currentUser.getUserId() === Number(userId);
+    const isAuthenticated = !!currentUser.getUserId();
 
     const {
         data: user,
@@ -197,18 +197,29 @@ export const UserProfile = () => {
                                     >
                                         <Share2 size={20} />
                                     </button>
-                                    {isOwnProfile ? (
-                                        <button className="opacity-50 h-11 px-6 flex items-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all">
-                                            <MessageCircle size={18} />
-                                            Написать
-                                        </button>
-                                    ) : (
+                                    {!isAuthenticated ? (
                                         <Link
                                             to="/auth"
                                             state={{
                                                 background: location,
                                                 redirectTo: `/messages/${userId}`,
                                             }}
+                                            className="h-11 px-6 flex items-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                        >
+                                            <MessageCircle size={18} />
+                                            Написать
+                                        </Link>
+                                    ) : isOwnProfile ? (
+                                        <button
+                                            className="opacity-50 h-11 px-6 flex items-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                            disabled
+                                        >
+                                            <MessageCircle size={18} />
+                                            Это вы
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            to={`/messages/${userId}`}
                                             className="h-11 px-6 flex items-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
                                         >
                                             <MessageCircle size={18} />

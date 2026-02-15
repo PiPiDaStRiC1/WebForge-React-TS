@@ -36,8 +36,8 @@ export const Favorites = () => {
         <div className="min-h-screen">
             <section className="relative">
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute -top-24 -right-24 w-96 h-96 bg-rose-100 rounded-full blur-3xl opacity-40" />
-                    <div className="absolute -bottom-32 -left-32 w-[28rem] h-[28rem] bg-pink-100 rounded-full blur-3xl opacity-40" />
+                    <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-40" />
+                    <div className="absolute -bottom-32 -left-32 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-40" />
                 </div>
 
                 <div className="relative pt-14 pb-10">
