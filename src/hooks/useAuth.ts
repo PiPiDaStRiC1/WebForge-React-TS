@@ -69,13 +69,13 @@ export const useAuth = () => {
         register: registerLogin,
         handleSubmit: handleSubmitLogin,
         formState: { errors: errorsLogin, isValid: isValidLogin },
-    } = useForm<FormDataLogin>({ resolver: zodResolver(loginSchema), mode: "onBlur" });
+    } = useForm<FormDataLogin>({ resolver: zodResolver(loginSchema), mode: "onSubmit" });
 
     const {
         register: registerRegister,
         handleSubmit: handleSubmitRegister,
         formState: { errors: errorsRegister, isValid: isValidRegister },
-    } = useForm<FormDataRegister>({ resolver: zodResolver(registerSchema), mode: "onBlur" });
+    } = useForm<FormDataRegister>({ resolver: zodResolver(registerSchema), mode: "onSubmit" });
 
     const submitForm = async (formData: FormDataLogin | FormDataRegister) => {
         setIsLoadingSubmitting(true);

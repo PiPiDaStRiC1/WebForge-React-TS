@@ -1,9 +1,21 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Shield, CreditCard, User, ChevronRight, AlertTriangle, X } from "lucide-react";
+import {
+    Bell,
+    Shield,
+    CreditCard,
+    User,
+    ChevronRight,
+    AlertTriangle,
+    X,
+    User2,
+} from "lucide-react";
 import { useUser, useProfile } from "@/hooks";
 import { ErrorAlert } from "@/components/common";
 import { nameRegExp, emailRegExp } from "@/lib/constants/regExpFormValidation";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import type { LucideProps } from "lucide-react";
 
 type SettingsTab = "account" | "notifications" | "security" | "payment" | "danger";
@@ -17,20 +29,32 @@ interface MenuItem {
     color: string;
 }
 
+const accountSettingsSchema = z.object({
+    name: z
+        .string()
+        .min(2, "Имя должно быть не менее 2 символов")
+        .max(30, "Имя должно быть не более 30 символов")
+        .regex(nameRegExp, "Имя должно содержать только буквы"),
+    lastName: z
+        .string()
+        .min(2, "Фамилия должна быть не менее 2 символов")
+        .max(30, "Фамилия должна быть не более 30 символов")
+        .regex(nameRegExp, "Фамилия должна содержать только буквы"),
+    email: z.string().regex(emailRegExp, "Некорректный email адрес"),
+    gender: z.enum(["male", "female"]),
+});
+
 export const SettingsTab = () => {
     const navigate = useNavigate();
     const { user, deleteUser } = useUser();
-    const { handleChangeBaseUser, changedData, handleSave, isSaving, handleAbort } = useProfile();
+    const { handleSaveForm, isSaving, handleAbort } = useProfile();
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors, isValid },
+    } = useForm({ resolver: zodResolver(accountSettingsSchema), mode: "onTouched" });
     const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTab>("account");
-
-    const validation = useMemo(
-        () => ({
-            email: emailRegExp.test(changedData.email),
-            name: nameRegExp.test(changedData.name),
-            lastname: nameRegExp.test(changedData.lastName),
-        }),
-        [changedData],
-    );
 
     if (!user) {
         return <ErrorAlert />;
@@ -85,7 +109,10 @@ export const SettingsTab = () => {
                             <p className="text-sm text-gray-600 mt-1">Управление личными данными</p>
                         </div>
 
-                        <div className="space-y-4 max-w-lg">
+                        <form
+                            onSubmit={handleSubmit(handleSaveForm)}
+                            className="space-y-4 max-w-lg"
+                        >
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Имя
@@ -93,17 +120,14 @@ export const SettingsTab = () => {
                                 {!isSaving ? (
                                     <label>
                                         <input
-                                            value={changedData.name}
+                                            {...register("name")}
                                             type="text"
                                             className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                            onChange={(e) =>
-                                                handleChangeBaseUser("name", e.target.value)
-                                            }
+                                            defaultValue={user.name}
                                         />
-                                        {!validation.name && (
+                                        {errors.name && (
                                             <p className="mt-1 text-xs text-red-600">
-                                                Имя должно содержать только буквы и быть от 2 до 30
-                                                символов.
+                                                {errors.name.message}
                                             </p>
                                         )}
                                     </label>
@@ -119,17 +143,14 @@ export const SettingsTab = () => {
                                 {!isSaving ? (
                                     <label>
                                         <input
-                                            value={changedData.lastName}
+                                            {...register("lastName")}
                                             type="text"
                                             className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                            onChange={(e) =>
-                                                handleChangeBaseUser("lastName", e.target.value)
-                                            }
+                                            defaultValue={user.lastName}
                                         />
-                                        {!validation.lastname && (
+                                        {errors.lastName && (
                                             <p className="mt-1 text-xs text-red-600">
-                                                Фамилия должна содержать только буквы и быть от 2 до
-                                                30 символов.
+                                                {errors.lastName.message}
                                             </p>
                                         )}
                                     </label>
@@ -138,6 +159,84 @@ export const SettingsTab = () => {
                                 )}
                             </div>
 
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Пол
+                            </label>
+                            <Controller
+                                name="gender"
+                                control={control}
+                                render={({ field }) => (
+                                    <div className="w-full flex justify-between gap-5 items-center">
+                                        {!isSaving ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => field.onChange("male")}
+                                                className={`cursor-pointer flex-1 p-2.5 rounded-xl border-2 transition-all flex items-center gap-2.5 ${
+                                                    field.value === "male"
+                                                        ? "border-indigo-500 bg-indigo-50"
+                                                        : "border-gray-200 hover:border-gray-300"
+                                                }`}
+                                            >
+                                                <User2
+                                                    size={20}
+                                                    className={`flex-shrink-0 ${
+                                                        field.value === "male"
+                                                            ? "text-indigo-600"
+                                                            : "text-gray-400"
+                                                    }`}
+                                                />
+                                                <div className="text-left">
+                                                    <div
+                                                        className={`text-sm font-semibold ${
+                                                            field.value === "male"
+                                                                ? "text-indigo-600"
+                                                                : "text-gray-700"
+                                                        }`}
+                                                    >
+                                                        Мужской
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ) : (
+                                            <div className="w-full h-11 bg-gray-200 animate-pulse rounded-xl" />
+                                        )}
+                                        {!isSaving ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => field.onChange("female")}
+                                                className={`cursor-pointer flex-1 p-2.5 rounded-xl border-2 transition-all flex items-center gap-2.5 ${
+                                                    field.value === "female"
+                                                        ? "border-indigo-500 bg-indigo-50"
+                                                        : "border-gray-200 hover:border-gray-300"
+                                                }`}
+                                            >
+                                                <User2
+                                                    size={20}
+                                                    className={`flex-shrink-0 ${
+                                                        field.value === "female"
+                                                            ? "text-indigo-600"
+                                                            : "text-gray-400"
+                                                    }`}
+                                                />
+                                                <div className="text-left">
+                                                    <div
+                                                        className={`text-sm font-semibold ${
+                                                            field.value === "female"
+                                                                ? "text-indigo-600"
+                                                                : "text-gray-700"
+                                                        }`}
+                                                    >
+                                                        Женский
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ) : (
+                                            <div className="w-full h-11 bg-gray-200 animate-pulse rounded-xl" />
+                                        )}
+                                    </div>
+                                )}
+                            />
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Email
@@ -145,16 +244,14 @@ export const SettingsTab = () => {
                                 {!isSaving ? (
                                     <label>
                                         <input
-                                            value={changedData.email}
+                                            {...register("email")}
                                             type="email"
                                             className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                            onChange={(e) =>
-                                                handleChangeBaseUser("email", e.target.value)
-                                            }
+                                            defaultValue={user.email}
                                         />
-                                        {!validation.email && (
+                                        {errors.email && (
                                             <p className="mt-1 text-xs text-red-600">
-                                                Некорректный email адрес
+                                                {errors.email.message}
                                             </p>
                                         )}
                                     </label>
@@ -171,18 +268,14 @@ export const SettingsTab = () => {
                                 </div>
                             ) : (
                                 <button
+                                    type="submit"
                                     className="cursor-pointer w-full max-w-[8rem] py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    onClick={handleSave}
-                                    disabled={
-                                        !validation.email ||
-                                        !validation.name ||
-                                        !validation.lastname
-                                    }
+                                    disabled={!isValid}
                                 >
                                     Сохранить
                                 </button>
                             )}
-                        </div>
+                        </form>
                     </div>
                 )}
 

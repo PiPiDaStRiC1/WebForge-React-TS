@@ -1,7 +1,7 @@
-import {MessageCircle} from "lucide-react";
-import {Chats} from "@/components/ui";
+import { MessageCircle } from "lucide-react";
+import { Chats } from "@/components/ui";
 
-export const Messages = () => {
+const Messages = () => {
     return (
         <div className="min-h-screen pb-10">
             <section className="relative">
@@ -30,3 +30,5 @@ export const Messages = () => {
         </div>
     );
 };
+
+export default Messages;

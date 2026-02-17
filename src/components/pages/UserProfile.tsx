@@ -24,7 +24,7 @@ import { UserProfileSkeleton, OrderCardSmall } from "@/components/ui";
 import { AuthStore } from "@/lib/storage/authStore";
 import type { Client, FreelancerWithoutCompletedOrders, OrdersData } from "@/types";
 
-export const UserProfile = () => {
+const UserProfile = () => {
     const { userId } = useParams<{ userId: string }>();
     const location = useLocation();
     const { toggleFavorite, isFavorite } = useFavorites();
@@ -182,13 +182,15 @@ export const UserProfile = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <button
-                                        className={`${isFavoriteUser ? "text-rose-500 border-rose-300 bg-rose-50" : ""} cursor-pointer w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 transition-all`}
-                                        aria-label="В избранное"
-                                        onClick={handleToggleFavorite}
-                                    >
-                                        <Heart size={20} />
-                                    </button>
+                                    {isAuthenticated && (
+                                        <button
+                                            className={`${isFavoriteUser ? "text-rose-500 border-rose-300 bg-rose-50" : ""} cursor-pointer w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 transition-all`}
+                                            aria-label="В избранное"
+                                            onClick={handleToggleFavorite}
+                                        >
+                                            <Heart size={20} />
+                                        </button>
+                                    )}
                                     <button
                                         type="button"
                                         onClick={handleShare}
@@ -428,15 +430,6 @@ export const UserProfile = () => {
                                         </div>
                                     )}
                                 </div>
-
-                                {/* <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
-                                    <h2 className="text-lg font-bold text-gray-900 mb-4">Отзывы</h2>
-                                    <div className="text-center py-12">
-                                        <div className="text-5xl mb-4">💬</div>
-                                        <p className="text-gray-600">Отзывов пока нет</p>
-                                        <p className="text-sm text-gray-500 mt-1">Станьте первым, кто оставит отзыв</p>
-                                    </div>
-                                </div> */}
                             </>
                         )}
                     </div>
@@ -445,3 +438,5 @@ export const UserProfile = () => {
         </div>
     );
 };
+
+export default UserProfile;

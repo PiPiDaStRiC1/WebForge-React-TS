@@ -1,23 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks";
 import toast from "react-hot-toast";
-import type { UserData, FreelancerEditingProfile } from "@/types";
+import type { UserData } from "@/types";
 
 export const useProfile = () => {
-    const navigate = useNavigate();
-    const { user, logOutUser, changeUserData } = useUser();
+    const { changeUserData } = useUser();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    // Используем UserData вместо Partial, так как user всегда существует в компонентах
-    // Инициализация с пустым объектом as UserData безопасна, так как компоненты проверяют user
-    const [changedData, setChangedData] = useState<UserData>(user ?? ({} as UserData));
     const controllerRef = useRef<AbortController | null>(null);
 
     const handleExit = () => {
         setIsEditing(false);
         setIsSaving(false);
-        setChangedData(user ?? ({} as UserData));
     };
 
     const handleEdit = () => {
@@ -25,7 +19,7 @@ export const useProfile = () => {
         setIsSaving(false);
     };
 
-    const handleSave = async () => {
+    const handleSaveForm = async (formData: Partial<UserData>) => {
         controllerRef.current?.abort();
         controllerRef.current = new AbortController();
         const signal = controllerRef.current.signal;
@@ -34,7 +28,7 @@ export const useProfile = () => {
 
         try {
             await changeUserData(
-                Object.entries(changedData) as [keyof UserData, UserData[keyof UserData]][],
+                Object.entries(formData) as [keyof UserData, UserData[keyof UserData]][],
                 signal,
             );
 
@@ -57,40 +51,9 @@ export const useProfile = () => {
         setIsSaving(false);
     };
 
-    const handleChangeBaseUser = <T extends keyof UserData>(field: T, value: UserData[T]) => {
-        setChangedData((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const handleChangeFreelancer = <T extends keyof FreelancerEditingProfile>(
-        field: T,
-        value: FreelancerEditingProfile[T],
-    ) => {
-        setChangedData((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const handleLogOut = () => {
-        // Редиректим на главную до изменения состояния,
-        // чтобы ProtectedRoute не успел средиректить на /auth
-        navigate("/");
-
-        // Очищаем данные после перехода (в следующем тике)
-        setTimeout(() => logOutUser(), 100);
-    };
-
     useEffect(() => {
         return () => controllerRef.current?.abort();
     }, []);
 
-    return {
-        isEditing,
-        isSaving,
-        changedData,
-        handleEdit,
-        handleSave,
-        handleAbort,
-        handleChangeBaseUser,
-        handleChangeFreelancer,
-        handleLogOut,
-        handleExit,
-    };
+    return { isEditing, isSaving, handleEdit, handleSaveForm, handleAbort, handleExit };
 };

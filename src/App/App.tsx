@@ -8,46 +8,51 @@ import {
     Performers,
     Categories,
     TopPerformers,
-    FAQ,
-    Guides,
-    Terms,
-    Privacy,
     Orders,
-    UserProfile,
-    OrderInfo,
-    CreateOrder,
     NotFound,
-    MyProfile,
     AuthModal,
-    Messages,
-    Chat,
-    Favorites,
     Auth,
 } from "@/components";
 import { ScrollToTop } from "@/lib/utils/index";
+import { Preloader } from "@/components/common";
 import { PublicRoute, ProtectedRoute, ChatGuard, OrderGuard } from "@/features";
 import { UserProvider } from "@/contexts";
 import { Toaster } from "react-hot-toast";
+import { lazy, Suspense } from "react";
 
-// Lazy imports later
 // TODO:
-// 1) Добавить возможность смена роли аккаунта в настройки (client и freelancer)
+// 1) Сделать скелетоны для каждой страницы(later)
+// 2) Возможно добавить отзывы заказчиков в профиле исполнителей(later)
 
-// Роутинг
-// 1) сделать корректное удаление желаемого при разлоге (возможно сделать guest аккаунт)
+// SEO
+// Сделать SEO френдли с помощью React Helmet (later)
+// добавить в title имя фрилансера и его специализацию) (later)
+
+// Error Boundary
+// components/common/ErrorBoundary.tsx(done)
 
 // Чат:
-// 1) добавить gender, ник (с @), сделать валидацию через Zod или React Hook Form
-// 2) сделать так, чтобы при отправки сообщений собеседник был online
+// 2) сделать так, чтобы при отправки сообщений собеседник был online(later, overkill)
 // 3) сделать отправку сообщений от лица, зависищего от пола фрилансера (например, если фрилансер мужского пола, то сообщения от его лица будут с мужским родом, если женского - с женским)
-// 4) добавить возможность отправки файлов (например, изображений) в чат (очень маловероятно)
-// 5) добавить возможность Заблокировать пользователя
+// 4) добавить возможность отправки файлов (например, изображений) в чат (later, overkill)
+// 5) добавить возможность Заблокировать пользователя(later)
 
 // AI
-// Error Boundary
-// Toast для всех мутаций
-// Возможная оптимизация изображений (Intersection Observer)
-// Непрочитанные сообщения
+// Error Boundary(done)
+// Возможная оптимизация изображений (Intersection Observer)(later, overkill)
+// Непрочитанные сообщения(later)
+
+const FAQ = lazy(() => import("@/components/pages/FAQ"));
+const Guides = lazy(() => import("@/components/pages/Guides"));
+const Terms = lazy(() => import("@/components/pages/Terms"));
+const Privacy = lazy(() => import("@/components/pages/Privacy"));
+const MyProfile = lazy(() => import("@/components/pages/MyProfile"));
+const Favorites = lazy(() => import("@/components/pages/Favorites"));
+const Messages = lazy(() => import("@/components/pages/Messages"));
+const Chat = lazy(() => import("@/components/pages/Chat"));
+const UserProfile = lazy(() => import("@/components/pages/UserProfile"));
+const CreateOrder = lazy(() => import("@/components/pages/CreateOrder"));
+const OrderInfo = lazy(() => import("@/components/pages/OrderInfo"));
 
 function App() {
     const location = useLocation();
@@ -66,57 +71,104 @@ function App() {
                         <Route
                             path="/orders/:orderId"
                             element={
-                                <OrderGuard>
-                                    <OrderInfo />
-                                </OrderGuard>
+                                <Suspense fallback={<Preloader />}>
+                                    <OrderGuard>
+                                        <OrderInfo />
+                                    </OrderGuard>
+                                </Suspense>
                             }
                         />
-                        <Route path="/profile/:userId" element={<UserProfile />} />
+                        <Route
+                            path="/profile/:userId"
+                            element={
+                                <Suspense fallback={<Preloader />}>
+                                    <UserProfile />
+                                </Suspense>
+                            }
+                        />
                         <Route
                             path="/messages"
                             element={
-                                <ProtectedRoute>
-                                    <Messages />
-                                </ProtectedRoute>
+                                <Suspense fallback={<Preloader />}>
+                                    <ProtectedRoute>
+                                        <Messages />
+                                    </ProtectedRoute>
+                                </Suspense>
                             }
                         />
                         <Route
                             path="/messages/:userId"
                             element={
-                                <ChatGuard>
-                                    <Chat />
-                                </ChatGuard>
+                                <Suspense fallback={<Preloader />}>
+                                    <ChatGuard>
+                                        <Chat />
+                                    </ChatGuard>
+                                </Suspense>
                             }
                         />
                         <Route
                             path="/my-profile"
                             element={
-                                <ProtectedRoute>
-                                    <MyProfile />
-                                </ProtectedRoute>
+                                <Suspense fallback={<Preloader />}>
+                                    <ProtectedRoute>
+                                        <MyProfile />
+                                    </ProtectedRoute>
+                                </Suspense>
                             }
                         />
                         <Route path="/performers" element={<Performers />} />
                         <Route path="/categories" element={<Categories />} />
                         <Route path="/top-performers" element={<TopPerformers />} />
-                        <Route path="/faq" element={<FAQ />} />
-                        <Route path="/guides" element={<Guides />} />
-                        <Route path="/terms" element={<Terms />} />
-                        <Route path="/privacy" element={<Privacy />} />
+                        <Route
+                            path="/faq"
+                            element={
+                                <Suspense fallback={<Preloader />}>
+                                    <FAQ />
+                                </Suspense>
+                            }
+                        />
+                        <Route
+                            path="/guides"
+                            element={
+                                <Suspense fallback={<Preloader />}>
+                                    <Guides />
+                                </Suspense>
+                            }
+                        />
+                        <Route
+                            path="/terms"
+                            element={
+                                <Suspense fallback={<Preloader />}>
+                                    <Terms />
+                                </Suspense>
+                            }
+                        />
+                        <Route
+                            path="/privacy"
+                            element={
+                                <Suspense fallback={<Preloader />}>
+                                    <Privacy />
+                                </Suspense>
+                            }
+                        />
                         <Route
                             path="/favorites"
                             element={
-                                <ProtectedRoute>
-                                    <Favorites />
-                                </ProtectedRoute>
+                                <Suspense fallback={<Preloader />}>
+                                    <ProtectedRoute>
+                                        <Favorites />
+                                    </ProtectedRoute>
+                                </Suspense>
                             }
                         />
                         <Route
                             path="/create-order"
                             element={
-                                <ProtectedRoute>
-                                    <CreateOrder />
-                                </ProtectedRoute>
+                                <Suspense fallback={<Preloader />}>
+                                    <ProtectedRoute>
+                                        <CreateOrder />
+                                    </ProtectedRoute>
+                                </Suspense>
                             }
                         />
                         {!state?.background && (

@@ -16,7 +16,7 @@ const initSelectedSkills = () => {
     }
 };
 
-export const CreateOrder = () => {
+const CreateOrder = () => {
     const {
         register,
         errors,
@@ -356,3 +356,5 @@ export const CreateOrder = () => {
         </div>
     );
 };
+
+export default CreateOrder;

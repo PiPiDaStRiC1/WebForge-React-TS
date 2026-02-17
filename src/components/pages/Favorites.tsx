@@ -8,7 +8,7 @@ import { FavoriteUserCard } from "@/components/ui";
 import { Preloader, ErrorAlert } from "@/components/common";
 import type { FreelancersData } from "@/types";
 
-export const Favorites = () => {
+const Favorites = () => {
     const { favoritesList } = useFavorites();
 
     const { data, isLoading, isError } = useQuery<FreelancersData>({
@@ -100,3 +100,5 @@ export const Favorites = () => {
         </div>
     );
 };
+
+export default Favorites;

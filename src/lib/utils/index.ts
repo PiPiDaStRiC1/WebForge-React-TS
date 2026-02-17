@@ -1,1 +1,2 @@
-export * from './ScrollToTop';
+export * from "./ScrollToTop";
+export * from "./ErrorBoundary";

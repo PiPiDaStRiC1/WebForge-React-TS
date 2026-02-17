@@ -3,28 +3,49 @@ import { useProfile, useUser } from "@/hooks";
 import { DollarSign, MapPin, X, Pencil } from "lucide-react";
 import { VerificationProfile } from "./VerificationProfile";
 import { ErrorAlert } from "@/components/common";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const profileSchema = z.object({
+    bio: z.string().max(100, { error: "Максимальное кол-во символов - 100" }).optional(),
+    skills: z
+        .string()
+        .regex(/^[\w,\s*]+$/, {
+            error: "Навыки должны быть разделены запятыми и содержать только буквы",
+        })
+        .transform((value) =>
+            value
+                .split(",")
+                .map((skill) => skill.trim())
+                .filter(Boolean),
+        )
+        .pipe(z.array(z.string()).max(10, { error: "Максимум 10 навыков" })),
+    pricePerHour: z.number().min(0, { error: "Цена должна быть положительной" }),
+    location: z.string().max(50, { error: "Максимальное кол-во символов - 50" }).optional(),
+});
 
 export const ProfileTab = () => {
     const navigate = useNavigate();
     const { user } = useUser();
+    const { isEditing, isSaving, handleSaveForm, handleAbort, handleEdit, handleExit } =
+        useProfile();
+
     const {
-        isEditing,
-        isSaving,
-        changedData,
-        handleChangeBaseUser,
-        handleChangeFreelancer,
-        handleSave,
-        handleAbort,
-        handleEdit,
-        handleExit,
-    } = useProfile();
+        register,
+        handleSubmit,
+        formState: { errors, isValid },
+    } = useForm({ resolver: zodResolver(profileSchema), mode: "onBlur" });
 
     if (!user) {
         return <ErrorAlert />;
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <form
+            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            onSubmit={handleSubmit(handleSaveForm)}
+        >
             <div className="lg:col-span-2 space-y-6">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 group">
                     <div className="flex items-center justify-between mb-4">
@@ -41,10 +62,10 @@ export const ProfileTab = () => {
                     </div>
                     {isEditing ? (
                         <textarea
-                            value={changedData.bio}
-                            onChange={(e) => handleChangeBaseUser("bio", e.target.value)}
+                            {...register("bio")}
                             placeholder="Расскажите о себе, своем опыте и навыках..."
                             className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                            defaultValue={user.bio}
                         />
                     ) : isSaving ? (
                         <div className="h-32 bg-gray-200 rounded-xl animate-pulse" />
@@ -52,6 +73,9 @@ export const ProfileTab = () => {
                         <p className="text-gray-600 whitespace-pre-wrap">
                             {user.bio || "Добро пожаловать! Заполните информацию о себе."}
                         </p>
+                    )}
+                    {errors.bio && (
+                        <p className="text-sm text-red-600 mt-2">{errors.bio.message}</p>
                     )}
                 </div>
 
@@ -61,16 +85,11 @@ export const ProfileTab = () => {
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Навыки</h2>
                             {isEditing ? (
                                 <input
+                                    {...register("skills")}
                                     type="text"
                                     placeholder="React, TypeScript, Node.js..."
-                                    defaultValue={user.skills?.join(", ")}
                                     className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                    onChange={(e) =>
-                                        handleChangeFreelancer(
-                                            "skills",
-                                            e.target.value.split(",").map((skill) => skill.trim()),
-                                        )
-                                    }
+                                    defaultValue={user.skills.join(", ")}
                                 />
                             ) : isSaving ? (
                                 <div className="flex flex-wrap gap-2">
@@ -95,6 +114,9 @@ export const ProfileTab = () => {
                                         </span>
                                     )}
                                 </div>
+                            )}
+                            {errors.skills && (
+                                <p className="text-sm text-red-600 mt-2">{errors.skills.message}</p>
                             )}
                         </div>
 
@@ -194,13 +216,16 @@ export const ProfileTab = () => {
                                     </label>
                                     <input
                                         type="text"
+                                        {...register("location")}
                                         defaultValue={user.location}
                                         placeholder="Город, Страна"
                                         className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                        onChange={(e) =>
-                                            handleChangeBaseUser("location", e.target.value)
-                                        }
                                     />
+                                    {errors.location && (
+                                        <p className="text-sm text-red-600 mt-2">
+                                            {errors.location.message}
+                                        </p>
+                                    )}
                                 </div>
                                 {user.role === "freelancer" && (
                                     <div>
@@ -210,16 +235,16 @@ export const ProfileTab = () => {
                                         </label>
                                         <input
                                             type="number"
-                                            defaultValue={user.pricePerHour || ""}
+                                            {...register("pricePerHour", { valueAsNumber: true })}
+                                            defaultValue={user.pricePerHour}
                                             placeholder="1000"
                                             className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
-                                            onChange={(e) =>
-                                                handleChangeFreelancer(
-                                                    "pricePerHour",
-                                                    Number(e.target.value),
-                                                )
-                                            }
                                         />
+                                        {errors.pricePerHour && (
+                                            <p className="text-sm text-red-600 mt-2">
+                                                {errors.pricePerHour.message}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                             </>
@@ -267,8 +292,9 @@ export const ProfileTab = () => {
                                 Отменить
                             </button>
                             <button
-                                onClick={handleSave}
-                                className="cursor-pointer px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-lg flex items-center gap-2"
+                                type="submit"
+                                className="disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-lg flex items-center gap-2"
+                                disabled={!isValid}
                             >
                                 <svg
                                     className="w-5 h-5"
@@ -303,6 +329,6 @@ export const ProfileTab = () => {
                     )}
                 </div>
             )}
-        </div>
+        </form>
     );
 };

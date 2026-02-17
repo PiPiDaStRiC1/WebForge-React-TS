@@ -25,8 +25,6 @@ export const RegisterTab = ({
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
 
-    console.log(errors.confirmPassword);
-
     return (
         <>
             <div className="mb-4">

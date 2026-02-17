@@ -24,7 +24,7 @@ const isClient = (user: Client | Freelancer | undefined): user is Client => {
     return user?.role === "client";
 };
 
-export const OrderInfo = () => {
+const OrderInfo = () => {
     const { orderId } = useParams<{ orderId: string }>();
 
     const {
@@ -251,3 +251,5 @@ export const OrderInfo = () => {
         </div>
     );
 };
+
+export default OrderInfo;

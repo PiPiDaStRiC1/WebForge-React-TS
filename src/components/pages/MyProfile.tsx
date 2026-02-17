@@ -1,21 +1,30 @@
 import { useState } from "react";
-import { useUser, useProfile } from "@/hooks";
-import { Camera, Mail, Code, Briefcase, Settings, LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@/hooks";
+import { Camera, Mail, Code, Briefcase, Settings, LogOut, User, UserCircle } from "lucide-react";
 import { ProfileSkeleton, SettingsTab, ProfileTab } from "@/components/ui";
 import { ErrorAlert } from "@/components/common";
 
 type TabType = "profile" | "settings";
 
-export const MyProfile = () => {
-    const { user, error } = useUser();
-    const { handleLogOut } = useProfile();
+const MyProfile = () => {
+    const navigate = useNavigate();
+    const { user, error, logOutUser } = useUser();
     const [activeTab, setActiveTab] = useState<TabType>("profile");
 
     if (error) {
         return <ErrorAlert />;
     }
 
-    // временно, т.к нет бекенда
+    const handleLogOut = () => {
+        // Редиректим на главную до изменения состояния,
+        // чтобы ProtectedRoute не успел средиректить на /auth
+        navigate("/");
+
+        // Очищаем данные после перехода (в следующем тике)
+        setTimeout(() => logOutUser(), 100);
+    };
+
     if (!user) {
         return <ProfileSkeleton />;
     }
@@ -78,9 +87,17 @@ export const MyProfile = () => {
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-2 text-gray-600">
-                                <Mail size={16} />
-                                <span className="text-sm">{user.email}</span>
+                            <div className="flex gap-5">
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <UserCircle size={16} />
+                                    <span className="text-sm">
+                                        {user.gender === "male" ? "Мужчина" : "Женщина"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <Mail size={16} />
+                                    <span className="text-sm">{user.email}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -116,3 +133,5 @@ export const MyProfile = () => {
         </div>
     );
 };
+
+export default MyProfile;
