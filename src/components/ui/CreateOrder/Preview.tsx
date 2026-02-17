@@ -1,39 +1,35 @@
-import { X, Clock, Calendar, Briefcase, DollarSign, MessageCircle } from 'lucide-react';
-import { useEffect } from 'react';
-import type { OrderFormData } from '@/components/pages/CreateOrder';
+import { useEffect } from "react";
+import { X, Clock, Calendar, Briefcase, DollarSign, MessageCircle } from "lucide-react";
+import type { OrderFormData } from "@/hooks";
 
 interface PreviewProps {
     onClose: () => void;
-    data: OrderFormData
+    data: OrderFormData;
 }
 
 export const Preview = ({ onClose, data }: PreviewProps) => {
-
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        }
+            if (e.key === "Escape") onClose();
+        };
 
-        document.body.addEventListener('keydown', handleEscape);
+        document.body.addEventListener("keydown", handleEscape);
         return () => {
-            document.body.removeEventListener('keydown', handleEscape);
-        }
+            document.body.removeEventListener("keydown", handleEscape);
+        };
     });
 
     useEffect(() => {
-        document.body.style.overflow = 'hidden';
-        
+        document.body.style.overflow = "hidden";
+
         return () => {
-            document.body.style.overflow = '';
-        }
-    })
+            document.body.style.overflow = "";
+        };
+    });
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-            <div 
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={onClose}
-            />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
             <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-2xl animate-scale-in">
                 <button
                     onClick={onClose}
@@ -50,9 +46,7 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">
                         Так будет выглядеть ваш заказ
                     </h2>
-                    <p className="text-sm text-gray-600">
-                        Проверьте всё перед публикацией
-                    </p>
+                    <p className="text-sm text-gray-600">Проверьте всё перед публикацией</p>
                 </div>
                 <div className="px-8 pb-8">
                     <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
@@ -64,16 +58,19 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
                                     </span>
                                     <span className="text-xs text-gray-500">
                                         <Calendar size={12} className="inline mr-1" />
-                                        {new Date().toLocaleDateString('ru-RU')}
+                                        {new Date().toLocaleDateString("ru-RU")}
                                     </span>
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900">
-                                    {data.title || 'Название заказа'}
+                                    {data.title || "Название заказа"}
                                 </h3>
                             </div>
                             <div className="text-right ml-4">
                                 <div className="text-2xl font-bold text-indigo-600">
-                                    {data.budgetMin ? Number(data.budgetMin).toLocaleString() : '0'} - {data.budgetMax ? Number(data.budgetMax).toLocaleString() : '0'}₽
+                                    {data.budgetMin ? Number(data.budgetMin).toLocaleString() : "0"}{" "}
+                                    -{" "}
+                                    {data.budgetMax ? Number(data.budgetMax).toLocaleString() : "0"}
+                                    ₽
                                 </div>
                                 <div className="text-xs text-gray-500">Бюджет проекта</div>
                             </div>
@@ -85,7 +82,7 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
 
                         {data.skills && data.skills.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
-                                {data.skills.map(skill => (
+                                {data.skills.map((skill) => (
                                     <span
                                         key={skill}
                                         className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-medium border border-indigo-100"
@@ -100,7 +97,7 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
                             <div className="flex items-center gap-4 text-sm text-gray-600">
                                 <div className="flex items-center gap-1">
                                     <Clock size={16} />
-                                    <span>{data.deadline || '0'} дней</span>
+                                    <span>{data.deadline || "0"} дней</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <DollarSign size={16} />
@@ -124,7 +121,9 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
                     </div>
                     <div className="mt-4 bg-blue-50/70 backdrop-blur-sm border border-blue-100 rounded-xl p-4">
                         <p className="text-sm text-gray-700">
-                            <strong className="text-blue-700">💡 Обратите внимание:</strong> После публикации заказ появится в общей ленте и будет доступен всем исполнителям. Вы сможете редактировать его в течение 24 часов.
+                            <strong className="text-blue-700">💡 Обратите внимание:</strong> После
+                            публикации заказ появится в общей ленте и будет доступен всем
+                            исполнителям. Вы сможете редактировать его в течение 24 часов.
                         </p>
                     </div>
                     <div className="mt-6 flex items-center gap-3">

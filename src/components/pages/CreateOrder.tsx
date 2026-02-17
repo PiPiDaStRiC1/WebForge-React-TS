@@ -346,10 +346,7 @@ const CreateOrder = () => {
                         </div>
                     </form>
                     {showPreview && (
-                        <Preview
-                            onClose={() => setShowPreview(false)}
-                            data={{ ...currentFormValues, skills: selectedSkills }}
-                        />
+                        <Preview onClose={() => setShowPreview(false)} data={currentFormValues} />
                     )}
                 </div>
             </section>
