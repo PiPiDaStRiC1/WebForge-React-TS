@@ -1,0 +1,1 @@
+import{a2 as n,a3 as c}from"./index-BLWlQvy-.js";const o=async s=>{await new Promise(e=>{setTimeout(()=>e(!0),300)});const{freelancersById:t}=n(),{clientsById:r}=c();return[...Object.values(t),...Object.values(r)].find(e=>e.id===s)};export{o as f};

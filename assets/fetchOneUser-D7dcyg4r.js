@@ -1,1 +1,0 @@
-import{a3 as n,a4 as c}from"./index-CZglWmrf.js";const o=async s=>{await new Promise(e=>{setTimeout(()=>e(!0),300)});const{freelancersById:t}=n(),{clientsById:r}=c();return[...Object.values(t),...Object.values(r)].find(e=>e.id===s)};export{o as f};
