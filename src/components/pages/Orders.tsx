@@ -25,7 +25,7 @@ const initShowingCount = () => {
     return 20;
 };
 
-export const Orders = () => {
+const Orders = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const currentListElRef = useRef<HTMLDivElement>(null);
     const observerRef = useRef<IntersectionObserver>(null);
@@ -260,3 +260,5 @@ export const Orders = () => {
         </div>
     );
 };
+
+export default Orders;

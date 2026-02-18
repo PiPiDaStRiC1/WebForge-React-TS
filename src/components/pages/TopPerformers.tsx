@@ -16,7 +16,7 @@ const CATEGORIES = [
     { id: "data", name: "Аналитика", icon: Medal },
 ];
 
-export const TopPerformers = () => {
+const TopPerformers = () => {
     const { data, isLoading } = useQuery<FreelancersData>({
         queryKey: ["freelancers", "top-performers"],
         queryFn: fetchAllFreelancers,
@@ -173,3 +173,5 @@ export const TopPerformers = () => {
         </div>
     );
 };
+
+export default TopPerformers;

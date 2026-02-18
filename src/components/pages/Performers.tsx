@@ -22,7 +22,7 @@ const SORT_OPTIONS = [
     { value: "experience-desc" as const, label: "Опыт: по убыванию" },
 ];
 
-export const Performers = () => {
+const Performers = () => {
     const { data, isLoading, isError } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
         queryFn: fetchAllFreelancers,
@@ -406,3 +406,5 @@ export const Performers = () => {
         </div>
     );
 };
+
+export default Performers;
