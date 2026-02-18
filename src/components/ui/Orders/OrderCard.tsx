@@ -40,13 +40,14 @@ export const OrderCard = memo(
                                 {new Date(order.createdAt).toLocaleDateString("ru-RU")}
                             </span>
                         </div>
-                        {order.status === "completed" || order.status === "in-progress" ? (
-                            <button
-                                className="opacity-50 text-xl font-bold text-gray-900 transition-colors cursor-not-allowed"
-                                disabled
+                        {!isAuthenticated ? (
+                            <Link
+                                to="/auth"
+                                state={{ background: location, redirectTo: `/orders/${order.id}` }}
+                                className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors cursor-pointer"
                             >
                                 {order.title}
-                            </button>
+                            </Link>
                         ) : (
                             <Link
                                 to={`/orders/${order.id}`}

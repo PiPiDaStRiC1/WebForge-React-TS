@@ -18,6 +18,10 @@ import { lazy, Suspense } from "react";
 // Error Boundary
 // components/common/ErrorBoundary.tsx(done)
 
+// Оптимизация
+// 1) сделать оптимизацию карточек исполнителей (например, первые 10 делать используя
+// lazy loading, а остальные по мере прокрутки)(later)
+
 // Чат:
 // 1) сделать так, чтобы при отправки сообщений собеседник был online(later, overkill)
 // 2) добавить возможность отправки файлов (например, изображений) в чат (later, overkill)

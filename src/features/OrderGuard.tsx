@@ -1,8 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams, Navigate } from "react-router-dom";
 import { useUser } from "@/hooks";
-import { fetchOneOrder } from "@/lib/api";
-import { Preloader } from "@/components/common";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
@@ -14,31 +11,16 @@ export const OrderGuard = ({ children }: OrderGuardProps) => {
     const { orderId } = useParams<{ orderId: string }>();
     const { isAuthenticated } = useUser();
 
-    const { data: order, isLoading } = useQuery({
-        queryKey: ["order", orderId],
-        queryFn: async () => await fetchOneOrder(Number(orderId)),
-        enabled: !!orderId,
-        staleTime: 10 * 60 * 1000,
-    });
-
     useEffect(() => {
-        if (
-            !isLoading &&
-            (!isAuthenticated || order?.status === "completed" || order?.status === "in-progress")
-        ) {
-            toast.error("Данный заказ сейчас недоступен", { duration: 3000 });
+        if (!isAuthenticated || !orderId) {
+            toast.error("Данный заказ сейчас недоступен. Пройдите регистрацию", {
+                duration: 3000,
+                style: { textAlign: "center" },
+            });
         }
-    }, [isAuthenticated, order?.status, isLoading]);
+    }, [isAuthenticated, orderId]);
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Preloader />
-            </div>
-        );
-    }
-
-    if (!isAuthenticated || order?.status === "completed" || order?.status === "in-progress") {
+    if (!isAuthenticated) {
         return <Navigate to="/orders" replace />;
     }
 
