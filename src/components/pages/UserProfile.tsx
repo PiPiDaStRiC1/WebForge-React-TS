@@ -404,7 +404,7 @@ const UserProfile = () => {
                             <>
                                 <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
                                     <h2 className="text-lg font-bold text-gray-900 mb-4">
-                                        Завершенные проекты <span>({userOrders.length})</span>
+                                        Завершенные проекты <span>{userOrders.length}</span>
                                     </h2>
                                     {isLoadingOrders ? (
                                         <div className="space-y-3">
@@ -417,7 +417,11 @@ const UserProfile = () => {
                                     ) : userOrders.length > 0 ? (
                                         <div className="space-y-3 max-h-[27rem] overflow-y-scroll">
                                             {userOrders.map((order) => (
-                                                <OrderCardSmall key={order.id} order={order} />
+                                                <OrderCardSmall
+                                                    key={order.id}
+                                                    order={order}
+                                                    isAuthenticated={isAuthenticated}
+                                                />
                                             ))}
                                         </div>
                                     ) : (

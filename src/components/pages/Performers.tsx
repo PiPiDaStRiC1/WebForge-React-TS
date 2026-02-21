@@ -3,16 +3,16 @@ import { Link } from "react-router-dom";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown, X } from "lucide-react";
 import { Preloader, ErrorAlert } from "@/components/common";
-import { AsideFilters, UserCard } from "@/components/ui/Performers";
+import { AsideFilters, UserCard } from "@/components/ui";
 import { useFilters, useFreelancerSort, useUser, type SortOption } from "@/hooks/index";
-import { fetchAllFreelancers } from "@/lib/api/fetchAllFreelancers";
-import type { FreelancersData, Freelancer } from "@/types";
+import { fetchAllFreelancers } from "@/lib/api";
 import {
     ITEMS_PER_PAGE_OPTIONS,
     DEFAULT_ITEMS_PER_PAGE,
     allSkills,
     allCategories,
 } from "@/lib/constants";
+import type { FreelancersData, Freelancer } from "@/types";
 
 const SORT_OPTIONS = [
     { value: "default" as const, label: "По умолчанию" },
@@ -351,8 +351,12 @@ const Performers = () => {
                                         </div>
                                     ) : (
                                         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                            {paginatedData.map((u: Freelancer) => (
-                                                <UserCard key={u.id} user={u} />
+                                            {paginatedData.map((u: Freelancer, index) => (
+                                                <UserCard
+                                                    key={u.id}
+                                                    user={u}
+                                                    loading={index < 6 ? "eager" : "lazy"}
+                                                />
                                             ))}
                                         </div>
                                     )}

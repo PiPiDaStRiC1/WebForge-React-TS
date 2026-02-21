@@ -8,9 +8,10 @@ import type { Freelancer } from "@/types";
 
 interface UserCardProps {
     user: Freelancer;
+    loading: "eager" | "lazy";
 }
 
-export const UserCard = memo(({ user }: UserCardProps) => {
+export const UserCard = memo(({ user, loading }: UserCardProps) => {
     const location = useLocation();
     const { toggleFavorite, isFavorite } = useFavorites();
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user.picture);
@@ -37,6 +38,7 @@ export const UserCard = memo(({ user }: UserCardProps) => {
                                         src={user.picture.medium}
                                         alt={`${user.name} ${user.lastName}`}
                                         className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform"
+                                        loading={loading}
                                         onLoad={() => setIsLoadingAvatar(false)}
                                     />
                                     {!isLoadingAvatar && user.status === "verified" && (

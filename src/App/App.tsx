@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 
 // TODO:
-// 1) Сделать скелетоны для каждой страницы(later)
+// 1) Сделать скелетоны для каждой страницы(overkill)
 // 2) Возможно добавить отзывы заказчиков в профиле исполнителей(later)
 
 // SEO
@@ -20,7 +20,7 @@ import { lazy, Suspense } from "react";
 
 // Оптимизация
 // 1) сделать оптимизацию карточек исполнителей (например, первые 10 делать используя
-// lazy loading, а остальные по мере прокрутки)(later)
+// lazy loading, а остальные по мере прокрутки)(done)
 
 // Чат:
 // 1) сделать так, чтобы при отправки сообщений собеседник был online(later, overkill)
@@ -29,7 +29,6 @@ import { lazy, Suspense } from "react";
 
 // AI
 // Error Boundary(done)
-// Возможная оптимизация изображений (Intersection Observer)(later, overkill)
 // Непрочитанные сообщения(later)
 
 const FAQ = lazy(() => import("@/components/pages/FAQ"));

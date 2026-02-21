@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCreateOrder, BASE_CATEGORY, type OrderFormData } from "@/hooks";
 import { Briefcase, FileText, DollarSign, Clock, Tag, Layers, ChevronDown, X } from "lucide-react";
 import { CATEGORIES, allSkills } from "@/lib/constants";
@@ -31,6 +31,7 @@ const CreateOrder = () => {
     const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [selectedSkills, setSelectedSkills] = useState<string[]>(initSelectedSkills);
+    const skillsMenuRef = useRef<HTMLDivElement>(null);
 
     const toggleSkill = (skill: string) => {
         setSelectedSkills((prev) =>
@@ -72,6 +73,17 @@ const CreateOrder = () => {
     useEffect(() => {
         sessionStorage.setItem("create-order-draft", JSON.stringify(currentFormValues));
     }, [currentFormValues]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (skillsMenuRef.current && !skillsMenuRef.current.contains(event.target as Node))
+                setShowSkillsDropdown(false);
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    });
 
     return (
         <div className="min-h-screen pb-10">
@@ -217,7 +229,10 @@ const CreateOrder = () => {
                                 </button>
 
                                 {showSkillsDropdown && (
-                                    <div className="absolute top-full left-0 right-0 mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-10 max-h-64 overflow-y-auto">
+                                    <div
+                                        ref={skillsMenuRef}
+                                        className="absolute top-full left-0 right-0 mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-10 max-h-64 overflow-y-auto"
+                                    >
                                         <div className="flex flex-wrap gap-2">
                                             {allSkills.map((skill) => (
                                                 <button

@@ -12,8 +12,12 @@ import {
 } from "lucide-react";
 import { useUser, useProfile } from "@/hooks";
 import { ErrorAlert } from "@/components/common";
-import { nameRegExp, emailRegExp } from "@/lib/constants/regExpFormValidation";
 import { useForm, Controller } from "react-hook-form";
+import { nameRegExp, emailRegExp } from "@/lib/constants/regExpFormValidation";
+import { Security } from "./Security";
+import { Payment } from "./Payment";
+import { Danger } from "./Danger";
+import { Notifications } from "./Notifications";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { LucideProps } from "lucide-react";
@@ -279,159 +283,16 @@ export const SettingsTab = () => {
                     </div>
                 )}
 
-                {activeSettingsTab === "notifications" && (
-                    <div>
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Уведомления</h2>
-                            <p className="text-sm text-gray-600 mt-1">Управление оповещениями</p>
-                        </div>
+                {activeSettingsTab === "notifications" && <Notifications />}
 
-                        <div className="space-y-6 max-w-2xl">
-                            <label className="flex items-center justify-between cursor-pointer p-4 rounded-xl hover:bg-gray-50 transition-colors">
-                                <div>
-                                    <div className="font-medium text-gray-900">
-                                        Email-уведомления
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                        Получать письма о новых заказах
-                                    </div>
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    defaultChecked
-                                    className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                />
-                            </label>
-
-                            <label className="flex items-center justify-between cursor-pointer p-4 rounded-xl hover:bg-gray-50 transition-colors">
-                                <div>
-                                    <div className="font-medium text-gray-900">
-                                        Push-уведомления
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                        Уведомления в браузере
-                                    </div>
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                />
-                            </label>
-
-                            <label className="flex items-center justify-between cursor-pointer p-4 rounded-xl hover:bg-gray-50 transition-colors">
-                                <div>
-                                    <div className="font-medium text-gray-900">
-                                        Новостная рассылка
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                        Советы и обновления платформы
-                                    </div>
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    defaultChecked
-                                    className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                />
-                            </label>
-                        </div>
-                    </div>
-                )}
-
-                {activeSettingsTab === "security" && (
-                    <div>
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Безопасность</h2>
-                            <p className="text-sm text-gray-600 mt-1">
-                                Пароль и двухфакторная аутентификация
-                            </p>
-                        </div>
-
-                        <div className="space-y-3 max-w-lg">
-                            <button className="cursor-pointer w-full py-4 px-5 bg-gray-50 border border-gray-200 rounded-xl text-left hover:bg-gray-100 transition-colors group">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <button className="cursor-pointer font-medium text-gray-900">
-                                            Изменить пароль
-                                        </button>
-                                        <div className="text-sm text-gray-500 mt-1">
-                                            Последнее изменение: {user.registeredAt.split("T")[0]}
-                                        </div>
-                                    </div>
-                                    <ChevronRight
-                                        className="text-gray-400 group-hover:text-gray-600"
-                                        size={20}
-                                    />
-                                </div>
-                            </button>
-
-                            <button className="cursor-pointer w-full py-4 px-5 bg-gray-50 border border-gray-200 rounded-xl text-left hover:bg-gray-100 transition-colors group">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <button className="cursor-pointer font-medium text-gray-900">
-                                            Двухфакторная аутентификация
-                                        </button>
-                                        <div className="text-sm text-gray-500 mt-1">Отключена</div>
-                                    </div>
-                                    <ChevronRight
-                                        className="text-gray-400 group-hover:text-gray-600"
-                                        size={20}
-                                    />
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                )}
+                {activeSettingsTab === "security" && <Security />}
 
                 {activeSettingsTab === "payment" && user.role === "freelancer" && (
-                    <div>
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Платежи</h2>
-                            <p className="text-sm text-gray-600 mt-1">
-                                {user.role === "freelancer"
-                                    ? "Способы вывода средств"
-                                    : "Способ оплаты"}
-                            </p>
-                        </div>
-
-                        <div className="text-center py-12 max-w-md mx-auto">
-                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <CreditCard className="text-blue-600" size={32} />
-                            </div>
-                            <p className="text-gray-500 mb-6">Платежные реквизиты не добавлены</p>
-                            <button className="cursor-pointer px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors">
-                                Добавить карту
-                            </button>
-                        </div>
-                    </div>
+                    <Payment user={user} />
                 )}
 
                 {activeSettingsTab === "danger" && (
-                    <div>
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-red-900">Опасная зона</h2>
-                            <p className="text-sm text-red-600 mt-1">
-                                Необратимые действия с аккаунтом
-                            </p>
-                        </div>
-
-                        <div className="space-y-4 max-w-lg">
-                            <div className="bg-red-100 border-2 border-red-300 rounded-xl p-4">
-                                <h3 className="font-semibold text-red-900 mb-2">
-                                    Удаление аккаунта
-                                </h3>
-                                <p className="text-sm text-red-700 mb-4">
-                                    Безвозвратное удаление всех данных. Это действие нельзя
-                                    отменить.
-                                </p>
-                                <button
-                                    className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors text-sm"
-                                    onClick={handleDeleteAccount}
-                                >
-                                    Удалить аккаунт навсегда
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <Danger handleDeleteAccount={handleDeleteAccount} />
                 )}
             </div>
         </div>

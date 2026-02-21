@@ -9,3 +9,4 @@ export { ProfileSkeleton, SettingsTab, VerificationProfile, ProfileTab } from ".
 export { InlineMessage } from "./Chat";
 export { Chats } from "./Messages";
 export { FavoriteUserCard } from "./Favorites";
+export { AsideFilters, UserCard } from "./Performers";

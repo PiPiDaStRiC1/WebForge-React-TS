@@ -11,7 +11,7 @@ const profileSchema = z.object({
     bio: z.string().max(100, { error: "Максимальное кол-во символов - 100" }).optional(),
     skills: z
         .string()
-        .regex(/^[\w,\s*]+$/, {
+        .regex(/^([A-Za-zА-Яа-яЁё]+(?:,\s*[A-Za-zА-Яа-яЁё]+)*)$/, {
             error: "Навыки должны быть разделены запятыми и содержать только буквы",
         })
         .transform((value) =>
@@ -35,7 +35,7 @@ export const ProfileTab = () => {
         register,
         handleSubmit,
         formState: { errors, isValid },
-    } = useForm({ resolver: zodResolver(profileSchema), mode: "onBlur" });
+    } = useForm({ resolver: zodResolver(profileSchema), mode: "all" });
 
     if (!user) {
         return <ErrorAlert />;
