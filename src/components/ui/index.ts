@@ -10,3 +10,4 @@ export { InlineMessage } from "./Chat";
 export { Chats } from "./Messages";
 export { FavoriteUserCard } from "./Favorites";
 export { AsideFilters, UserCard } from "./Performers";
+export { GuideCard } from "./Guides/GuideCard";
