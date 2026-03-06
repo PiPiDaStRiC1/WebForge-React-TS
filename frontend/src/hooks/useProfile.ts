@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "@/hooks";
 import toast from "react-hot-toast";
-import type { UserData } from "@/types";
+import type { UserData } from "@shared/types";
 
 export const useProfile = () => {
     const { changeUserData } = useUser();

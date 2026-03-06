@@ -5,9 +5,9 @@ import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { AuthStore } from "@/lib/storage/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllOrders } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import toast from "react-hot-toast";
-import type { Order, AllUserLSData } from "@/types";
+import type { OrderWithResponsesCount, AllUserLSData } from "@shared/types";
 
 export type OrderFormData = z.infer<typeof createOrderSchema>;
 
@@ -37,7 +37,7 @@ const initFormData = (): OrderFormData => {
 };
 
 const handleSubmitForm = async (
-    data: Order,
+    data: OrderWithResponsesCount,
     signal: AbortSignal,
     userId: number,
 ): Promise<void> => {
@@ -117,7 +117,7 @@ export const useCreateOrder = () => {
     const [isLoadingSubmitting, setIsLoadingSubmitting] = useState(false);
     const controllerRef = useRef<AbortController | null>(null);
     const currentUserId = useMemo(() => new AuthStore().getUserId(), []);
-    const { refetch } = useQuery({ queryKey: ["orders"], queryFn: fetchAllOrders });
+    const { refetch } = useQuery({ queryKey: ["orders"], queryFn: apiClient.getAllOrders });
 
     const {
         register,
@@ -139,12 +139,12 @@ export const useCreateOrder = () => {
 
         controllerRef.current = new AbortController();
         const signal = controllerRef.current.signal;
-        const data: Order = {
+        const data: OrderWithResponsesCount = {
             ...formData,
             id: Math.floor(Math.random() * 10000000),
             status: "new",
             responsesCount: 0,
-            createdAt: new Date().toISOString().split("T")[0],
+            createdAt: new Date().toISOString().split("T")[0]!,
             completedById: null,
             clientId: currentUserId!, // we are sure, what user exist, because this page is protected by ProtectedRoute
         };

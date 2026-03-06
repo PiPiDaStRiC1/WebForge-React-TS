@@ -1,6 +1,6 @@
-import type { AuthData } from "@/types";
+import type { AuthData } from "@shared/types";
 
-const initialAuthData: AuthData = { isLoggedIn: false, currentUserId: null, token: undefined };
+const initialAuthData: AuthData = { isLoggedIn: false, currentUserId: null, token: null };
 
 export class AuthStore {
     getAuthData(): AuthData {
@@ -25,7 +25,7 @@ export class AuthStore {
             return initialAuthData;
         }
     }
-    getToken(): string | undefined {
+    getToken(): string | null {
         const authData = this.getAuthData();
         return authData.token;
     }

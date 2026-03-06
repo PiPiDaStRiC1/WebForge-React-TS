@@ -3,17 +3,17 @@ import { useMemo } from "react";
 import { Heart, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useFavorites } from "@/hooks";
-import { fetchAllFreelancers } from "@/lib/api/fetchAllFreelancers";
+import { apiClient } from "@/lib/api";
 import { FavoriteUserCard } from "@/components/ui";
 import { Preloader, ErrorAlert } from "@/components/common";
-import type { FreelancersData } from "@/types";
+import type { FreelancersData } from "@shared/types";
 
 const Favorites = () => {
     const { favoritesList } = useFavorites();
 
     const { data, isLoading, isError } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
-        queryFn: fetchAllFreelancers,
+        queryFn: apiClient.getAllFreelancers,
         staleTime: 5 * 60 * 1000,
     });
 
@@ -21,7 +21,7 @@ const Favorites = () => {
         if (!data) return [];
 
         const favoriteIds = Object.values(favoritesList).map((fav) => fav.likedUserId);
-        return favoriteIds.map((id) => data.freelancersById[id]).filter(Boolean);
+        return favoriteIds.map((id) => data.freelancersById[id]!).filter(Boolean);
     }, [data, favoritesList]);
 
     if (isLoading) {

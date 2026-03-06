@@ -1,5 +1,5 @@
 import { CreditCard } from "lucide-react";
-import type { UserData } from "@/types";
+import type { UserData } from "@shared/types";
 
 interface PaymentProps {
     user: UserData;

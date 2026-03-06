@@ -4,10 +4,10 @@ import { Search, User, ChevronDown, X, Heart, MessageSquare, UserX } from "lucid
 import { Logo } from "@/components/common/index";
 import { AboutUsers, Support } from "./index";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllOrders } from "@/lib/api/fetchAllOrders";
+import { apiClient } from "@/lib/api";
 import { useUser, useFavorites } from "@/hooks";
 import { SearchCard } from "./SearchCard";
-import type { OrdersData } from "@/types";
+import type { OrdersData } from "@shared/types";
 
 export const Header = () => {
     const location = useLocation();
@@ -22,7 +22,7 @@ export const Header = () => {
 
     const { data: orders } = useQuery<OrdersData>({
         queryKey: ["orders"],
-        queryFn: fetchAllOrders,
+        queryFn: apiClient.getAllOrders,
     });
 
     const { favoritesList } = useFavorites();

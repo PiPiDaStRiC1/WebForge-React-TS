@@ -1,5 +1,5 @@
-import type {Message, UserData} from "@/types";
-import {Link} from "react-router-dom";
+import type { Message, UserData } from "@shared/types";
+import { Link } from "react-router-dom";
 
 interface InlineMessageProps {
     message: Message;
@@ -7,7 +7,7 @@ interface InlineMessageProps {
     ownUserId: number;
 }
 
-export const InlineMessage = ({message, currentUser, ownUserId}: InlineMessageProps) => {
+export const InlineMessage = ({ message, currentUser, ownUserId }: InlineMessageProps) => {
     const isOwn = message.senderId === ownUserId;
 
     return (

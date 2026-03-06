@@ -8,8 +8,10 @@ import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 
 // TODO:
-// 1) Сделать так, чтобы при отправки сообщений собеседник был online
+// 1) Затипизовать все api функции во вкладке frontend
 // 2) Непрочитанные сообщения
+// 3) Переделать структуру responses в json, а именно сделать так, чтобы ключом был
+// номера заказа, а не номер самого id response (getOneOrderResponses)
 
 // SEO
 // Сделать SEO френдли с помощью React Helmet (later)

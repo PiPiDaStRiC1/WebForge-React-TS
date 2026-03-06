@@ -1,10 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { Calendar, Clock, DollarSign, MessageCircle, Briefcase, TrendingUp } from "lucide-react";
-import { fetchOneOrder, fetchOneUser, fetchResponses, fetchAllFreelancers } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { ErrorAlert } from "@/components/common";
 import { ClientCard, ResponseCard, OrderInfoSkeleton } from "@/components/ui";
-import type { Order, Client, Freelancer, OrderResponse, FreelancersData } from "@/types";
+import type {
+    OrderWithResponsesCount,
+    Client,
+    Freelancer,
+    FreelancersData,
+    Response,
+} from "@shared/types";
 
 const STATUS_CONFIG = {
     new: { label: "Новый", color: "bg-green-100 text-green-700 border-green-200", icon: "🆕" },
@@ -31,9 +37,9 @@ const OrderInfo = () => {
         data: order,
         isLoading: isLoadingOrder,
         isError: isErrorOrder,
-    } = useQuery<Order | undefined>({
+    } = useQuery<OrderWithResponsesCount>({
         queryKey: ["orders", orderId],
-        queryFn: () => fetchOneOrder(Number(orderId)),
+        queryFn: () => apiClient.getSingleOrder(orderId!),
         enabled: !!orderId,
         staleTime: 30 * 60 * 1000,
     });
@@ -44,7 +50,7 @@ const OrderInfo = () => {
         isError: isErrorUser,
     } = useQuery<Client | Freelancer | undefined>({
         queryKey: ["users", order?.clientId],
-        queryFn: () => fetchOneUser(order!.clientId),
+        queryFn: () => apiClient.getSingleClient(String(order!.clientId)),
         enabled: !!order?.clientId,
         staleTime: 30 * 60 * 1000,
     });
@@ -55,7 +61,7 @@ const OrderInfo = () => {
         isError: isErrorFreelancers,
     } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
-        queryFn: fetchAllFreelancers,
+        queryFn: apiClient.getAllFreelancers,
         enabled: !!order,
     });
 
@@ -63,9 +69,9 @@ const OrderInfo = () => {
         data: responses,
         isLoading: isLoadingResponses,
         isError: isErrorResponses,
-    } = useQuery<OrderResponse[]>({
+    } = useQuery<Response[]>({
         queryKey: ["responses", orderId],
-        queryFn: () => fetchResponses(Number(orderId)),
+        queryFn: () => apiClient.getSingleOrderResponses(orderId!),
         enabled: !!orderId,
         staleTime: 10 * 60 * 1000,
     });
@@ -225,15 +231,19 @@ const OrderInfo = () => {
                         <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl">
                             {responses && freelancers && responses.length > 0 ? (
                                 <div className="max-h-[28rem] overflow-y-auto">
-                                    {responses.map((response) => (
-                                        <ResponseCard
-                                            key={response.id}
-                                            response={response}
-                                            freelancer={Object.values(
-                                                freelancers.freelancersById,
-                                            ).find((f) => f.id === response.freelancerId)}
-                                        />
-                                    ))}
+                                    {responses.map((response) => {
+                                        const freelancer = Object.values(
+                                            freelancers.freelancersById,
+                                        ).find((f) => f.id === response.freelancerId);
+
+                                        return (
+                                            <ResponseCard
+                                                key={response.id}
+                                                response={response}
+                                                freelancer={freelancer}
+                                            />
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="text-center py-12">

@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useFilters } from "@/hooks";
 import { AsideFilter, OrderCard } from "@/components/ui";
 import { Briefcase, DollarSign, TrendingUp, Search } from "lucide-react";
-import { fetchAllOrders } from "@/lib/api/fetchAllOrders";
+import { apiClient } from "@/lib/api";
 import { useOrdersSort } from "@/hooks";
-import type { OrdersData } from "@/types";
 import { CATEGORIES } from "@/lib/constants/categories";
+import type { OrdersData } from "@shared/types";
 
 type SortOption = "date-desc" | "date-asc" | "budget-desc" | "budget-asc" | "responses-desc";
 
@@ -33,7 +33,7 @@ const Orders = () => {
     const { get, set } = useFilters();
     const { data, isLoading, isError } = useQuery<OrdersData>({
         queryKey: ["orders"],
-        queryFn: fetchAllOrders,
+        queryFn: apiClient.getAllOrders,
         staleTime: 30 * 60 * 1000,
     });
 
@@ -45,7 +45,7 @@ const Orders = () => {
         if (!data || data.allIds.length === 0) return [];
 
         return data.allIds
-            .map((orderId) => data.ordersById[orderId])
+            .map((orderId) => data.ordersById[orderId]!)
             .filter((order) => {
                 const matchesSearch =
                     order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

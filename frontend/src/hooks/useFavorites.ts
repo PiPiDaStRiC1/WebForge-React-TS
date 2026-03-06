@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AuthStore } from "@/lib/storage/authStore";
-import type { AllUserLSData, Favorite } from "@/types";
+import type { AllUserLSData, Favorite } from "@shared/types";
 
 export const useFavorites = () => {
     const queryClient = useQueryClient();

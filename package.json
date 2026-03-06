@@ -1,0 +1,30 @@
+{
+    "name": "webforge-react-ts",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+        "dev:frontend": "cd frontend && npm run dev",
+        "dev:backend": "cd backend && npm run dev",
+        "kill port:frontend": "kill-port 5173",
+        "kill port:backend": "kill-port 5000"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/PiPiDaStRiC1/WebForge-React-TS.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "bugs": {
+        "url": "https://github.com/PiPiDaStRiC1/WebForge-React-TS/issues"
+    },
+    "dependencies": {
+        "typescript": "^5.9.3"
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
+}

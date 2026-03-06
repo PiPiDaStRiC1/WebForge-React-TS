@@ -3,9 +3,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useMessages, useUser } from "@/hooks";
 import { Send, Paperclip, MoreVertical, ArrowLeft, MessageCircle, Star } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchOneUser } from "@/lib/api/fetchOneUser";
+import { apiClient } from "@/lib/api";
 import { InlineMessage } from "@/components/ui";
-import type { Message, UserData } from "@/types";
+import type { Message, UserData } from "@shared/types";
 
 const commonReplies: string[] = [
     "Привет! Спасибо за сообщение 🙂",
@@ -132,7 +132,7 @@ const Chat = () => {
         isLoading,
     } = useQuery<UserData | undefined>({
         queryKey: ["user", userId],
-        queryFn: () => fetchOneUser(Number(userId)),
+        queryFn: () => apiClient.getSingleUser(Number(userId)),
         staleTime: 5 * 60 * 1000,
         enabled: !!userId,
     });
@@ -216,10 +216,10 @@ const Chat = () => {
                             currentUser?.gender === "female"
                                 ? femaleFreelancerReplies[
                                       Math.floor(Math.random() * femaleFreelancerReplies.length)
-                                  ]
+                                  ]!
                                 : maleFreelancerReplies[
                                       Math.floor(Math.random() * maleFreelancerReplies.length)
-                                  ],
+                                  ]!,
                         timestamp: new Date().toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",

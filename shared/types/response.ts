@@ -1,4 +1,4 @@
-export interface OrderResponse {
+export interface Response {
     id: number;
     text: string;
     freelancerId: number;

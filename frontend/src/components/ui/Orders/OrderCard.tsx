@@ -2,7 +2,7 @@ import { memo, forwardRef, useMemo } from "react";
 import { Clock, Calendar, MessageCircle, DollarSign } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { AuthStore } from "@/lib/storage/authStore";
-import type { Order } from "@/types";
+import type { Order } from "@shared/types";
 
 interface OrderCardProps {
     order: Order;

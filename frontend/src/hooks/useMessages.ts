@@ -1,6 +1,6 @@
 import { AuthStore } from "@/lib/storage/authStore";
 import { useMemo } from "react";
-import type { Message, AllUserLSData } from "@/types";
+import type { Message, AllUserLSData } from "@shared/types";
 
 export const useMessages = () => {
     const authStore = useMemo(() => new AuthStore(), []);

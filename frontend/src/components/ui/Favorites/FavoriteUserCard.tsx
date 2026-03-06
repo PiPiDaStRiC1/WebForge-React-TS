@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { BadgeCheck, MapPin, Heart } from "lucide-react";
 import { AvatarPreloader } from "@/components/common";
 import { useCurrentUser, useFavorites } from "@/hooks";
-import type { UserData } from "@/types";
+import type { UserData } from "@shared/types";
 
 interface UserCardProps {
     user: UserData;

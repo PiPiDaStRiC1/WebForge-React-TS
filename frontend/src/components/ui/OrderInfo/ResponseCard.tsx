@@ -1,13 +1,13 @@
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Star, MapPin, Briefcase, BadgeCheck } from "lucide-react";
-import type { OrderResponse, Freelancer } from "@/types";
 import { AvatarPreloader, UserCardPreloader } from "@/components/common";
 import { AuthStore } from "@/lib/storage/authStore";
+import type { Response, Freelancer } from "@shared/types";
 
 interface ResponseCardProps {
-    response: OrderResponse;
-    freelancer?: Freelancer;
+    response: Response;
+    freelancer: Freelancer | undefined;
 }
 
 export const ResponseCard = ({ response, freelancer }: ResponseCardProps) => {

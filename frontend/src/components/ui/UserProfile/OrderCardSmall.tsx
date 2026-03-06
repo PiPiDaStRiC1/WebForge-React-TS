@@ -1,6 +1,6 @@
 import { Calendar, Clock } from "lucide-react";
-import type { Order } from "@/types";
 import { Link, useLocation } from "react-router-dom";
+import type { Order } from "@shared/types";
 
 interface OrderCardSmallProps {
     order: Order;

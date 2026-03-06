@@ -5,14 +5,14 @@ import { Search, SlidersHorizontal, BadgeCheck, ArrowRight, ChevronDown, X } fro
 import { Preloader, ErrorAlert } from "@/components/common";
 import { AsideFilters, UserCard } from "@/components/ui";
 import { useFilters, useFreelancerSort, useUser, type SortOption } from "@/hooks/index";
-import { fetchAllFreelancers } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import {
     ITEMS_PER_PAGE_OPTIONS,
     DEFAULT_ITEMS_PER_PAGE,
     allSkills,
     allCategories,
 } from "@/lib/constants";
-import type { FreelancersData, Freelancer } from "@/types";
+import type { FreelancersData, Freelancer } from "@shared/types";
 
 const SORT_OPTIONS = [
     { value: "default" as const, label: "По умолчанию" },
@@ -25,7 +25,7 @@ const SORT_OPTIONS = [
 const Performers = () => {
     const { data, isLoading, isError } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
-        queryFn: fetchAllFreelancers,
+        queryFn: apiClient.getAllFreelancers,
         staleTime: 5 * 60 * 1000,
     });
 
@@ -40,21 +40,27 @@ const Performers = () => {
 
     const search = get("search", String, "");
     const categories = get("category", (v) => v.split(","), []);
-    const [priceLow, priceHigh] = getRange("price", ["1000", "10000"]).map(Number);
+    const [priceLow, priceHigh] = getRange("price", ["1000", "10000"]).map(Number) as [
+        number,
+        number,
+    ];
     const skills = get("skills", (v) => v.split(","), []);
-    const [ratingLow, ratingHigh] = getRange("rating", ["0", "5"]).map(Number);
-    const [experienceLow, experienceHigh] = getRange("experience", ["0", "10"]).map(Number);
+    const [ratingLow, ratingHigh] = getRange("rating", ["0", "5"]).map(Number) as [number, number];
+    const [experienceLow, experienceHigh] = getRange("experience", ["0", "10"]).map(Number) as [
+        number,
+        number,
+    ];
     const status = get("status", (v) => v.split(","), []);
     const [completedOrdersLow, completedOrdersHigh] = getRange("completedOrders", [
         "0",
         "1000",
-    ]).map(Number);
+    ]).map(Number) as [number, number];
 
     const filteredData = useMemo(() => {
         if (!data) return [];
 
         return data.allIds
-            .map((userId) => data.freelancersById[userId])
+            .map((userId) => data.freelancersById[userId]!)
             .filter(
                 (user) =>
                     (user.login.includes(search) || user.name.includes(search)) &&

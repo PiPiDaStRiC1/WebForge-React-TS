@@ -6,6 +6,11 @@ import path from "path";
 export default defineConfig({
     base: "/WebForge-React-TS/",
     plugins: [react({ babel: { plugins: [["babel-plugin-react-compiler"]] } }), tailwindcss()],
-    resolve: { alias: { "@": path.resolve(__dirname, "src") } },
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "src"),
+            "@shared": path.resolve(__dirname, "..", "shared"),
+        },
+    },
     server: { port: 5173, strictPort: true, open: true },
 });

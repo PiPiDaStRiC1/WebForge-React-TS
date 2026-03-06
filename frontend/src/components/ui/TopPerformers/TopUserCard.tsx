@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
-import type { Freelancer } from "@/types";
+import type { Freelancer } from "@shared/types";
 
 interface TopUserCardProps {
     performer: Freelancer;

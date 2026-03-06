@@ -4,7 +4,7 @@ import { useFavorites } from "@/hooks";
 import { Star, MapPin, Heart, BadgeCheck, Briefcase } from "lucide-react";
 import { AvatarPreloader } from "@/components/common";
 import { AuthStore } from "@/lib/storage/authStore";
-import type { Freelancer } from "@/types";
+import type { Freelancer } from "@shared/types";
 
 interface UserCardProps {
     user: Freelancer;

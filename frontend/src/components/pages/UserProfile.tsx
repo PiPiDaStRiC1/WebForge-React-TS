@@ -17,12 +17,12 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
-import { fetchOneUser, fetchAllOrders } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { useFavorites } from "@/hooks";
 import { ErrorAlert, OrderCardSkeleton } from "@/components/common";
 import { UserProfileSkeleton, OrderCardSmall } from "@/components/ui";
 import { AuthStore } from "@/lib/storage/authStore";
-import type { Client, FreelancerWithoutCompletedOrders, OrdersData } from "@/types";
+import type { Client, FreelancerWithoutCompletedOrders, OrdersData } from "@shared/types";
 
 const UserProfile = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -38,7 +38,7 @@ const UserProfile = () => {
         isError,
     } = useQuery<Client | FreelancerWithoutCompletedOrders | undefined>({
         queryKey: ["users", userId],
-        queryFn: () => fetchOneUser(Number(userId)),
+        queryFn: () => apiClient.getSingleUser(Number(userId)),
         staleTime: 30 * 60 * 1000,
     });
 
@@ -48,16 +48,16 @@ const UserProfile = () => {
         isError: isErrorOrders,
     } = useQuery<OrdersData>({
         queryKey: ["orders"],
-        queryFn: fetchAllOrders,
+        queryFn: apiClient.getAllOrders,
         staleTime: 30 * 60 * 1000,
     });
 
     const userOrders = useMemo(() => {
         if (!orders) return [];
 
-        return orders.allIds
-            .map((orderId) => orders.ordersById[orderId])
-            .filter((order) => order.completedById === Number(userId));
+        return Object.values(orders.ordersById).filter(
+            (order) => order?.completedById === Number(userId),
+        );
     }, [orders, userId]);
 
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user?.picture);

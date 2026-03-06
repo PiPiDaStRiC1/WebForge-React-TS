@@ -4,11 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/hooks";
 import { Search, ArrowLeft, X, ArrowRight, MessageCircle } from "lucide-react";
 import { useMessages } from "@/hooks";
-import { fetchAllFreelancers } from "@/lib/api/fetchAllFreelancers";
-import { fetchAllClients } from "@/lib/api/fetchAllClients";
+import { apiClient } from "@/lib/api";
 import { SkeletonChats } from "./SkeletonChats";
 import { InlineMessage } from "@/components/ui/Chat/index";
-import type { Message, FreelancersData, ClientsData, ChatPreview } from "@/types";
+import type { Message, ClientsData, FreelancersData, ChatPreview } from "@shared/types";
 
 export const Chats = () => {
     const { user } = useUser();
@@ -27,12 +26,12 @@ export const Chats = () => {
     });
     const { data: freelancers, isLoading: isLoadingFreelancers } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
-        queryFn: fetchAllFreelancers,
+        queryFn: apiClient.getAllFreelancers,
         staleTime: 5 * 60 * 1000,
     });
     const { data: clients, isLoading: isLoadingClients } = useQuery<ClientsData>({
         queryKey: ["clients"],
-        queryFn: fetchAllClients,
+        queryFn: apiClient.getAllClients,
         staleTime: 5 * 60 * 1000,
     });
 
@@ -48,7 +47,9 @@ export const Chats = () => {
                 const userData = allUsers[colloId];
                 if (!userData) return null;
 
-                const lastMessage = messages[colloId].slice(-1)[0];
+                const lastMessage = messages[colloId]?.slice(-1)[0];
+
+                if (!lastMessage) return null;
 
                 return {
                     id: colloId,

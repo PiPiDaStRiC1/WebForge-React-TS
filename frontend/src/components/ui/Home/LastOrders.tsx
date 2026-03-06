@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLastOrders } from "@/lib/api/fetchLastOrders";
-import type { Order } from "@/types";
+import { apiClient } from "@/lib/api";
+import type { Order } from "@shared/types";
 import { HomeOrdersPreloader } from "@/components/common";
 
 export const LastOrders = () => {
     const { data: lastOrders, isLoading } = useQuery<Order[]>({
         queryKey: ["orders", "last"],
-        queryFn: () => fetchLastOrders(3),
+        queryFn: () => apiClient.getLastOrders(3),
         staleTime: 5 * 60 * 1000,
     });
 

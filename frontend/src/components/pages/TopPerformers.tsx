@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
 import { Trophy, Medal, Star, Award, Users, TrendingUp, Zap } from "lucide-react";
-import { fetchAllFreelancers } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { USERS_IN_TOP } from "@/lib/constants/index";
 import { ErrorAlert } from "@/components/common";
 import { useQuery } from "@tanstack/react-query";
 import { TopUserCard, OtherUserCard } from "@/components/ui";
-import type { FreelancersData } from "@/types";
+import type { FreelancersData } from "@shared/types";
 
 const CATEGORIES = [
     { id: "all", name: "Все категории", icon: Users },
@@ -19,7 +19,7 @@ const CATEGORIES = [
 const TopPerformers = () => {
     const { data, isLoading } = useQuery<FreelancersData>({
         queryKey: ["freelancers", "top-performers"],
-        queryFn: fetchAllFreelancers,
+        queryFn: apiClient.getAllFreelancers,
     });
     const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -27,11 +27,11 @@ const TopPerformers = () => {
         if (!data) return [];
 
         if (selectedCategory === "all")
-            return data.allIds.slice(0, USERS_IN_TOP).map((id) => data.freelancersById[id]);
+            return data.allIds.slice(0, USERS_IN_TOP).map((id) => data.freelancersById[id]!);
         return data.allIds
-            .filter((p) => data.freelancersById[p].category === selectedCategory)
-            .slice(0, USERS_IN_TOP)
-            .map((id) => data.freelancersById[id]);
+            .map((id) => data.freelancersById[id]!)
+            .filter((freelancer) => freelancer.category === selectedCategory)
+            .slice(0, USERS_IN_TOP);
     }, [selectedCategory, data]);
 
     const topThree = filteredPerformers.slice(0, 3);

@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { UserContext, type UserContextType } from "./UserContext";
-import type { StoredUsers, AuthData, UserData, AllUserLSData } from "@/types";
+import type { StoredUsers, AuthData, UserData, AllUserLSData } from "@shared/types";
 
 interface UserProviderProps {
     children: React.ReactNode;
 }
 
-const initialAuthData: AuthData = { isLoggedIn: false, currentUserId: null, token: undefined };
+const initialAuthData: AuthData = { isLoggedIn: false, currentUserId: null, token: null };
 
 const initAuthData = (): AuthData => {
     const raw = localStorage.getItem("auth-data");
@@ -110,7 +110,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
     const logOutUser = useCallback(() => {
         setUserData(null);
-        setAuthData({ isLoggedIn: false, currentUserId: null, token: undefined });
+        setAuthData({ isLoggedIn: false, currentUserId: null, token: null });
     }, []);
 
     const logInUser = useCallback((email: string) => {
@@ -140,7 +140,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         const { [authData.currentUserId]: __, ...restUsersData } = allUsersData;
         localStorage.setItem("users-data", JSON.stringify(restUsersData));
 
-        setAuthData({ isLoggedIn: false, currentUserId: null, token: undefined });
+        setAuthData({ isLoggedIn: false, currentUserId: null, token: null });
     }, [authData.currentUserId]);
 
     useEffect(() => {

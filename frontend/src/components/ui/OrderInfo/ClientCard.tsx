@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AvatarPreloader } from "@/components/common";
 import { Star, MapPin, BadgeCheck } from "lucide-react";
-import type { Client } from "@/types";
+import type { Client } from "@shared/types";
 
 interface ClientCardProps {
     client: Client;

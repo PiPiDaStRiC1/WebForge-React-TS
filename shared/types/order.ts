@@ -7,9 +7,10 @@ export interface Order {
     category: string;
     skills: string[];
     deadline: number;
-    status: 'new' | 'in-progress' | 'completed';
-    responsesCount: number;
+    status: "new" | "in-progress" | "completed";
     createdAt: string;
     clientId: number;
     completedById: number | null;
 }
+
+export type OrderWithResponsesCount = Order & { responsesCount: number };

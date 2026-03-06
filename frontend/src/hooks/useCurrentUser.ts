@@ -1,7 +1,7 @@
 import { AuthStore } from "@/lib/storage/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllFreelancers, fetchAllClients } from "@/lib/api";
-import type { UserData, FreelancersData, ClientsData } from "@/types";
+import { apiClient } from "@/lib/api";
+import type { UserData, FreelancersData, ClientsData } from "@shared/types";
 
 export const useCurrentUser = () => {
     const authStore = new AuthStore();
@@ -9,11 +9,11 @@ export const useCurrentUser = () => {
 
     const { data: freelancers } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
-        queryFn: fetchAllFreelancers,
+        queryFn: apiClient.getAllFreelancers,
     });
     const { data: clients } = useQuery<ClientsData>({
         queryKey: ["clients"],
-        queryFn: fetchAllClients,
+        queryFn: apiClient.getAllClients,
     });
 
     return useQuery<UserData | null>({

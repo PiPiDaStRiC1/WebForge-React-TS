@@ -5,7 +5,7 @@ import { emailRegExp, passwordRegExp, nameRegExp } from "@/lib/constants/regExpF
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import type { UserData } from "@/types";
+import type { UserData } from "@shared/types";
 
 type TabType = "login" | "register";
 type RoleType = "freelancer" | "client";

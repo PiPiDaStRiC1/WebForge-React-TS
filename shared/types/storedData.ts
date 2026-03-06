@@ -1,20 +1,20 @@
 import type {
     UserData,
-    Order,
+    OrderWithResponsesCount,
     Client,
-    OrderResponse,
+    Response,
     FreelancerWithoutCompletedOrders,
     Freelancer,
     Message,
     Favorite,
-} from "@/types";
+} from "./index";
 
 export type StoredUsers = Record<string, UserData>;
 
 export interface AuthData {
     isLoggedIn: boolean;
     currentUserId: number | null;
-    token?: string;
+    token: string | null;
 }
 
 export interface AllUserData {
@@ -23,7 +23,7 @@ export interface AllUserData {
 }
 
 export interface OrdersData {
-    ordersById: Record<string, Order>;
+    ordersById: Record<string, OrderWithResponsesCount>;
     allIds: number[];
 }
 
@@ -43,12 +43,12 @@ export interface FreelancersData {
 }
 
 export interface ResponsesData {
-    responsesById: Record<string, OrderResponse>;
+    responsesById: Record<string, Response>;
     allIds: number[];
 }
 
 export interface AllUserLSData {
     messages: Record<string, Message[]>;
     favorites: Record<string, Favorite>;
-    createdOrders: Record<string, Order>;
+    createdOrders: Record<string, OrderWithResponsesCount>;
 }
