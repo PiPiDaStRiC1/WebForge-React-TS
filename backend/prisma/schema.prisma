@@ -27,7 +27,7 @@ model OrderSkill {
   skillId Int @id @default(autoincrement())
   name String @default("")
   orderId Int
-  order Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 
@@ -38,7 +38,7 @@ model Response {
   freelancerId Int
   freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
   orderId Int
-  order Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Order {

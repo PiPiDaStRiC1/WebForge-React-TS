@@ -170,7 +170,7 @@ const OrderInfo = () => {
                                     <div>
                                         <p className="text-sm text-gray-600">Срок выполнения</p>
                                         <p className="text-xl font-bold text-gray-900">
-                                            {order.deadline} дней
+                                            {order.deadlineDays} дней
                                         </p>
                                     </div>
                                 </div>
@@ -207,7 +207,7 @@ const OrderInfo = () => {
                             <h2 className="text-lg font-bold text-gray-900 mb-4">
                                 Описание задачи
                             </h2>
-                            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                            <p className="max-w-3xl whitespace-pre-line break-words h-full text-gray-700 leading-relaxed whitespace-pre-line">
                                 {order.description}
                             </p>
                         </div>

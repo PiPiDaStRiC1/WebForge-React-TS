@@ -6,8 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { AuthStore } from "@/lib/storage/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+import { wait } from "@/lib/utils";
 import toast from "react-hot-toast";
-import type { OrderWithResponsesCount, AllUserLSData } from "@shared/types";
+import type { OrderWithResponsesCount } from "@shared/types";
 
 export type OrderFormData = z.infer<typeof createOrderSchema>;
 
@@ -23,62 +24,22 @@ const initFormData = (): OrderFormData => {
 
     try {
         const parsed = JSON.parse(raw) as OrderFormData;
-
         if (typeof parsed !== "object" || parsed === null) return initialFormData;
-
         return parsed;
     } catch (error) {
         console.error("Failed to parse create-order-draft:", error);
 
         sessionStorage.setItem("create-order-draft", JSON.stringify(initialFormData));
-
         return initialFormData;
     }
 };
 
 const handleSubmitForm = async (
-    data: OrderWithResponsesCount,
+    data: Omit<OrderWithResponsesCount, "id" | "responsesCount">,
     signal: AbortSignal,
-    userId: number,
 ): Promise<void> => {
-    await new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-            const raw = localStorage.getItem("users-data");
-            const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
-
-            if (!allUsersData[userId]) {
-                allUsersData[userId] = { messages: {}, favorites: {}, createdOrders: {} };
-            }
-
-            if (!allUsersData[userId].createdOrders) {
-                allUsersData[userId].createdOrders = {};
-            }
-
-            const prevCreatedOrders = allUsersData[userId].createdOrders;
-
-            allUsersData[userId].createdOrders = { ...prevCreatedOrders, [data.id]: data };
-
-            localStorage.setItem("users-data", JSON.stringify(allUsersData));
-            resolve(true);
-        }, 2000);
-
-        if (signal) {
-            if (signal.aborted) {
-                clearTimeout(timer);
-                reject(new DOMException("Aborted", "AbortError"));
-                return;
-            }
-
-            signal.addEventListener(
-                "abort",
-                () => {
-                    clearTimeout(timer);
-                    reject(new DOMException("Aborted", "AbortError"));
-                },
-                { once: true },
-            );
-        }
-    });
+    await wait(2000, signal);
+    await apiClient.postSingleOrder(data, signal);
 };
 
 const initialFormData: OrderFormData = {
@@ -87,7 +48,7 @@ const initialFormData: OrderFormData = {
     category: BASE_CATEGORY,
     budgetMin: 0,
     budgetMax: 0,
-    deadline: 0,
+    deadlineDays: 0,
     skills: [],
 };
 
@@ -102,7 +63,7 @@ const createOrderSchema = z
         budgetMax: z
             .number({ error: "Сумма должна быть числом" })
             .min(1, { error: "Максимальный бюджет должен быть больше 0" }),
-        deadline: z
+        deadlineDays: z
             .number({ error: "Сумма должна быть числом" })
             .min(1, { error: "Срок должен быть больше 0" }),
         skills: z.array(z.string()),
@@ -122,13 +83,13 @@ export const useCreateOrder = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors, isValid },
+        formState: { errors, isValid, isSubmitSuccessful },
         watch,
         setValue,
     } = useForm<OrderFormData>({
         resolver: zodResolver(createOrderSchema),
         defaultValues: initFormData(),
-        mode: "onBlur",
+        mode: "onChange",
     });
 
     const currentFormValues = watch();
@@ -139,22 +100,21 @@ export const useCreateOrder = () => {
 
         controllerRef.current = new AbortController();
         const signal = controllerRef.current.signal;
-        const data: OrderWithResponsesCount = {
+        const data: Omit<OrderWithResponsesCount, "id" | "responsesCount"> = {
             ...formData,
-            id: Math.floor(Math.random() * 10000000),
             status: "new",
-            responsesCount: 0,
-            createdAt: new Date().toISOString().split("T")[0]!,
+            createdAt: new Date().toISOString(),
             completedById: null,
             clientId: currentUserId!, // we are sure, what user exist, because this page is protected by ProtectedRoute
         };
 
         try {
-            await handleSubmitForm(data, signal, currentUserId!);
+            await handleSubmitForm(data, signal);
 
             toast.success("Заказ успешно создан!");
-            refetch();
+            sessionStorage.removeItem("create-order-draft");
             navigate(`/orders?category=${formData.category}`);
+            refetch();
         } catch (error) {
             if ((error as DOMException).name === "AbortError") {
                 toast.error("Публикация заказа отменена");
@@ -163,7 +123,6 @@ export const useCreateOrder = () => {
             }
         } finally {
             setIsLoadingSubmitting(false);
-            sessionStorage.removeItem("create-order-draft");
             controllerRef.current = null;
         }
     };
@@ -182,6 +141,7 @@ export const useCreateOrder = () => {
         handleSubmit: handleSubmit(submitForm),
         errors,
         isValid,
+        isSubmitSuccessful,
         isLoadingSubmitting,
         handleAbort,
         currentFormValues,

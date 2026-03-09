@@ -23,6 +23,7 @@ const CreateOrder = () => {
         handleAbort,
         handleSubmit,
         isLoadingSubmitting,
+        isSubmitSuccessful,
         isValid,
         currentFormValues,
         setValue,
@@ -71,8 +72,10 @@ const CreateOrder = () => {
     };
 
     useEffect(() => {
-        sessionStorage.setItem("create-order-draft", JSON.stringify(currentFormValues));
-    }, [currentFormValues]);
+        if (!isSubmitSuccessful) {
+            sessionStorage.setItem("create-order-draft", JSON.stringify(currentFormValues));
+        }
+    }, [currentFormValues, isSubmitSuccessful]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -309,17 +312,17 @@ const CreateOrder = () => {
                             </label>
                             <input
                                 type="number"
-                                {...register("deadline", { valueAsNumber: true })}
+                                {...register("deadlineDays", { valueAsNumber: true })}
                                 placeholder="7"
                                 className={`w-full md:w-64 h-12 px-4 bg-white border ${
-                                    errors.deadline
+                                    errors.deadlineDays
                                         ? "border-red-300 focus:ring-red-500/10"
                                         : "border-gray-200 focus:ring-indigo-500/10"
                                 } rounded-xl outline-none focus:ring-4 focus:border-indigo-500 transition-all`}
                             />
-                            {errors.deadline && (
+                            {errors.deadlineDays && (
                                 <p className="mt-1 text-sm text-red-600">
-                                    {errors.deadline.message}
+                                    {errors.deadlineDays.message}
                                 </p>
                             )}
                         </div>
@@ -367,6 +370,6 @@ const CreateOrder = () => {
             </section>
         </div>
     );
-};
+};;
 
 export default CreateOrder;

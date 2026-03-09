@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
 import { prisma } from "@/helpers/prisma";
-import type { OrdersResponse, OrderResponse, LastOrdersResponse } from "@shared/types/index";
+import type {
+    OrdersResponse,
+    OrderResponse,
+    LastOrdersResponse,
+    OrderWithResponsesCount,
+    ApiResponse,
+} from "@shared/types/index";
 import type { OrderRequest } from "@/types";
 
 export const getAllOrders = async (_req: Request, res: Response<OrdersResponse>) => {
@@ -37,6 +43,48 @@ export const getAllOrders = async (_req: Request, res: Response<OrdersResponse>)
         res.status(200).json({ status: true, data: { ordersById: flatOrdersById, allIds } });
     } catch (error) {
         res.status(500).json({ status: false, data: "Internal Server Error" });
+    }
+};
+
+export const postOneOrder = async (
+    req: Request<{}, {}, Omit<OrderWithResponsesCount, "id" | "responsesCount">, {}>,
+    res: Response<ApiResponse<string>>,
+) => {
+    const {
+        title,
+        description,
+        category,
+        budgetMin,
+        budgetMax,
+        deadlineDays,
+        skills,
+        status,
+        clientId,
+        completedById,
+        createdAt,
+    } = req.body;
+
+    try {
+        await prisma.order.create({
+            data: {
+                title,
+                description,
+                category,
+                budgetMin,
+                budgetMax,
+                deadlineDays,
+                skills: { create: skills.map((name) => ({ name })) },
+                status,
+                clientId: 1, // hardcoded for now, replace then be JWT with correct IDs
+                completedById,
+                createdAt,
+            },
+        });
+
+        res.status(201).json({ status: true, data: "Order created" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ status: false, data: "Failed to create order" });
     }
 };
 

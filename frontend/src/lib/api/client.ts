@@ -9,7 +9,9 @@ import type {
     OrdersResponse,
     OrderResponsesResponse,
     ResponsesResponse,
+    ApiResponse,
 } from "@shared/types/apiResponses";
+import type { OrderWithResponsesCount } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:5000/api";
 
@@ -23,6 +25,31 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             console.error("Error fetching orders:", error);
+            throw error;
+        }
+    },
+
+    postSingleOrder: async (
+        data: Omit<OrderWithResponsesCount, "id" | "responsesCount">,
+        signal: AbortSignal,
+    ) => {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(`${API_URL}/orders`, {
+                body: JSON.stringify(data),
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                signal,
+            });
+
+            if (!response.status) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            if (error instanceof DOMException && error.name !== "AbortError") {
+                console.error("Error post order:", error);
+            }
             throw error;
         }
     },
