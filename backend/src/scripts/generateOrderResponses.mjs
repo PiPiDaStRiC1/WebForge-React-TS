@@ -135,7 +135,7 @@ const generateOrderResponses = () => {
 };
 
 const responses = generateOrderResponses();
-const outputPath = path.join(__dirname, "../src/lib/data/orderResponses.json");
+const outputPath = path.join(__dirname, "./data/orderResponses.json");
 fs.writeFileSync(
     outputPath,
     JSON.stringify(

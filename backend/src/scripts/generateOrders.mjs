@@ -137,7 +137,7 @@ function generateOrders() {
         }),
     );
 }
-const outputPath = path.join(__dirname, "../src/lib/data/orders.json");
+const outputPath = path.join(__dirname, "./data/orders.json");
 
 export const orders = generateOrders();
 fs.writeFileSync(

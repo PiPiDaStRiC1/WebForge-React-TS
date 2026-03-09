@@ -1,4 +1,3 @@
-import { allIds as allOrderIds } from "@/data/orders.json";
 import type { Request, Response } from "express";
 import { prisma } from "@/helpers/prisma";
 import type { OrdersResponse, OrderResponse, LastOrdersResponse } from "@shared/types/index";
@@ -33,10 +32,9 @@ export const getAllOrders = async (_req: Request, res: Response<OrdersResponse>)
             }),
         );
 
-        res.status(200).json({
-            status: true,
-            data: { ordersById: flatOrdersById, allIds: allOrderIds },
-        });
+        const allIds = orders.map((order) => order.id);
+
+        res.status(200).json({ status: true, data: { ordersById: flatOrdersById, allIds } });
     } catch (error) {
         res.status(500).json({ status: false, data: "Internal Server Error" });
     }

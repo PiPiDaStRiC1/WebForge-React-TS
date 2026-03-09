@@ -275,7 +275,7 @@ function generateFreelancers(count, startId = 1000) {
 export const { clientsById, allClientsIds } = generateClients(CLIENTS_COUNT);
 export const { freelancersById, allFreelancersIds } = generateFreelancers(FREELANCERS_COUNT, 1000);
 
-const outputPath = path.join(__dirname, "../src/lib/data/users.json");
+const outputPath = path.join(__dirname, "./data/users.json");
 
 fs.writeFileSync(
     outputPath,
