@@ -22,23 +22,20 @@ import { lazy, Suspense } from "react";
 // 2) добавить возможность отправки файлов (например, изображений) в чат (overkill)
 // 3) добавить возможность Заблокировать пользователя(later)
 
-// Сообщения или AI:
-// Непрочитанные сообщения(later)
-
-const FAQ = lazy(() => import("@/components/pages/FAQ"));
-const Guides = lazy(() => import("@/components/pages/Guides"));
-const Terms = lazy(() => import("@/components/pages/Terms"));
-const Privacy = lazy(() => import("@/components/pages/Privacy"));
-const MyProfile = lazy(() => import("@/components/pages/MyProfile"));
-const Favorites = lazy(() => import("@/components/pages/Favorites"));
-const Messages = lazy(() => import("@/components/pages/Messages"));
-const Chat = lazy(() => import("@/components/pages/Chat"));
-const UserProfile = lazy(() => import("@/components/pages/UserProfile"));
-const CreateOrder = lazy(() => import("@/components/pages/CreateOrder"));
-const OrderInfo = lazy(() => import("@/components/pages/OrderInfo"));
-const Performers = lazy(() => import("@/components/pages/Performers"));
-const TopPerformers = lazy(() => import("@/components/pages/TopPerformers"));
-const Orders = lazy(() => import("@/components/pages/Orders"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
+const Guides = lazy(() => import("@/pages/Guides"));
+const Terms = lazy(() => import("@/pages/Terms"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const MyProfile = lazy(() => import("@/pages/MyProfile"));
+const Favorites = lazy(() => import("@/pages/Favorites"));
+const Messages = lazy(() => import("@/pages/Messages"));
+const Chat = lazy(() => import("@/pages/Chat"));
+const UserProfile = lazy(() => import("@/pages/UserProfile"));
+const CreateOrder = lazy(() => import("@/pages/CreateOrder"));
+const OrderInfo = lazy(() => import("@/pages/OrderInfo"));
+const Performers = lazy(() => import("@/pages/Performers"));
+const TopPerformers = lazy(() => import("@/pages/TopPerformers"));
+const Orders = lazy(() => import("@/pages/Orders"));
 
 function App() {
     const location = useLocation();

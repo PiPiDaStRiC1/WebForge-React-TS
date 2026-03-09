@@ -1,73 +1,111 @@
-import { ordersById, allIds as allOrderIds } from "@/data/orders.json";
-import { responsesById } from "@/data/orderResponses.json";
-import { getIdOrThrow } from "@/helpers";
-import { isOrder } from "@shared/types/typeguards";
+import { allIds as allOrderIds } from "@/data/orders.json";
 import type { Request, Response } from "express";
-import type {
-    Order,
-    OrderWithResponsesCount,
-    OrdersResponse,
-    OrderResponse,
-    LastOrdersResponse,
-} from "@shared/types/index";
+import { prisma } from "@/helpers/prisma";
+import type { OrdersResponse, OrderResponse, LastOrdersResponse } from "@shared/types/index";
 import type { OrderRequest } from "@/types";
 
-const basedOrders: Record<string, Order> = Object.fromEntries(
-    (Object.values(ordersById) as Array<unknown>).filter(isOrder).map((order) => [order.id, order]),
-);
-
-const buildOrdersWithResponsesCount = (ids: number[]): Record<string, OrderWithResponsesCount> =>
-    Object.fromEntries(
-        ids.map((orderId) => {
-            const order = getIdOrThrow(orderId, basedOrders);
-            const responsesCount = Object.values(responsesById).filter(
-                (response) => response.orderId === order.id,
-            ).length;
-            return [order.id, { ...order, responsesCount }];
-        }),
-    );
-
-export const getAllOrders = (_req: Request, res: Response<OrdersResponse>) => {
+export const getAllOrders = async (_req: Request, res: Response<OrdersResponse>) => {
     try {
-        const ordersWithResponsesCount = buildOrdersWithResponsesCount(allOrderIds);
+        const orders = await prisma.order.findMany({
+            include: {
+                client: { select: { userId: true } },
+                freelancer: { select: { userId: true } },
+                _count: { select: { orderResponses: true } },
+                skills: true,
+            },
+        });
+
+        const flatOrdersById = Object.fromEntries(
+            orders.map((order) => {
+                const { client, freelancer, _count, skills, ...rest } = order;
+                return [
+                    order.id,
+                    {
+                        ...rest,
+                        status: rest.status as "new" | "in-progress" | "completed",
+                        createdAt: rest.createdAt.toISOString(),
+                        clientId: client.userId,
+                        completedById: freelancer ? freelancer.userId : null,
+                        responsesCount: _count.orderResponses,
+                        skills: skills.map((skill) => skill.name),
+                    },
+                ];
+            }),
+        );
+
         res.status(200).json({
             status: true,
-            data: { ordersById: ordersWithResponsesCount, allIds: allOrderIds },
+            data: { ordersById: flatOrdersById, allIds: allOrderIds },
         });
     } catch (error) {
         res.status(500).json({ status: false, data: "Internal Server Error" });
     }
 };
 
-export const getLastOrders = (
+export const getLastOrders = async (
     req: Request<{}, {}, {}, { limit?: string }>,
     res: Response<LastOrdersResponse>,
 ) => {
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 3;
 
     try {
-        const lastOrders = Object.values(buildOrdersWithResponsesCount(allOrderIds))
-            .filter((order) => order.status === "new")
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-            .slice(0, limit);
+        const orders = await prisma.order.findMany({
+            include: {
+                client: { select: { userId: true } },
+                freelancer: { select: { userId: true } },
+                _count: { select: { orderResponses: true } },
+                skills: true,
+            },
+            take: limit,
+            orderBy: { createdAt: "desc" },
+        });
 
-        res.status(200).json({ status: true, data: lastOrders });
+        const flatOrders = orders.map((order) => {
+            const { client, freelancer, _count, skills, ...rest } = order;
+            return {
+                ...rest,
+                status: rest.status as "new" | "in-progress" | "completed",
+                createdAt: rest.createdAt.toISOString(),
+                clientId: client.userId,
+                completedById: freelancer?.userId ?? null,
+                responsesCount: _count.orderResponses,
+                skills: skills.map((skill) => skill.name),
+            };
+        });
+
+        res.status(200).json({ status: true, data: flatOrders });
     } catch (error) {
         res.status(500).json({ status: false, data: "Internal Server Error" });
     }
 };
 
-export const getOneOrder = (req: Request<OrderRequest>, res: Response<OrderResponse>) => {
+export const getOneOrder = async (req: Request<OrderRequest>, res: Response<OrderResponse>) => {
     const orderId = req.params["orderId"];
 
     try {
-        const order = getIdOrThrow(orderId, basedOrders);
-        const responsesCount = Object.values(responsesById).filter(
-            (response) => response.orderId === order.id,
-        ).length;
-        const orderWithCount: OrderWithResponsesCount = { ...order, responsesCount };
+        const order = await prisma.order.findFirstOrThrow({
+            where: { id: Number(orderId) },
+            include: {
+                client: { select: { userId: true } },
+                freelancer: { select: { userId: true } },
+                _count: { select: { orderResponses: true } },
+                skills: true,
+            },
+        });
 
-        res.status(200).json({ status: true, data: orderWithCount });
+        const { client, freelancer, _count, skills, ...rest } = order;
+
+        const flatOrder = {
+            ...rest,
+            status: rest.status as "new" | "in-progress" | "completed",
+            createdAt: rest.createdAt.toISOString(),
+            clientId: client.userId,
+            completedById: freelancer?.userId ?? null,
+            responsesCount: _count.orderResponses,
+            skills: skills.map((skill) => skill.name),
+        };
+
+        res.status(200).json({ status: true, data: flatOrder });
     } catch (error) {
         res.status(404).json({ status: false, data: "Order not found" });
     }

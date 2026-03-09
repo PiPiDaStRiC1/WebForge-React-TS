@@ -26,7 +26,7 @@ const Performers = () => {
     const { data, isLoading, isError } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
         queryFn: apiClient.getAllFreelancers,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 10 * 60 * 1000,
     });
 
     const { user } = useUser();

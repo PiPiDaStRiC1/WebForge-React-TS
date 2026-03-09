@@ -1,1 +1,1 @@
-export * from "./failFastId";
+export * from "./prisma";

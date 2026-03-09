@@ -1,13 +1,14 @@
 {
     "extends": "../tsconfig.base.json",
     "references": [{ "path": "../shared" }],
-    "include": ["./src/**/*.json", "./src/**/*.ts", "./src/**/*.tsx"],
+    "include": ["./src/**/*.json", "./src/**/*.ts", "./src/**/*.tsx", "src/helpers/initBD.ts"],
     "compilerOptions": {
         "target": "esnext",
         "types": ["node"],
         "lib": ["esnext"],
         "outDir": "./dist",
         "rootDir": ".",
+        "module": "esnext",
 
         "sourceMap": true,
         "declaration": true,
@@ -27,7 +28,7 @@
         "paths": { "@/*": ["src/*"], "@shared/*": ["../shared/*"] },
 
         "noUncheckedIndexedAccess": true,
-        "exactOptionalPropertyTypes": true,
+        "exactOptionalPropertyTypes": false,
 
         "strict": true,
         "verbatimModuleSyntax": true,

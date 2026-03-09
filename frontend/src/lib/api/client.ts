@@ -9,7 +9,6 @@ import type {
     OrdersResponse,
     OrderResponsesResponse,
     ResponsesResponse,
-    UserResponse,
 } from "@shared/types/apiResponses";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:5000/api";

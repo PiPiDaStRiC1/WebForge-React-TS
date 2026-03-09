@@ -1,4 +1,4 @@
-export { Home } from "../../pages/Home";
+export { Home } from "../../../pages/Home";
 export { Hero } from "./Hero";
 export { FeaturedCategories } from "./FeaturedCategories";
 export { HowWork } from "./HowWork";

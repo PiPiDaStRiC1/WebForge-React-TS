@@ -6,7 +6,7 @@ export interface Order {
     budgetMax: number;
     category: string;
     skills: string[];
-    deadline: number;
+    deadlineDays: number;
     status: "new" | "in-progress" | "completed";
     createdAt: string;
     clientId: number;

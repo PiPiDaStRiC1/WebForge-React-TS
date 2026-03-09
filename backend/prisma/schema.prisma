@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Picture {
+  pictureId Int @id @default(autoincrement())
+  large String
+  medium String
+  thumbnail String
+
+  userId Int @unique
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model FreelancerSkill {
+  skillId Int @id @default(autoincrement())
+  name String
+  freelancerId Int
+  freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
+}
+
+model OrderSkill {
+  skillId Int @id @default(autoincrement())
+  name String @default("")
+  orderId Int
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+
+model Response {
+  id Int @id @default(autoincrement())
+  text String
+  createdAt DateTime @default(now())
+  freelancerId Int
+  freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
+  orderId Int
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  budgetMin Int
+  budgetMax Int
+  category String
+  skills OrderSkill[]
+  status String
+  deadlineDays Int
+  createdAt DateTime @default(now())
+
+  clientId Int
+  client Client @relation(fields: [clientId], references: [userId])
+  completedById Int?
+  freelancer Freelancer? @relation(fields: [completedById], references: [userId])
+  orderResponses Response[]
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  picture Picture?
+  role String
+  gender String
+  name String
+  bio String? @default("No bio yet")
+  email String @unique
+  login String @unique
+  password String
+  phone String
+  lastName String
+  rating Float
+  location String
+  status String
+  statusChat String
+  registeredAt DateTime @default(now())
+  freelancer Freelancer?
+  client Client?
+}
+
+model Freelancer {
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+  skills FreelancerSkill[]
+  pricePerHour Int
+  experience Int
+  category String
+  earning Int
+  orders Order[]
+  responses Response[]
+}
+
+model Client {
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+  spending Int
+  orders Order[]
+}

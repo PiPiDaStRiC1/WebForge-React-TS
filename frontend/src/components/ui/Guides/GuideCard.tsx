@@ -1,4 +1,4 @@
-import type { Guide } from "@/components/pages/Guides";
+import type { Guide } from "@/pages/Guides";
 
 interface GuideCardProps {
     index: number;

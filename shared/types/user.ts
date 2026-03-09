@@ -13,7 +13,7 @@ export interface Freelancer {
     completedOrders: number;
     skills: string[];
     pricePerHour: number;
-    bio: string;
+    bio: string | null;
     location: string;
     experience: number;
     status: "verified" | "unverified" | "free" | "busy";
@@ -37,15 +37,10 @@ export interface Client {
     lastName: string;
     role: "client";
     rating: number;
-    skills: null;
-    pricePerHour: null;
-    bio: string;
+    bio: string | null;
     location: string;
-    experience: null;
     status: "verified" | "unverified" | "busy";
     statusChat: "offline" | "online";
-    category: null;
     registeredAt: string;
     spending: number;
-    placedOrders: number;
 }
