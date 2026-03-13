@@ -7,8 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { wait } from "@/lib/utils";
 import toast from "react-hot-toast";
-import { useUser } from "./useUser";
-import type { OrderWithResponsesCount } from "@shared/types";
 
 export type OrderFormData = z.infer<typeof createOrderSchema>;
 
@@ -34,10 +32,7 @@ const initFormData = (): OrderFormData => {
     }
 };
 
-const handleSubmitForm = async (
-    data: Omit<OrderWithResponsesCount, "id">,
-    signal: AbortSignal,
-): Promise<void> => {
+const handleSubmitForm = async (data: OrderFormData, signal: AbortSignal): Promise<void> => {
     await wait(2000, signal);
     await apiClient.postSingleOrder(data, signal);
 };
@@ -77,8 +72,6 @@ export const useCreateOrder = () => {
     const navigate = useNavigate();
     const [isLoadingSubmitting, setIsLoadingSubmitting] = useState(false);
     const controllerRef = useRef<AbortController | null>(null);
-    const { user } = useUser();
-    const currentUserId = user?.id;
     const { refetch } = useQuery({ queryKey: ["orders"], queryFn: apiClient.getAllOrders });
 
     const {
@@ -101,17 +94,9 @@ export const useCreateOrder = () => {
 
         controllerRef.current = new AbortController();
         const signal = controllerRef.current.signal;
-        const data: Omit<OrderWithResponsesCount, "id"> = {
-            ...formData,
-            status: "new",
-            createdAt: new Date().toISOString(),
-            completedById: null,
-            responsesCount: 0,
-            clientId: currentUserId!, // we are sure, what user exist, because this page is protected by ProtectedRoute
-        };
 
         try {
-            await handleSubmitForm(data, signal);
+            await handleSubmitForm(formData, signal);
 
             toast.success("Заказ успешно создан!");
             sessionStorage.removeItem("create-order-draft");

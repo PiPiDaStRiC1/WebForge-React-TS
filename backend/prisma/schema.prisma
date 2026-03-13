@@ -66,7 +66,7 @@ model User {
   role String
   gender String
   name String
-  bio String? @default("No bio yet")
+  bio String? @default("Это пользователь не хочет о себе рассказывать")
   email String @unique
   login String @unique
   password String
@@ -83,7 +83,7 @@ model User {
 
 model Freelancer {
   userId Int @unique
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   skills FreelancerSkill[]
   pricePerHour Int
   experience Int
@@ -95,7 +95,7 @@ model Freelancer {
 
 model Client {
   userId Int @unique
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   spending Int
   orders Order[]
 }

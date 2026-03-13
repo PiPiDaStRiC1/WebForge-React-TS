@@ -4,10 +4,9 @@ import type {
     OrdersResponse,
     OrderResponse,
     LastOrdersResponse,
-    OrderWithResponsesCount,
     ApiResponse,
-} from "@shared/types/index";
-import type { OrderRequest } from "@/types";
+    OrderFormData,
+} from "@shared/types";
 
 export const getAllOrders = async (_req: Request, res: Response<OrdersResponse>) => {
     try {
@@ -47,23 +46,12 @@ export const getAllOrders = async (_req: Request, res: Response<OrdersResponse>)
 };
 
 export const postOneOrder = async (
-    req: Request<{}, {}, Omit<OrderWithResponsesCount, "id">, {}>,
+    req: Request<{}, {}, OrderFormData, {}>,
     res: Response<ApiResponse<string>>,
 ) => {
-    const {
-        title,
-        description,
-        category,
-        budgetMin,
-        budgetMax,
-        deadlineDays,
-        skills,
-        status,
-        clientId,
-        completedById,
-        createdAt,
-        responsesCount,
-    } = req.body;
+    const { title, description, category, budgetMin, budgetMax, deadlineDays, skills } = req.body;
+
+    const { userId } = (req as Request & { user: { userId: number; role: string } }).user;
 
     try {
         await prisma.order.create({
@@ -75,10 +63,10 @@ export const postOneOrder = async (
                 budgetMax,
                 deadlineDays,
                 skills: { create: skills.map((name) => ({ name })) },
-                status,
-                clientId,
-                completedById,
-                createdAt,
+                status: "new",
+                createdAt: new Date().toISOString(),
+                completedById: null,
+                clientId: userId,
             },
         });
 
@@ -126,7 +114,10 @@ export const getLastOrders = async (
     }
 };
 
-export const getOneOrder = async (req: Request<OrderRequest>, res: Response<OrderResponse>) => {
+export const getOneOrder = async (
+    req: Request<{ orderId: string }>,
+    res: Response<OrderResponse>,
+) => {
     const orderId = req.params["orderId"];
 
     try {

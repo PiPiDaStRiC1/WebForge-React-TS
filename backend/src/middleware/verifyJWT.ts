@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import type { JWTPayload } from "@/types";
 import type { ApiResponse } from "@shared/types";
 
 export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next: NextFunction) => {
@@ -12,9 +13,9 @@ export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next
 
         const SECRET_KEY = process.env["SECRET_KEY"]!;
 
-        const payload = jwt.verify(token, SECRET_KEY);
+        const payload = jwt.verify(token, SECRET_KEY) as JWTPayload;
 
-        (req as any).user = payload;
+        req.user = payload;
 
         next();
     } catch (error) {

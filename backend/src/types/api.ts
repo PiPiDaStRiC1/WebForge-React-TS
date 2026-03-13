@@ -14,3 +14,8 @@ export interface OrderRequest {
 export interface ResponseRequest {
     orderId: string;
 }
+
+export interface JWTPayload {
+    userId: number;
+    role: "freelancer" | "client";
+}

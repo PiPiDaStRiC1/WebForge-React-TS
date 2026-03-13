@@ -12,7 +12,8 @@ import type {
     ApiResponse,
     AuthResponse,
 } from "@shared/types/apiResponses";
-import type { OrderWithResponsesCount, RegisterRequest, LoginRequest } from "@shared/types";
+import type { RegisterRequest, LoginRequest } from "@shared/types";
+import type { OrderFormData } from "@/hooks";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:5000/api";
 
@@ -80,12 +81,19 @@ export const apiClient = {
         }
     },
 
-    postSingleOrder: async (data: Omit<OrderWithResponsesCount, "id">, signal: AbortSignal) => {
+    postSingleOrder: async (data: OrderFormData, signal: AbortSignal) => {
         try {
+            const rawToken = localStorage.getItem("access-token");
+            const token = rawToken ? JSON.parse(rawToken) : null;
+
+            if (!token) {
+                throw new Error("Unauthorized");
+            }
+
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/orders`, {
-                body: JSON.stringify(data),
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(data),
                 signal,
             });
 
@@ -119,10 +127,22 @@ export const apiClient = {
 
     getSingleOrder: async (id: string) => {
         try {
-            const response = await genericFetch<OrderResponse>(`${API_URL}/orders/${id}`);
+            const rawToken = localStorage.getItem("access-token");
+            const token = rawToken ? JSON.parse(rawToken) : null;
+
+            if (!token) {
+                throw new Error("Unauthorized");
+            }
+
+            const response = await genericFetch<OrderResponse>(`${API_URL}/orders/${id}`, {
+                method: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
             if (!response.success) {
                 throw new Error(response.data);
             }
+
             return response.data;
         } catch (error) {
             console.error("Error fetching order:", error);
