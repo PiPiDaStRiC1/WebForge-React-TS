@@ -5,7 +5,6 @@ import { emailRegExp, passwordRegExp, nameRegExp } from "@/lib/constants/regExpF
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import type { UserData } from "@shared/types";
 
 type TabType = "login" | "register";
 type RoleType = "freelancer" | "client";
@@ -47,16 +46,6 @@ const registerSchema = z
         path: ["confirmPassword"],
     });
 
-const hashPassword = async (password: string) => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hash = await crypto.subtle.digest("SHA-256", data);
-
-    return Array.from(new Uint8Array(hash))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-};
-
 const LOG_TIMER = 1500;
 
 export const useAuth = () => {
@@ -84,58 +73,9 @@ export const useAuth = () => {
             try {
                 await new Promise((resolve) => setTimeout(resolve, LOG_TIMER));
 
-                const userId = Math.floor(Math.random() * 10000000);
-                const hashedPass = await hashPassword(formData.password);
-                const registeredAt = new Date().toISOString();
                 // eslint-disable-next-line
-                const { confirmPassword, ...restFormData } = formData;
-
-                const userData: UserData =
-                    selectedRole === "freelancer"
-                        ? {
-                              ...restFormData,
-                              id: userId,
-                              password: hashedPass,
-                              role: "freelancer",
-                              registeredAt,
-                              status: "unverified",
-                              bio: "",
-                              location: "",
-                              skills: [],
-                              pricePerHour: 1000,
-                              completedOrders: 0,
-                              rating: 0,
-                              earning: 0,
-                              experience: 0,
-                              category: "web-dev",
-                              gender: "male",
-                              login: `${formData.name.toLowerCase()}${formData.lastName.toLowerCase()}${userId.toString().slice(0, 3)}`,
-                              phone: "",
-                              picture: null,
-                          }
-                        : {
-                              ...restFormData,
-                              id: userId,
-                              password: hashedPass,
-                              role: "client",
-                              registeredAt,
-                              status: "unverified",
-                              bio: "",
-                              location: "",
-                              placedOrders: 0,
-                              spending: 0,
-                              gender: "male",
-                              login: `${formData.name.toLowerCase()}${formData.lastName.toLowerCase()}${userId.toString().slice(0, 3)}`,
-                              phone: "",
-                              category: null,
-                              experience: null,
-                              pricePerHour: null,
-                              rating: 0,
-                              skills: null,
-                              picture: null,
-                          };
-
-                registerUser(userData);
+                const { confirmPassword, ...rest } = formData;
+                await registerUser({ ...rest, role: selectedRole });
                 toast.success("Успешно зарегистрированы!");
             } catch (error) {
                 toast.error(
@@ -150,7 +90,7 @@ export const useAuth = () => {
             try {
                 await new Promise((resolve) => setTimeout(resolve, LOG_TIMER));
 
-                logInUser(formData.email);
+                await logInUser(formData.email, formData.password);
                 toast.success("Успешно вошли в систему!");
             } catch (error) {
                 toast.error(

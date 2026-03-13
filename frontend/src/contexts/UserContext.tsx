@@ -1,13 +1,13 @@
 import { createContext } from "react";
-import type { UserData } from "@shared/types";
+import type { UserData, RegisterRequest } from "@shared/types";
 
 export interface UserContextType {
     user: UserData | null;
     error: Error | null;
     isAuthenticated: boolean;
-    registerUser: (userData: UserData) => void;
+    registerUser: (data: RegisterRequest) => Promise<void>;
     logOutUser: () => void;
-    logInUser: (email: string, password?: string) => void;
+    logInUser: (email: string, password: string) => Promise<void>;
     deleteUser: () => void;
     changeUserData: <T extends keyof UserData>(
         changes: [T, UserData[T]][],

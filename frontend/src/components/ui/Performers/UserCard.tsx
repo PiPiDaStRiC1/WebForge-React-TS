@@ -1,9 +1,8 @@
-import { memo, useState, useMemo } from "react";
+import { memo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useFavorites } from "@/hooks";
+import { useFavorites, useUser } from "@/hooks";
 import { Star, MapPin, Heart, BadgeCheck, Briefcase } from "lucide-react";
 import { AvatarPreloader } from "@/components/common";
-import { AuthStore } from "@/lib/storage/authStore";
 import type { Freelancer } from "@shared/types";
 
 interface UserCardProps {
@@ -16,9 +15,8 @@ export const UserCard = memo(({ user, loading }: UserCardProps) => {
     const { toggleFavorite, isFavorite } = useFavorites();
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user.picture);
     const [isFavoriteUser, setIsFavoriteUser] = useState(isFavorite(user.id));
-    const currentUser = useMemo(() => new AuthStore(), []);
-    const isOwnProfile = currentUser.getUserId() === user.id;
-    const isAuthenticated = !!currentUser.getUserId();
+    const { user: currentUser, isAuthenticated } = useUser();
+    const isOwnProfile = currentUser?.id === user.id;
 
     const handleToggleFavorite = () => {
         toggleFavorite(user.id);

@@ -31,9 +31,9 @@ export const getAllClients = async (_req: Request, res: Response<ClientsResponse
         );
         const allIds = clients.map((client) => client.id);
 
-        res.status(200).json({ status: true, data: { clientsById: flatClientsById, allIds } });
+        res.status(200).json({ success: true, data: { clientsById: flatClientsById, allIds } });
     } catch (error) {
-        res.status(500).json({ status: false, data: "Internal Server Error" });
+        res.status(500).json({ success: false, data: "Internal Server Error" });
     }
 };
 
@@ -61,9 +61,9 @@ export const getOneClient = async (req: Request<ClientRequest>, res: Response<Cl
             spending: ClientData?.spending ?? 0,
         };
 
-        res.status(200).json({ status: true, data: flatClient });
+        res.status(200).json({ success: true, data: flatClient });
     } catch (error) {
-        res.status(404).json({ status: false, data: "Client not found" });
+        res.status(404).json({ success: false, data: "Client not found" });
         return;
     }
 };

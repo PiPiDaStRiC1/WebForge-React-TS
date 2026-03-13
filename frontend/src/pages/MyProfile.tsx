@@ -17,11 +17,7 @@ const MyProfile = () => {
     }
 
     const handleLogOut = () => {
-        // Редиректим на главную до изменения состояния,
-        // чтобы ProtectedRoute не успел средиректить на /auth
         navigate("/");
-
-        // Очищаем данные после перехода (в следующем тике)
         setTimeout(() => logOutUser(), 100);
     };
 

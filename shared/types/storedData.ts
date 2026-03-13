@@ -9,8 +9,6 @@ import type {
     Favorite,
 } from "./index";
 
-export type StoredUsers = Record<string, UserData>;
-
 export interface AuthData {
     isLoggedIn: boolean;
     currentUserId: number | null;

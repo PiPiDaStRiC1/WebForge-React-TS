@@ -7,3 +7,4 @@ export * from "./chat";
 export * from "./profile";
 export * from "./favorite";
 export * from "./response";
+export * from "./apiRequests";

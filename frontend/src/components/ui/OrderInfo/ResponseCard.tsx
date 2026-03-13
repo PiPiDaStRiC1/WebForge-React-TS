@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Star, MapPin, Briefcase, BadgeCheck } from "lucide-react";
 import { AvatarPreloader, UserCardPreloader } from "@/components/common";
-import { AuthStore } from "@/lib/storage/authStore";
 import type { Response, Freelancer } from "@shared/types";
+import { useUser } from "@/hooks";
 
 interface ResponseCardProps {
     response: Response;
@@ -13,9 +13,8 @@ interface ResponseCardProps {
 export const ResponseCard = ({ response, freelancer }: ResponseCardProps) => {
     const location = useLocation();
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(true);
-    const currentUser = useMemo(() => new AuthStore(), []);
-    const isOwnProfile = currentUser.getUserId() === freelancer?.id;
-    const isAuthenticated = !!currentUser.getUserId();
+    const { user: currentUser, isAuthenticated } = useUser();
+    const isOwnProfile = currentUser?.id === freelancer?.id;
 
     if (!freelancer) {
         return <UserCardPreloader />;

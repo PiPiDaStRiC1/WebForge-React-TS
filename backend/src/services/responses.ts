@@ -26,9 +26,9 @@ export const getAllResponses = async (_req: Request, res: ExpressResponse<Respon
 
         const allIds = responses.map((response) => response.id);
 
-        res.status(200).json({ status: true, data: { responsesById: flatResponsesById, allIds } });
+        res.status(200).json({ success: true, data: { responsesById: flatResponsesById, allIds } });
     } catch (error) {
-        res.status(500).json({ status: false, data: "Internal Server Error" });
+        res.status(500).json({ success: false, data: "Internal Server Error" });
     }
 };
 
@@ -54,8 +54,8 @@ export const getOneOrderResponses = async (
             };
         });
 
-        res.status(200).json({ status: true, data: flatResponses });
+        res.status(200).json({ success: true, data: flatResponses });
     } catch (error) {
-        res.status(404).json({ status: false, data: "Response not found" });
+        res.status(404).json({ success: false, data: "Response not found" });
     }
 };

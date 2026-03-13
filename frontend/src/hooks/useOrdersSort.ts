@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import type { Order } from "@shared/types";
+import type { OrderWithResponsesCount } from "@shared/types";
 
 type SortOption = "date-desc" | "date-asc" | "budget-desc" | "budget-asc" | "responses-desc";
 
-export const useOrdersSort = (data: Order[], sortBy: SortOption) => {
+export const useOrdersSort = (data: OrderWithResponsesCount[], sortBy: SortOption) => {
     return useMemo(() => {
         switch (sortBy) {
             case "date-desc":

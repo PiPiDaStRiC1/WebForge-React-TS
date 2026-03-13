@@ -40,9 +40,9 @@ export const getAllFreelancers = async (_req: Request, res: Response<Freelancers
 
         const allIds = freelancers.map((freelancer) => freelancer.id);
 
-        res.status(200).json({ status: true, data: { freelancersById: flatFreelancers, allIds } });
+        res.status(200).json({ success: true, data: { freelancersById: flatFreelancers, allIds } });
     } catch (error) {
-        res.status(500).json({ status: false, data: "Internal Server Error" });
+        res.status(500).json({ success: false, data: "Internal Server Error" });
     }
 };
 
@@ -64,7 +64,7 @@ export const getOneFreelancer = async (
         const { freelancer: freelancerData, ...rest } = freelancer;
         const ordersCount = freelancerData?.orders?.length ?? 0;
 
-        const flatFreelancer = {
+        const flatFreelancer: Freelancer = {
             ...rest,
             gender: rest.gender as Freelancer["gender"],
             role: "freelancer" as const,
@@ -79,8 +79,8 @@ export const getOneFreelancer = async (
             completedOrders: ordersCount,
         };
 
-        res.status(200).json({ status: true, data: flatFreelancer });
+        res.status(200).json({ success: true, data: flatFreelancer });
     } catch (error) {
-        res.status(404).json({ status: false, data: "Freelancer not found" });
+        res.status(404).json({ success: false, data: "Freelancer not found" });
     }
 };

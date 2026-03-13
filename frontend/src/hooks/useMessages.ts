@@ -1,10 +1,9 @@
-import { AuthStore } from "@/lib/storage/authStore";
-import { useMemo } from "react";
+import { useUser } from "./useUser";
 import type { Message, AllUserLSData } from "@shared/types";
 
 export const useMessages = () => {
-    const authStore = useMemo(() => new AuthStore(), []);
-    const currentUserId = authStore.getUserId();
+    const { user } = useUser();
+    const currentUserId = user?.id;
 
     const getAllMessages = async () => {
         if (!currentUserId) return {};

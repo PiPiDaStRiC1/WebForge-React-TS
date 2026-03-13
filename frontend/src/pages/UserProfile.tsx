@@ -18,19 +18,17 @@ import {
 import { useMemo, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { apiClient } from "@/lib/api";
-import { useFavorites } from "@/hooks";
+import { useFavorites, useUser } from "@/hooks";
 import { ErrorAlert, OrderCardSkeleton } from "@/components/common";
 import { UserProfileSkeleton, OrderCardSmall } from "@/components/ui";
-import { AuthStore } from "@/lib/storage/authStore";
 import type { Client, FreelancerWithoutCompletedOrders, OrdersData } from "@shared/types";
 
 const UserProfile = () => {
     const { userId } = useParams<{ userId: string }>();
     const location = useLocation();
     const { toggleFavorite, isFavorite } = useFavorites();
-    const currentUser = useMemo(() => new AuthStore(), []);
-    const isOwnProfile = currentUser.getUserId() === Number(userId);
-    const isAuthenticated = !!currentUser.getUserId();
+    const { user: currentUser, isAuthenticated } = useUser();
+    const isOwnProfile = currentUser?.id === Number(userId);
 
     const {
         data: user,

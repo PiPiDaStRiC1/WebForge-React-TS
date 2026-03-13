@@ -1,7 +1,7 @@
 import { Navigate, useParams } from "react-router-dom";
 import { useEffect, useRef } from "react";
-import { AuthStore } from "@/lib/storage/authStore";
 import toast from "react-hot-toast";
+import { useUser } from "@/hooks";
 
 interface ChatGuardProps {
     children: React.ReactNode;
@@ -9,8 +9,9 @@ interface ChatGuardProps {
 
 export const ChatGuard = ({ children }: ChatGuardProps) => {
     const { userId } = useParams<{ userId: string }>();
+    const { user } = useUser();
     const isToastNotification = useRef(false);
-    const currentUserId = new AuthStore().getUserId();
+    const currentUserId = user?.id;
 
     useEffect(() => {
         if (userId && currentUserId === Number(userId) && !isToastNotification.current) {

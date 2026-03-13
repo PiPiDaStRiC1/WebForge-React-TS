@@ -9,9 +9,11 @@ import type {
     Client,
 } from "./index";
 
-export type ApiSuccess<T> = { status: true; data: T };
+export type AuthResult = { token: string; user: Freelancer | Client };
 
-export type ApiError = { status: false; data: string };
+export type ApiSuccess<T> = { success: true; data: T };
+
+export type ApiError = { success: false; data: string };
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
@@ -34,3 +36,5 @@ export type ClientsResponse = ApiResponse<ClientsData>;
 export type ClientResponse = ApiResponse<Client>;
 
 export type UserResponse = ApiResponse<Freelancer | Client>;
+
+export type AuthResponse = ApiResponse<AuthResult>;

@@ -1,13 +1,13 @@
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
-import { AuthStore } from "@/lib/storage/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { wait } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { useUser } from "./useUser";
 import type { OrderWithResponsesCount } from "@shared/types";
 
 export type OrderFormData = z.infer<typeof createOrderSchema>;
@@ -35,7 +35,7 @@ const initFormData = (): OrderFormData => {
 };
 
 const handleSubmitForm = async (
-    data: Omit<OrderWithResponsesCount, "id" | "responsesCount">,
+    data: Omit<OrderWithResponsesCount, "id">,
     signal: AbortSignal,
 ): Promise<void> => {
     await wait(2000, signal);
@@ -77,7 +77,8 @@ export const useCreateOrder = () => {
     const navigate = useNavigate();
     const [isLoadingSubmitting, setIsLoadingSubmitting] = useState(false);
     const controllerRef = useRef<AbortController | null>(null);
-    const currentUserId = useMemo(() => new AuthStore().getUserId(), []);
+    const { user } = useUser();
+    const currentUserId = user?.id;
     const { refetch } = useQuery({ queryKey: ["orders"], queryFn: apiClient.getAllOrders });
 
     const {
@@ -100,11 +101,12 @@ export const useCreateOrder = () => {
 
         controllerRef.current = new AbortController();
         const signal = controllerRef.current.signal;
-        const data: Omit<OrderWithResponsesCount, "id" | "responsesCount"> = {
+        const data: Omit<OrderWithResponsesCount, "id"> = {
             ...formData,
             status: "new",
             createdAt: new Date().toISOString(),
             completedById: null,
+            responsesCount: 0,
             clientId: currentUserId!, // we are sure, what user exist, because this page is protected by ProtectedRoute
         };
 

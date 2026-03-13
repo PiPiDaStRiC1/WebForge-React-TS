@@ -10,16 +10,67 @@ import type {
     OrderResponsesResponse,
     ResponsesResponse,
     ApiResponse,
+    AuthResponse,
 } from "@shared/types/apiResponses";
-import type { OrderWithResponsesCount } from "@shared/types";
+import type { OrderWithResponsesCount, RegisterRequest, LoginRequest } from "@shared/types";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:5000/api";
 
 export const apiClient = {
+    register: async (data: RegisterRequest) => {
+        try {
+            const response = await genericFetch<AuthResponse>(`${API_URL}/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error registering user:", error);
+            throw error;
+        }
+    },
+    login: async (data: LoginRequest) => {
+        try {
+            const response = await genericFetch<AuthResponse>(`${API_URL}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error logging in:", error);
+            throw error;
+        }
+    },
+    me: async (token: string) => {
+        try {
+            const response = await genericFetch<AuthResponse>(`${API_URL}/auth/me`, {
+                method: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error loading current user:", error);
+            throw error;
+        }
+    },
     getAllOrders: async () => {
         try {
             const response = await genericFetch<OrdersResponse>(`${API_URL}/orders`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -29,10 +80,7 @@ export const apiClient = {
         }
     },
 
-    postSingleOrder: async (
-        data: Omit<OrderWithResponsesCount, "id" | "responsesCount">,
-        signal: AbortSignal,
-    ) => {
+    postSingleOrder: async (data: Omit<OrderWithResponsesCount, "id">, signal: AbortSignal) => {
         try {
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/orders`, {
                 body: JSON.stringify(data),
@@ -41,7 +89,7 @@ export const apiClient = {
                 signal,
             });
 
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
 
@@ -59,7 +107,7 @@ export const apiClient = {
             const response = await genericFetch<LastOrdersResponse>(
                 `${API_URL}/orders/last?limit=${limit}`,
             );
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -72,7 +120,7 @@ export const apiClient = {
     getSingleOrder: async (id: string) => {
         try {
             const response = await genericFetch<OrderResponse>(`${API_URL}/orders/${id}`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -85,7 +133,7 @@ export const apiClient = {
     getAllClients: async () => {
         try {
             const response = await genericFetch<ClientsResponse>(`${API_URL}/clients`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -98,7 +146,7 @@ export const apiClient = {
     getSingleClient: async (id: string) => {
         try {
             const response = await genericFetch<ClientResponse>(`${API_URL}/clients/${id}`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -111,7 +159,7 @@ export const apiClient = {
     getAllFreelancers: async () => {
         try {
             const response = await genericFetch<FreelancersResponse>(`${API_URL}/freelancers`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -124,7 +172,7 @@ export const apiClient = {
     getSingleFreelancer: async (id: string) => {
         try {
             const response = await genericFetch<FreelancerResponse>(`${API_URL}/freelancers/${id}`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -137,7 +185,7 @@ export const apiClient = {
     getAllResponses: async () => {
         try {
             const response = await genericFetch<ResponsesResponse>(`${API_URL}/responses`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -152,7 +200,7 @@ export const apiClient = {
             const response = await genericFetch<OrderResponsesResponse>(
                 `${API_URL}/responses/${id}`,
             );
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
@@ -165,14 +213,14 @@ export const apiClient = {
     getSingleUser: async (id: string | number) => {
         try {
             const response = await genericFetch<FreelancerResponse>(`${API_URL}/freelancers/${id}`);
-            if (!response.status) {
+            if (!response.success) {
                 throw new Error(response.data);
             }
             return response.data;
         } catch {
             try {
                 const response = await genericFetch<ClientResponse>(`${API_URL}/clients/${id}`);
-                if (!response.status) {
+                if (!response.success) {
                     throw new Error(response.data);
                 }
                 return response.data;

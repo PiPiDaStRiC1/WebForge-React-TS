@@ -1,11 +1,11 @@
-import { AuthStore } from "@/lib/storage/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+import { useUser } from "./useUser";
 import type { UserData, FreelancersData, ClientsData } from "@shared/types";
 
 export const useCurrentUser = () => {
-    const authStore = new AuthStore();
-    const userId = authStore.getUserId();
+    const { user } = useUser();
+    const userId = user?.id;
 
     const { data: freelancers } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],

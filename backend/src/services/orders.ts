@@ -40,14 +40,14 @@ export const getAllOrders = async (_req: Request, res: Response<OrdersResponse>)
 
         const allIds = orders.map((order) => order.id);
 
-        res.status(200).json({ status: true, data: { ordersById: flatOrdersById, allIds } });
+        res.status(200).json({ success: true, data: { ordersById: flatOrdersById, allIds } });
     } catch (error) {
-        res.status(500).json({ status: false, data: "Internal Server Error" });
+        res.status(500).json({ success: false, data: "Internal Server Error" });
     }
 };
 
 export const postOneOrder = async (
-    req: Request<{}, {}, Omit<OrderWithResponsesCount, "id" | "responsesCount">, {}>,
+    req: Request<{}, {}, Omit<OrderWithResponsesCount, "id">, {}>,
     res: Response<ApiResponse<string>>,
 ) => {
     const {
@@ -62,6 +62,7 @@ export const postOneOrder = async (
         clientId,
         completedById,
         createdAt,
+        responsesCount,
     } = req.body;
 
     try {
@@ -75,16 +76,16 @@ export const postOneOrder = async (
                 deadlineDays,
                 skills: { create: skills.map((name) => ({ name })) },
                 status,
-                clientId: 1, // hardcoded for now, replace then be JWT with correct IDs
+                clientId,
                 completedById,
                 createdAt,
             },
         });
 
-        res.status(201).json({ status: true, data: "Order created" });
+        res.status(201).json({ success: true, data: "Order created" });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ status: false, data: "Failed to create order" });
+        res.status(500).json({ success: false, data: "Failed to create order" });
     }
 };
 
@@ -119,9 +120,9 @@ export const getLastOrders = async (
             };
         });
 
-        res.status(200).json({ status: true, data: flatOrders });
+        res.status(200).json({ success: true, data: flatOrders });
     } catch (error) {
-        res.status(500).json({ status: false, data: "Internal Server Error" });
+        res.status(500).json({ success: false, data: "Internal Server Error" });
     }
 };
 
@@ -151,8 +152,8 @@ export const getOneOrder = async (req: Request<OrderRequest>, res: Response<Orde
             skills: skills.map((skill) => skill.name),
         };
 
-        res.status(200).json({ status: true, data: flatOrder });
+        res.status(200).json({ success: true, data: flatOrder });
     } catch (error) {
-        res.status(404).json({ status: false, data: "Order not found" });
+        res.status(404).json({ success: false, data: "Order not found" });
     }
 };

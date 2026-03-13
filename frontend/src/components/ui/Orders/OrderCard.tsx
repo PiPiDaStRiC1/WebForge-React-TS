@@ -1,11 +1,11 @@
-import { memo, forwardRef, useMemo } from "react";
+import { memo, forwardRef } from "react";
 import { Clock, Calendar, MessageCircle, DollarSign } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { AuthStore } from "@/lib/storage/authStore";
-import type { Order } from "@shared/types";
+import type { OrderWithResponsesCount } from "@shared/types";
+import { useUser } from "@/hooks";
 
 interface OrderCardProps {
-    order: Order;
+    order: OrderWithResponsesCount;
 }
 
 const STATUS_CONFIG = {
@@ -17,9 +17,8 @@ const STATUS_CONFIG = {
 export const OrderCard = memo(
     forwardRef<HTMLDivElement, OrderCardProps>(({ order }, ref) => {
         const location = useLocation();
-        const currentUser = useMemo(() => new AuthStore(), []);
-        const isOwnProfile = currentUser.getUserId() === Number(order.clientId);
-        const isAuthenticated = !!currentUser.getUserId();
+        const { user: currentUser, isAuthenticated } = useUser();
+        const isOwnProfile = currentUser?.id === Number(order.clientId);
 
         return (
             <div
@@ -79,7 +78,7 @@ export const OrderCard = memo(
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                             <Clock size={16} />
-                            <span>{order.deadline} дней</span>
+                            <span>{order.deadlineDays} дней</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <DollarSign size={16} />

@@ -1,51 +1,30 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { UserContext, type UserContextType } from "./UserContext";
-import type { StoredUsers, AuthData, UserData, AllUserLSData } from "@shared/types";
+import { apiClient } from "@/lib/api";
+import type { UserData, RegisterRequest } from "@shared/types";
 
 interface UserProviderProps {
     children: React.ReactNode;
 }
 
-const initialAuthData: AuthData = { isLoggedIn: false, currentUserId: null, token: null };
-
-const initAuthData = (): AuthData => {
-    const raw = localStorage.getItem("auth-data");
-
-    if (!raw) {
-        localStorage.setItem("auth-data", JSON.stringify(initialAuthData));
-        return initialAuthData;
-    }
-
+const initJWTToken = (): string | null => {
     try {
-        const parsed = JSON.parse(raw) as AuthData;
+        const raw = localStorage.getItem("access-token");
+        const token = raw ? JSON.parse(raw) : null;
 
-        if (typeof parsed !== "object" || parsed === null) return initialAuthData;
-
-        return parsed;
+        return token;
     } catch (error) {
-        console.error("Failed to parse auth-data:", error);
-
-        localStorage.setItem("auth-data", JSON.stringify(initialAuthData));
-
-        return initialAuthData;
+        console.error("Failed to parse access-token:", error);
+        localStorage.removeItem("access-token");
+        return null;
     }
-};
-
-const initUsers = (): StoredUsers => {
-    const raw = localStorage.getItem("users");
-    if (!raw) {
-        localStorage.setItem("users", JSON.stringify({}));
-        return {};
-    }
-
-    return JSON.parse(raw);
 };
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-    const [authData, setAuthData] = useState<AuthData>(initAuthData);
+    const [JWTToken, setJWTToken] = useState(initJWTToken);
     const [userData, setUserData] = useState<UserData | null>(null);
     const [error, setError] = useState<Error | null>(null);
-    const isAuthenticated = authData.isLoggedIn && !!authData.currentUserId;
+    const isAuthenticated = !!JWTToken;
 
     const changeUserData = useCallback(
         async <T extends keyof UserData>(changes: [T, UserData[T]][], signal: AbortSignal) => {
@@ -85,116 +64,58 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         [],
     );
 
-    const registerUser = useCallback((userData: UserData) => {
-        const users: StoredUsers = initUsers();
-
-        const isUserExists = Object.values(users).some((user) => user.email === userData.email);
-
-        if (isUserExists) {
-            throw new Error("Такой пользователь уже существует");
-        }
-
-        localStorage.setItem("users", JSON.stringify({ ...users, [userData.id]: userData }));
-
-        const raw = localStorage.getItem("users-data");
-        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
-
-        if (!allUsersData[userData.id]) {
-            allUsersData[userData.id] = { messages: {}, favorites: {}, createdOrders: {} };
-            localStorage.setItem("users-data", JSON.stringify(allUsersData));
-        }
-
-        setUserData(userData);
-        setAuthData({ isLoggedIn: true, currentUserId: userData.id, token: crypto.randomUUID() });
+    const registerUser = useCallback(async (data: RegisterRequest) => {
+        const result = await apiClient.register(data);
+        setUserData(result.user);
+        setJWTToken(result.token);
     }, []);
 
     const logOutUser = useCallback(() => {
         setUserData(null);
-        setAuthData({ isLoggedIn: false, currentUserId: null, token: null });
+        setJWTToken(null);
+        localStorage.removeItem("access-token");
     }, []);
 
-    const logInUser = useCallback((email: string) => {
-        const users: StoredUsers = initUsers();
-
-        const user = Object.values(users).find((user) => user.email === email);
-        if (!user) throw new Error("Неверно указан email или пароль");
-
-        setUserData(user);
-        setAuthData({ isLoggedIn: true, currentUserId: user.id, token: crypto.randomUUID() });
+    const logInUser = useCallback(async (email: string, password: string) => {
+        const result = await apiClient.login({ email, password });
+        setUserData(result.user);
+        setJWTToken(result.token);
     }, []);
 
     const deleteUser = useCallback(() => {
-        const users: StoredUsers = initUsers();
-
-        if (!authData.currentUserId) throw new Error("Нет авторизованного пользователя");
-
-        // eslint-disable-next-line
-        const { [authData.currentUserId]: _, ...restUsers } = users;
-        localStorage.setItem("users", JSON.stringify(restUsers));
         setUserData(null);
-
-        const raw = localStorage.getItem("users-data");
-        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
-
-        // eslint-disable-next-line
-        const { [authData.currentUserId]: __, ...restUsersData } = allUsersData;
-        localStorage.setItem("users-data", JSON.stringify(restUsersData));
-
-        setAuthData({ isLoggedIn: false, currentUserId: null, token: null });
-    }, [authData.currentUserId]);
+        setJWTToken(null);
+        localStorage.removeItem("access-token");
+    }, []);
 
     useEffect(() => {
-        localStorage.setItem("auth-data", JSON.stringify(authData));
-    }, [authData]);
-
-    // подготовка для бекенда
-    useEffect(() => {
-        try {
-            if (!authData.currentUserId) return;
-
-            const rawUsers = localStorage.getItem("users");
-            if (!rawUsers) throw new Error("Failed to load rawUsers from localStorage");
-
-            const parsedUsers: StoredUsers = JSON.parse(rawUsers);
-            if (parsedUsers === null) {
-                localStorage.setItem("users", JSON.stringify({}));
-                return;
-            }
-
-            const parsedUser = parsedUsers[authData.currentUserId];
-
-            setUserData(parsedUser);
-        } catch (error) {
-            setError(
-                error instanceof Error
-                    ? error
-                    : new Error("Неизвестная ошибка при загрузке данных пользователя"),
-            );
-        }
-    }, [authData.currentUserId]);
+        localStorage.setItem("access-token", JSON.stringify(JWTToken));
+    }, [JWTToken]);
 
     useEffect(() => {
-        if (userData) {
+        const load = async () => {
             try {
-                const users: StoredUsers = initUsers();
-                if (!users)
-                    throw new Error(
-                        "Failed to load users from localStorage in save userData useEffect",
-                    );
+                if (!JWTToken) {
+                    setUserData(null);
+                    return;
+                }
 
-                localStorage.setItem(
-                    "users",
-                    JSON.stringify({ ...users, [userData.id]: userData }),
-                );
+                const result = await apiClient.me(JWTToken);
+                setUserData(result.user);
             } catch (error) {
+                setUserData(null);
+                setJWTToken(null);
+                localStorage.removeItem("access-token");
                 setError(
                     error instanceof Error
                         ? error
                         : new Error("Неизвестная ошибка при загрузке данных пользователя"),
                 );
             }
-        }
-    }, [userData]);
+        };
+
+        load();
+    }, [JWTToken]);
 
     const value: UserContextType = useMemo(
         () => ({
@@ -203,8 +124,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             isAuthenticated,
             registerUser,
             logOutUser,
-            logInUser,
             deleteUser,
+            logInUser,
             changeUserData,
         }),
         [
@@ -213,8 +134,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             isAuthenticated,
             registerUser,
             logOutUser,
-            logInUser,
             deleteUser,
+            logInUser,
             changeUserData,
         ],
     );
