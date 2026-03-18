@@ -1,30 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "./useUser";
 import { apiClient } from "@/lib/api";
-import type { Favorite } from "@shared/types";
+import type { Favorite, FavoritesData } from "@shared/types";
 
 export const useFavorites = () => {
     const queryClient = useQueryClient();
     const { user } = useUser();
     const currentUserId = user?.id;
 
-    const { data: favoritesList = {} } = useQuery<Record<string, Favorite>>({
+    const { data: favoritesList = {}, isPending } = useQuery<FavoritesData>({
         queryKey: ["favorites", currentUserId],
-        queryFn: () => apiClient.getAllLikesByOneUser(currentUserId!),
+        queryFn: apiClient.getAllLikesMe,
         staleTime: 0,
         enabled: !!currentUserId,
     });
 
-    const { mutate } = useMutation({
-        onMutate: async (userId) => {
+    const { mutate } = useMutation<
+        undefined,
+        unknown,
+        { userId: number; isLiked: boolean },
+        { prevData: FavoritesData }
+    >({
+        onMutate: async ({ userId, isLiked }) => {
             await queryClient.cancelQueries({ queryKey: ["favorites", currentUserId] });
 
             const prevData =
-                queryClient.getQueryData<Record<string, Favorite>>(["favorites", currentUserId]) ||
-                {};
+                queryClient.getQueryData<FavoritesData>(["favorites", currentUserId]) || {};
 
-            queryClient.setQueryData<Record<string, Favorite>>(["favorites", currentUserId], () => {
-                if (Object.values(prevData).some((fav) => fav.likedUserId === userId)) {
+            queryClient.setQueryData<FavoritesData>(["favorites", currentUserId], () => {
+                if (isLiked) {
                     // eslint-disable-next-line
                     const { [userId]: _, ...updatedFavorites } = prevData;
                     return updatedFavorites;
@@ -38,14 +42,12 @@ export const useFavorites = () => {
 
             return { prevData };
         },
-        mutationFn: async (userId: number) => {
+        mutationFn: async ({ userId, isLiked }) => {
             if (!currentUserId) {
                 throw new Error("User not authenticated");
             }
 
-            const favorites = await apiClient.getAllLikesByOneUser(currentUserId);
-
-            if (Object.values(favorites).some((fav) => fav.likedUserId === userId)) {
+            if (isLiked) {
                 await apiClient.deleteSingleLike(userId);
             } else {
                 const data: Favorite = { likedUserId: userId };
@@ -53,17 +55,10 @@ export const useFavorites = () => {
                 await apiClient.postSingleLike(data);
             }
         },
-        onError: (err, _userId, context) => {
+        onError: async (err, _variables, context) => {
             if (context?.prevData && currentUserId) {
                 console.error(err);
                 queryClient.setQueryData(["favorites", currentUserId], context.prevData);
-
-                const raw = localStorage.getItem("users-data");
-                const allUsersData = raw ? JSON.parse(raw) : {};
-                if (allUsersData[currentUserId]) {
-                    allUsersData[currentUserId].favorites = context.prevData;
-                    localStorage.setItem("users-data", JSON.stringify(allUsersData));
-                }
             }
         },
         onSuccess: () => {
@@ -75,5 +70,5 @@ export const useFavorites = () => {
         return Object.values(favoritesList).some((fav) => fav.likedUserId === userId);
     };
 
-    return { favoritesList, toggleFavorite: mutate, isFavorite };
+    return { favoritesList, toggleFavorite: mutate, isFavorite, isPending };
 };

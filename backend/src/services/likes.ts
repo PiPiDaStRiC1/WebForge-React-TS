@@ -1,15 +1,13 @@
 import { prisma } from "@/helpers";
+import { Prisma } from "@prisma/client";
 import type { Request, Response } from "express";
 import type { Favorite, ApiResponse, FavoritesData } from "@shared/types";
 
-export const getAllLikes = async (
-    req: Request<{ currentUserId: string }, {}, {}, {}>,
-    res: Response<ApiResponse<FavoritesData>>,
-) => {
+export const getAllLikes = async (req: Request, res: Response<ApiResponse<FavoritesData>>) => {
     try {
-        const currentUserId = Number(req.params["currentUserId"]);
+        const { userId } = req.user!;
 
-        const likes = await prisma.favorite.findMany({ where: { clientId: currentUserId } });
+        const likes = await prisma.favorite.findMany({ where: { clientId: userId } });
 
         const favoritesData: FavoritesData = likes.reduce((acc, like) => {
             acc[like.likedUserId.toString()] = like;
@@ -35,6 +33,9 @@ export const postOneLike = async (
 
         res.status(200).json({ success: true, data: favorite });
     } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+            res.status(409).json({ success: false, data: "Like is already existed" });
+        }
         res.status(500).json({ success: false, data: "Internal Server Error" });
     }
 };

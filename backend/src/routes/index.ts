@@ -4,3 +4,4 @@ export * from "./orders.ts";
 export * from "./responses.ts";
 export * from "./auth.ts";
 export * from "./likes.ts";
+export * from "./messages.ts";

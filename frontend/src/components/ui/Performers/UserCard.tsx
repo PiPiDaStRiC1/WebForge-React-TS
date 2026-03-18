@@ -12,15 +12,15 @@ interface UserCardProps {
 
 export const UserCard = memo(({ user, loading }: UserCardProps) => {
     const location = useLocation();
-    const { toggleFavorite, isFavorite } = useFavorites();
+    const { toggleFavorite, isFavorite, isPending } = useFavorites();
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user.picture);
-    const [isFavoriteUser, setIsFavoriteUser] = useState(isFavorite(user.id));
+    const [isLikedUser, setIsFavoriteUser] = useState(isFavorite(user.id));
     const { user: currentUser, isAuthenticated } = useUser();
     const isOwnProfile = currentUser?.id === user.id;
 
     const handleToggleFavorite = () => {
-        toggleFavorite(user.id);
-        setIsFavoriteUser(!isFavoriteUser);
+        toggleFavorite({ userId: user.id, isLiked: isLikedUser });
+        setIsFavoriteUser(!isLikedUser);
     };
 
     return (
@@ -87,14 +87,18 @@ export const UserCard = memo(({ user, loading }: UserCardProps) => {
 
                     {isAuthenticated && currentUser?.role === "client" && (
                         <button
-                            className={`${isFavoriteUser ? "text-rose-500 border-rose-300 bg-rose-50" : "text-gray-400 border-gray-200 bg-white"} cursor-pointer flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg hover:scale-110 active:scale-95 transition-all duration-200`}
+                            className={`${isLikedUser ? "text-rose-500 border-rose-300 bg-rose-50" : "text-gray-400 border-gray-200 bg-white"} cursor-pointer flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg hover:scale-110 active:scale-95 transition-all duration-200`}
                             aria-label="В избранное"
                             onClick={handleToggleFavorite}
                         >
-                            <Heart
-                                size={16}
-                                className="hover:scale-110 active:scale-95 hover:animate-pulse"
-                            />
+                            {isPending ? (
+                                <div className="w-4 h-4 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
+                            ) : (
+                                <Heart
+                                    size={16}
+                                    className="hover:scale-110 active:scale-95 hover:animate-pulse"
+                                />
+                            )}
                         </button>
                     )}
                 </div>

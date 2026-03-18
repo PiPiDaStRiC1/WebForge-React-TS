@@ -55,19 +55,26 @@ export const apiClient = {
         }
     },
 
-    delete: async (currentUserId: number) => {
+    delete: async () => {
         try {
-            const response = await genericFetch<ApiResponse<string>>(
-                `${API_URL}/auth/delete/${currentUserId}`,
-                { method: "DELETE" },
-            );
+            const rawToken = localStorage.getItem("access-token");
+            const token = rawToken ? JSON.parse(rawToken) : null;
+
+            if (!token) {
+                throw new Error("Unauthorized");
+            }
+
+            const response = await genericFetch<ApiResponse<string>>(`${API_URL}/auth/delete`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
             if (!response.success) {
                 throw new Error(response.data);
             }
 
             return response.data;
         } catch (error) {
-            console.error("Error logging in:", error);
+            console.error("Error deleting user:", error);
             throw error;
         }
     },
@@ -89,7 +96,7 @@ export const apiClient = {
         }
     },
 
-    getAllLikesByOneUser: async (currentUserId: number) => {
+    getAllLikesMe: async () => {
         try {
             const rawToken = localStorage.getItem("access-token");
             const token = rawToken ? JSON.parse(rawToken) : null;
@@ -98,16 +105,10 @@ export const apiClient = {
                 throw new Error("Unauthorized");
             }
 
-            const response = await genericFetch<ApiResponse<FavoritesData>>(
-                `${API_URL}/likes/${currentUserId}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                },
-            );
+            const response = await genericFetch<ApiResponse<FavoritesData>>(`${API_URL}/likes/me`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            });
 
             if (!response.success) {
                 throw new Error(response.data);

@@ -19,7 +19,7 @@ export const FavoriteUserCard = memo(({ user }: UserCardProps) => {
     const isOwnProfile = currentUser?.id === user.id;
 
     const handleToggleFavorite = () => {
-        toggleFavorite(user.id);
+        toggleFavorite({ userId: user.id, isLiked: isFavoriteUser });
         setIsFavoriteUser(!isFavoriteUser);
     };
 
@@ -81,16 +81,18 @@ export const FavoriteUserCard = memo(({ user }: UserCardProps) => {
                         {user.bio ? user.bio : "Информация не указана"}
                     </p>
                 </div>
-                <div className="pt-2 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 font-medium">Стоимость</span>
-                        <span className="text-base font-bold text-gray-900">
-                            {user.pricePerHour
-                                ? `₽${user.pricePerHour.toLocaleString()}/час`
-                                : "Договорная"}
-                        </span>
+                {user.role === "freelancer" && (
+                    <div className="pt-2 border-t border-gray-100">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500 font-medium">Стоимость</span>
+                            <span className="text-base font-bold text-gray-900">
+                                {user.pricePerHour
+                                    ? `₽${user.pricePerHour.toLocaleString()}/час`
+                                    : "Договорная"}
+                            </span>
+                        </div>
                     </div>
-                </div>
+                )}
                 <div className="grid grid-cols-2 gap-2 pt-1">
                     <Link
                         to={`/profile/${user.id}`}

@@ -7,105 +7,105 @@ datasource db {
 }
 
 model Picture {
-  pictureId Int @id @default(autoincrement())
-  large String
-  medium String
+  pictureId Int    @id @default(autoincrement())
+  large     String
+  medium    String
   thumbnail String
-
-  userId Int @unique
-  user User? @relation(fields: [userId], references: [id])
+  userId    Int    @unique
+  user      User   @relation(fields: [userId], references: [id])
 }
 
 model FreelancerSkill {
-  skillId Int @id @default(autoincrement())
-  name String
+  skillId      Int        @id @default(autoincrement())
+  name         String
   freelancerId Int
-  freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [userId])
 }
 
 model OrderSkill {
-  skillId Int @id @default(autoincrement())
-  name String @default("")
+  skillId Int    @id @default(autoincrement())
+  name    String @default("")
   orderId Int
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Favorite {
-  id Int @id @default(autoincrement())
-  likedUserId Int
-  timestamp DateTime @default(now())
-  freelancer Freelancer @relation(fields: [likedUserId], references: [userId], onDelete: Cascade)
-  clientId Int
-  client Client @relation(fields: [clientId], references: [userId], onDelete: Cascade)
+  id          Int        @id @default(autoincrement())
+  likedUserId Int        @unique
+  timestamp   DateTime   @default(now())
+  clientId    Int
+  client      Client     @relation(fields: [clientId], references: [userId], onDelete: Cascade)
+  freelancer  Freelancer @relation(fields: [likedUserId], references: [userId], onDelete: Cascade)
+
+  @@unique([clientId, likedUserId])
 }
 
 model Response {
-  id Int @id @default(autoincrement())
-  text String
-  createdAt DateTime @default(now())
+  id           Int        @id @default(autoincrement())
+  text         String
+  createdAt    DateTime   @default(now())
   freelancerId Int
-  freelancer Freelancer @relation(fields: [freelancerId], references: [userId], onDelete: Cascade)
-  orderId Int
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId      Int
+  order        Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [userId], onDelete: Cascade)
 }
 
 model Order {
-  id Int @id @default(autoincrement())
-  title String
-  description String
-  budgetMin Int
-  budgetMax Int
-  category String
-  skills OrderSkill[]
-  status String
-  deadlineDays Int
-  createdAt DateTime @default(now())
-
-  clientId Int
-  client Client @relation(fields: [clientId], references: [userId], onDelete: Cascade)
-  completedById Int?
-  freelancer Freelancer? @relation(fields: [completedById], references: [userId], onDelete: Cascade)
+  id             Int          @id @default(autoincrement())
+  title          String
+  description    String
+  budgetMin      Int
+  budgetMax      Int
+  category       String
+  status         String
+  deadlineDays   Int
+  createdAt      DateTime     @default(now())
+  clientId       Int
+  completedById  Int?
+  freelancer     Freelancer?  @relation(fields: [completedById], references: [userId], onDelete: Cascade)
+  client         Client       @relation(fields: [clientId], references: [userId], onDelete: Cascade)
+  skills         OrderSkill[]
   orderResponses Response[]
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  picture Picture?
-  role String
-  gender String
-  name String
-  bio String? @default("Это пользователь не хочет о себе рассказывать")
-  email String @unique
-  login String @unique
-  password String
-  phone String
-  lastName String
-  rating Float
-  location String
-  status String
-  statusChat String
-  registeredAt DateTime @default(now())
-  freelancer Freelancer?
-  client Client?
+  id           Int         @id @default(autoincrement())
+  role         String
+  gender       String
+  name         String
+  bio          String?     @default("Это пользователь не хочет о себе рассказывать")
+  email        String      @unique
+  login        String      @unique
+  password     String
+  phone        String
+  lastName     String
+  rating       Float
+  location     String
+  status       String
+  statusChat   String
+  registeredAt DateTime    @default(now())
+  client       Client?
+  freelancer   Freelancer?
+  picture      Picture?
 }
 
 model Freelancer {
-  userId Int @unique
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skills FreelancerSkill[]
+  userId       Int               @unique
   pricePerHour Int
-  experience Int
-  category String
-  earning Int
-  orders Order[]
-  responses Response[]
-  favorites Favorite[]
+  experience   Int
+  category     String
+  earning      Int
+  favorites    Favorite?
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills       FreelancerSkill[]
+  orders       Order[]
+  responses    Response[]
 }
 
 model Client {
-  userId Int @unique
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  spending Int
-  orders Order[]
+  userId    Int        @unique
+  spending  Int
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   favorites Favorite[]
+  orders    Order[]
 }

@@ -8,6 +8,7 @@ import {
     responsesRouter,
     authRouter,
     likesRouter,
+    messagesRouter,
 } from "@/routes/index.ts";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api/orders", ordersRouter);
 app.use("/api/responses", responsesRouter);
 app.use("/api/likes", likesRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/messages", messagesRouter);
 
 app.listen(PORT, () => {
     console.log(`Listening server on port: ${PORT}`);

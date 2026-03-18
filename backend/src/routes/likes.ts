@@ -5,7 +5,7 @@ import { verifyJWT } from "@/middleware";
 const likesRouter = Router();
 
 likesRouter
-    .get("/:currentUserId", verifyJWT, getAllLikes)
+    .get("/me", verifyJWT, getAllLikes)
     .post("/", verifyJWT, postOneLike)
     .delete("/:likedUserId", verifyJWT, deleteOneLike);
 

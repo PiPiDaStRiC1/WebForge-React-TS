@@ -173,14 +173,11 @@ export const loginUser = async (
     }
 };
 
-export const deleteUser = async (
-    req: Request<{ currentUserId: string }, {}, {}, {}>,
-    res: Response,
-) => {
+export const deleteUser = async (req: Request, res: Response) => {
     try {
-        const currentUserId = Number(req.params["currentUserId"]);
+        const { userId } = req.user!;
 
-        await prisma.user.delete({ where: { id: currentUserId } });
+        await prisma.user.delete({ where: { id: userId } });
 
         res.status(200).json({ success: true, data: "User successfully deleted" });
     } catch (error) {

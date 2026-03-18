@@ -82,8 +82,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setJWTToken(result.token);
     }, []);
 
-    const deleteUser = useCallback(async (currentUserId: number) => {
-        await apiClient.delete(currentUserId);
+    const deleteUser = useCallback(async () => {
+        await apiClient.delete();
         setUserData(null);
         setJWTToken(null);
         localStorage.removeItem("access-token");
@@ -109,11 +109,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                 setUserData(null);
                 setJWTToken(null);
                 localStorage.removeItem("access-token");
-                setError(
-                    error instanceof Error
-                        ? error
-                        : new Error("Неизвестная ошибка при загрузке данных пользователя"),
-                );
+
+                if (error instanceof Error && error.message !== "Unauthorized") {
+                    setError(new Error("Неизвестная ошибка при загрузке данных пользователя"));
+                }
             }
         })();
     }, [JWTToken]);
