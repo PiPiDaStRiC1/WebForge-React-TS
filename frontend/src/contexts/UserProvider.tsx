@@ -82,18 +82,21 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setJWTToken(result.token);
     }, []);
 
-    const deleteUser = useCallback(() => {
+    const deleteUser = useCallback(async (currentUserId: number) => {
+        await apiClient.delete(currentUserId);
         setUserData(null);
         setJWTToken(null);
         localStorage.removeItem("access-token");
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("access-token", JSON.stringify(JWTToken));
+        if (JWTToken !== null) {
+            localStorage.setItem("access-token", JSON.stringify(JWTToken));
+        }
     }, [JWTToken]);
 
     useEffect(() => {
-        const load = async () => {
+        (async () => {
             try {
                 if (!JWTToken) {
                     setUserData(null);
@@ -112,9 +115,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                         : new Error("Неизвестная ошибка при загрузке данных пользователя"),
                 );
             }
-        };
-
-        load();
+        })();
     }, [JWTToken]);
 
     const value: UserContextType = useMemo(

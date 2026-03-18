@@ -7,6 +7,7 @@ import {
     ordersRouter,
     responsesRouter,
     authRouter,
+    likesRouter,
 } from "@/routes/index.ts";
 
 const app = express();
@@ -21,6 +22,7 @@ app.use("/api/clients", clientsRouter);
 app.use("/api/freelancers", freelancersRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/responses", responsesRouter);
+app.use("/api/likes", likesRouter);
 app.use("/api/auth", authRouter);
 
 app.listen(PORT, () => {

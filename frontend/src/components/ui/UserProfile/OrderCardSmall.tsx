@@ -49,7 +49,7 @@ export const OrderCardSmall = ({ order, isAuthenticated }: OrderCardSmallProps) 
                     <div className="flex items-center gap-3 text-xs text-gray-600">
                         <div className="flex items-center gap-1">
                             <Clock size={14} />
-                            <span>{order.deadline} дн.</span>
+                            <span>{order.deadlineDays} дн.</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <Calendar size={14} />

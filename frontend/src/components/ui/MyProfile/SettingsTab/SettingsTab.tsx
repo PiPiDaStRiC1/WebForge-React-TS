@@ -74,7 +74,7 @@ export const SettingsTab = () => {
 
     const handleDeleteAccount = () => {
         navigate("/");
-        setTimeout(() => deleteUser(), 100);
+        setTimeout(() => deleteUser(user.id), 100);
     };
 
     return (

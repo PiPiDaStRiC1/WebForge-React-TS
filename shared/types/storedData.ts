@@ -45,6 +45,8 @@ export interface ResponsesData {
     allIds: number[];
 }
 
+export type FavoritesData = Record<string, Favorite>;
+
 export interface AllUserLSData {
     messages: Record<string, Message[]>;
     favorites: Record<string, Favorite>;

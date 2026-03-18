@@ -51,7 +51,7 @@ export const postOneOrder = async (
 ) => {
     const { title, description, category, budgetMin, budgetMax, deadlineDays, skills } = req.body;
 
-    const { userId } = (req as Request & { user: { userId: number; role: string } }).user;
+    const { userId } = req.user!;
 
     try {
         await prisma.order.create({
@@ -118,11 +118,11 @@ export const getOneOrder = async (
     req: Request<{ orderId: string }>,
     res: Response<OrderResponse>,
 ) => {
-    const orderId = req.params["orderId"];
+    const orderId = Number(req.params["orderId"]);
 
     try {
         const order = await prisma.order.findFirstOrThrow({
-            where: { id: Number(orderId) },
+            where: { id: orderId },
             include: {
                 client: { select: { userId: true } },
                 freelancer: { select: { userId: true } },

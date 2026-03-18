@@ -1,11 +1,7 @@
 import jwt from "jsonwebtoken";
+import type { JWTPayload } from "@/types";
 
-interface CreateAccessTokenParams {
-    userId: number;
-    role: "freelancer" | "client";
-}
-
-export const createAccessToken = ({ userId, role }: CreateAccessTokenParams) => {
+export const createAccessToken = ({ userId, role }: JWTPayload) => {
     try {
         const SECRET_KEY = process.env["SECRET_KEY"];
 
@@ -13,7 +9,7 @@ export const createAccessToken = ({ userId, role }: CreateAccessTokenParams) => 
             throw new Error("SECRET_KEY is not defined in env");
         }
 
-        const token = jwt.sign({ userId, role }, SECRET_KEY, { expiresIn: "7d" });
+        const token = jwt.sign({ userId, role }, SECRET_KEY, { expiresIn: "1h" });
 
         return token;
     } catch (error) {

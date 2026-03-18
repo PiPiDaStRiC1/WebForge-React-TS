@@ -30,13 +30,21 @@ model OrderSkill {
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
+model Favorite {
+  id Int @id @default(autoincrement())
+  likedUserId Int
+  timestamp DateTime @default(now())
+  freelancer Freelancer @relation(fields: [likedUserId], references: [userId], onDelete: Cascade)
+  clientId Int
+  client Client @relation(fields: [clientId], references: [userId], onDelete: Cascade)
+}
 
 model Response {
   id Int @id @default(autoincrement())
   text String
   createdAt DateTime @default(now())
   freelancerId Int
-  freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
+  freelancer Freelancer @relation(fields: [freelancerId], references: [userId], onDelete: Cascade)
   orderId Int
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
@@ -54,9 +62,9 @@ model Order {
   createdAt DateTime @default(now())
 
   clientId Int
-  client Client @relation(fields: [clientId], references: [userId])
+  client Client @relation(fields: [clientId], references: [userId], onDelete: Cascade)
   completedById Int?
-  freelancer Freelancer? @relation(fields: [completedById], references: [userId])
+  freelancer Freelancer? @relation(fields: [completedById], references: [userId], onDelete: Cascade)
   orderResponses Response[]
 }
 
@@ -91,6 +99,7 @@ model Freelancer {
   earning Int
   orders Order[]
   responses Response[]
+  favorites Favorite[]
 }
 
 model Client {
@@ -98,4 +107,5 @@ model Client {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   spending Int
   orders Order[]
+  favorites Favorite[]
 }

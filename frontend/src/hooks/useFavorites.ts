@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "./useUser";
-import type { AllUserLSData, Favorite } from "@shared/types";
+import { apiClient } from "@/lib/api";
+import type { Favorite } from "@shared/types";
 
 export const useFavorites = () => {
     const queryClient = useQueryClient();
@@ -9,20 +10,7 @@ export const useFavorites = () => {
 
     const { data: favoritesList = {} } = useQuery<Record<string, Favorite>>({
         queryKey: ["favorites", currentUserId],
-        queryFn: () => {
-            if (!currentUserId) return {};
-
-            const raw = localStorage.getItem("users-data");
-            if (!raw) return {};
-
-            try {
-                const allUsersData = JSON.parse(raw);
-                return allUsersData[currentUserId]?.favorites || {};
-            } catch (error) {
-                console.error("Failed to parse favorites:", error);
-                return {};
-            }
-        },
+        queryFn: () => apiClient.getAllLikesByOneUser(currentUserId!),
         staleTime: 0,
         enabled: !!currentUserId,
     });
@@ -43,11 +31,7 @@ export const useFavorites = () => {
                 } else {
                     return {
                         ...prevData,
-                        [userId]: {
-                            id: userId,
-                            likedUserId: userId,
-                            timestamp: new Date().toISOString(),
-                        },
+                        [userId]: { id: userId, likedUserId: userId, timestamp: new Date() },
                     };
                 }
             });
@@ -59,35 +43,15 @@ export const useFavorites = () => {
                 throw new Error("User not authenticated");
             }
 
-            const raw = localStorage.getItem("users-data");
-            const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
-
-            if (!allUsersData[currentUserId]) {
-                allUsersData[currentUserId] = { messages: {}, favorites: {}, createdOrders: {} };
-            }
-
-            if (!allUsersData[currentUserId].favorites) {
-                allUsersData[currentUserId].favorites = {};
-            }
-
-            const favorites: AllUserLSData["favorites"] = allUsersData[currentUserId].favorites;
+            const favorites = await apiClient.getAllLikesByOneUser(currentUserId);
 
             if (Object.values(favorites).some((fav) => fav.likedUserId === userId)) {
-                // eslint-disable-next-line
-                const { [userId]: _, ...updatedFavorites } = favorites;
-                allUsersData[currentUserId].favorites = updatedFavorites;
+                await apiClient.deleteSingleLike(userId);
             } else {
-                allUsersData[currentUserId].favorites = {
-                    ...favorites,
-                    [userId]: {
-                        id: userId,
-                        likedUserId: userId,
-                        timestamp: new Date().toISOString(),
-                    },
-                };
-            }
+                const data: Favorite = { likedUserId: userId };
 
-            localStorage.setItem("users-data", JSON.stringify(allUsersData));
+                await apiClient.postSingleLike(data);
+            }
         },
         onError: (err, _userId, context) => {
             if (context?.prevData && currentUserId) {

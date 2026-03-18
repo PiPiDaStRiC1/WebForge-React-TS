@@ -12,6 +12,7 @@ import type {
     ApiResponse,
     AuthResponse,
 } from "@shared/types/apiResponses";
+import type { Favorite, FavoritesData } from "@shared/types";
 import type { RegisterRequest, LoginRequest } from "@shared/types";
 import type { OrderFormData } from "@/hooks";
 
@@ -35,6 +36,7 @@ export const apiClient = {
             throw error;
         }
     },
+
     login: async (data: LoginRequest) => {
         try {
             const response = await genericFetch<AuthResponse>(`${API_URL}/auth/login`, {
@@ -52,6 +54,24 @@ export const apiClient = {
             throw error;
         }
     },
+
+    delete: async (currentUserId: number) => {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/auth/delete/${currentUserId}`,
+                { method: "DELETE" },
+            );
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error logging in:", error);
+            throw error;
+        }
+    },
+
     me: async (token: string) => {
         try {
             const response = await genericFetch<AuthResponse>(`${API_URL}/auth/me`, {
@@ -68,6 +88,89 @@ export const apiClient = {
             throw error;
         }
     },
+
+    getAllLikesByOneUser: async (currentUserId: number) => {
+        try {
+            const rawToken = localStorage.getItem("access-token");
+            const token = rawToken ? JSON.parse(rawToken) : null;
+
+            if (!token) {
+                throw new Error("Unauthorized");
+            }
+
+            const response = await genericFetch<ApiResponse<FavoritesData>>(
+                `${API_URL}/likes/${currentUserId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error loading likes:", error);
+            throw error;
+        }
+    },
+
+    postSingleLike: async (data: Favorite) => {
+        try {
+            const rawToken = localStorage.getItem("access-token");
+            const token = rawToken ? JSON.parse(rawToken) : null;
+
+            if (!token) {
+                throw new Error("Unauthorized");
+            }
+
+            const response = await genericFetch<ApiResponse<string>>(`${API_URL}/likes`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error posting like:", error);
+            throw error;
+        }
+    },
+
+    deleteSingleLike: async (likedUserId: number) => {
+        try {
+            const rawToken = localStorage.getItem("access-token");
+            const token = rawToken ? JSON.parse(rawToken) : null;
+
+            if (!token) {
+                throw new Error("Unauthorized");
+            }
+
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/likes/${likedUserId}`,
+                { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error deleting like:", error);
+            throw error;
+        }
+    },
+
     getAllOrders: async () => {
         try {
             const response = await genericFetch<OrdersResponse>(`${API_URL}/orders`);

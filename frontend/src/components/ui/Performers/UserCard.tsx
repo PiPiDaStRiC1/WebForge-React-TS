@@ -85,7 +85,7 @@ export const UserCard = memo(({ user, loading }: UserCardProps) => {
                         </div>
                     </div>
 
-                    {isAuthenticated && (
+                    {isAuthenticated && currentUser?.role === "client" && (
                         <button
                             className={`${isFavoriteUser ? "text-rose-500 border-rose-300 bg-rose-50" : "text-gray-400 border-gray-200 bg-white"} cursor-pointer flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg hover:scale-110 active:scale-95 transition-all duration-200`}
                             aria-label="В избранное"

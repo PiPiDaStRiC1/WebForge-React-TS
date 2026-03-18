@@ -12,6 +12,7 @@ import type {
     LoginRequest,
     BaseUser,
 } from "@shared/types";
+import type { JWTPayload } from "@/types";
 
 const SALT_ROUNDS = 10;
 
@@ -172,6 +173,21 @@ export const loginUser = async (
     }
 };
 
+export const deleteUser = async (
+    req: Request<{ currentUserId: string }, {}, {}, {}>,
+    res: Response,
+) => {
+    try {
+        const currentUserId = Number(req.params["currentUserId"]);
+
+        await prisma.user.delete({ where: { id: currentUserId } });
+
+        res.status(200).json({ success: true, data: "User successfully deleted" });
+    } catch (error) {
+        res.status(500).json({ success: false, data: "Internal Server Error" });
+    }
+};
+
 export const autoLogin = async (req: Request, res: Response<ApiResponse<AuthResult>>) => {
     try {
         const token = req.headers["authorization"]?.split(" ")[1];
@@ -186,7 +202,7 @@ export const autoLogin = async (req: Request, res: Response<ApiResponse<AuthResu
             return res.status(500).json({ success: false, data: "Invalid token" });
         }
 
-        const payload = jwt.verify(token, SECRET_KEY) as { userId: number; role: string };
+        const payload = jwt.verify(token, SECRET_KEY) as JWTPayload;
 
         const user = await prisma.user.findUnique({
             where: { id: payload.userId, role: payload.role },

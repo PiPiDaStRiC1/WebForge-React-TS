@@ -8,7 +8,7 @@ export interface UserContextType {
     registerUser: (data: RegisterRequest) => Promise<void>;
     logOutUser: () => void;
     logInUser: (email: string, password: string) => Promise<void>;
-    deleteUser: () => void;
+    deleteUser: (currentUserId: number) => void;
     changeUserData: <T extends keyof UserData>(
         changes: [T, UserData[T]][],
         signal: AbortSignal,
