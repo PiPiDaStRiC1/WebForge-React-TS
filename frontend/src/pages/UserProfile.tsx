@@ -82,7 +82,7 @@ const UserProfile = () => {
     };
 
     const handleToggleFavorite = () => {
-        toggleFavorite(Number(userId));
+        toggleFavorite({ userId: Number(userId), isLiked: isFavoriteUser });
         setIsFavoriteUser(!isFavoriteUser);
     };
 
@@ -180,7 +180,7 @@ const UserProfile = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    {isAuthenticated && (
+                                    {!isFreelancer && isAuthenticated && (
                                         <button
                                             className={`${isFavoriteUser ? "text-rose-500 border-rose-300 bg-rose-50" : ""} cursor-pointer w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 transition-all`}
                                             aria-label="В избранное"

@@ -1,15 +1,14 @@
 export interface Message {
-    id: string;
+    id?: number;
     text: string;
-    timestamp: string;
+    timestamp?: Date;
     senderId: number;
-    isRead: boolean;
 }
 
 export interface ChatPreview {
-    id: string;
+    id?: number;
     userName: string;
-    userAvatar: {large: string; medium: string; thumbnail: string} | null;
+    userAvatar: { large: string; medium: string; thumbnail: string } | null;
     isOnline: boolean;
     lastMessage: Message;
 }

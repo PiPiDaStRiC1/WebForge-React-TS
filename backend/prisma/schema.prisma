@@ -6,6 +6,22 @@ datasource db {
   provider = "sqlite"
 }
 
+model Chat {
+  id Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  messages Message[]
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  text String
+  timestamp DateTime @default(now())
+  senderId Int
+  chatId Int
+  chat Chat @relation(fields: [chatId], references: [id])
+}
+
 model Picture {
   pictureId Int    @id @default(autoincrement())
   large     String
@@ -31,7 +47,7 @@ model OrderSkill {
 
 model Favorite {
   id          Int        @id @default(autoincrement())
-  likedUserId Int        @unique
+  likedUserId Int        
   timestamp   DateTime   @default(now())
   clientId    Int
   client      Client     @relation(fields: [clientId], references: [userId], onDelete: Cascade)
@@ -87,6 +103,7 @@ model User {
   client       Client?
   freelancer   Freelancer?
   picture      Picture?
+  messages     Chat[]
 }
 
 model Freelancer {
@@ -95,7 +112,7 @@ model Freelancer {
   experience   Int
   category     String
   earning      Int
-  favorites    Favorite?
+  favorites    Favorite[]
   user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   skills       FreelancerSkill[]
   orders       Order[]

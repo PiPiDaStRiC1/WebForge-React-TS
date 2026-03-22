@@ -1,4 +1,5 @@
 import { useUser } from "./useUser";
+import { apiClient } from "@/lib/api";
 import type { Message, AllUserLSData } from "@shared/types";
 
 export const useMessages = () => {
@@ -6,18 +7,27 @@ export const useMessages = () => {
     const currentUserId = user?.id;
 
     const getAllMessages = async () => {
-        if (!currentUserId) return {};
-
-        const raw = localStorage.getItem("users-data");
-        if (!raw) return {};
-
         try {
-            const allUsersData: Record<string, AllUserLSData> = JSON.parse(raw);
-            return allUsersData[currentUserId]?.messages || {};
+            const chats = await apiClient.getAllChatsMe();
+
+            return chats;
         } catch (error) {
-            console.error("Failed to parse messages from localStorage:", error);
+            console.error("Failed to fetch messages from API:", error);
             return {};
         }
+
+        // if (!currentUserId) return {};
+
+        // const raw = localStorage.getItem("users-data");
+        // if (!raw) return {};
+
+        // try {
+        //     const allUsersData: Record<string, AllUserLSData> = JSON.parse(raw);
+        //     return allUsersData[currentUserId]?.messages || {};
+        // } catch (error) {
+        //     console.error("Failed to parse messages from localStorage:", error);
+        //     return {};
+        // }
     };
 
     const getMessagesById = async (userId: number) => {
@@ -28,26 +38,33 @@ export const useMessages = () => {
     };
 
     const saveMessage = async (userId: number, message: Message) => {
-        if (!currentUserId) {
-            console.error("Cannot save message: user not authenticated");
+        try {
+            await apiClient.postSingleMessage(userId, message);
+        } catch (error) {
+            console.error("Failed to save message:", error);
             return;
         }
 
-        const raw = localStorage.getItem("users-data");
-        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
+        // if (!currentUserId) {
+        //     console.error("Cannot save message: user not authenticated");
+        //     return;
+        // }
 
-        if (!allUsersData[currentUserId]) {
-            allUsersData[currentUserId] = { messages: {}, favorites: {}, createdOrders: {} };
-        }
+        // const raw = localStorage.getItem("users-data");
+        // const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
 
-        if (!allUsersData[currentUserId].messages) {
-            allUsersData[currentUserId].messages = {};
-        }
+        // if (!allUsersData[currentUserId]) {
+        //     allUsersData[currentUserId] = { messages: {}, favorites: {}, createdOrders: {} };
+        // }
 
-        const currentMessages = allUsersData[currentUserId].messages[userId] || [];
-        allUsersData[currentUserId].messages[userId] = [...currentMessages, message];
+        // if (!allUsersData[currentUserId].messages) {
+        //     allUsersData[currentUserId].messages = {};
+        // }
 
-        localStorage.setItem("users-data", JSON.stringify(allUsersData));
+        // const currentMessages = allUsersData[currentUserId].messages[userId] || [];
+        // allUsersData[currentUserId].messages[userId] = [...currentMessages, message];
+
+        // localStorage.setItem("users-data", JSON.stringify(allUsersData));
     };
 
     const resetMessages = async (userId: number) => {

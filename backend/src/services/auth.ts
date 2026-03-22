@@ -12,7 +12,6 @@ import type {
     LoginRequest,
     BaseUser,
 } from "@shared/types";
-import type { JWTPayload } from "@/types";
 
 const SALT_ROUNDS = 10;
 
@@ -187,22 +186,14 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const autoLogin = async (req: Request, res: Response<ApiResponse<AuthResult>>) => {
     try {
-        const token = req.headers["authorization"]?.split(" ")[1];
+        const { userId, role, token } = req.user!;
 
         if (!token) {
-            return res.status(401).json({ success: false, data: "No token provided" });
+            return res.status(500).json({ success: false, data: "Failed to provide token" });
         }
-
-        const SECRET_KEY = process.env["SECRET_KEY"];
-
-        if (!SECRET_KEY) {
-            return res.status(500).json({ success: false, data: "Invalid token" });
-        }
-
-        const payload = jwt.verify(token, SECRET_KEY) as JWTPayload;
 
         const user = await prisma.user.findUnique({
-            where: { id: payload.userId, role: payload.role },
+            where: { id: userId, role: role },
             include: {
                 picture: { select: { large: true, medium: true, thumbnail: true } },
                 client: { select: { orders: true, spending: true } },

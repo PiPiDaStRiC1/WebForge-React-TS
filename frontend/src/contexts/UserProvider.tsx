@@ -1,7 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { UserContext, type UserContextType } from "./UserContext";
 import { apiClient } from "@/lib/api";
 import type { UserData, RegisterRequest } from "@shared/types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 interface UserProviderProps {
     children: React.ReactNode;
@@ -20,19 +22,88 @@ const initJWTToken = (): string | null => {
     }
 };
 
+const parseJWT = (token: string): { exp?: number } | null => {
+    try {
+        const payload = token.split(".")[1];
+        if (!payload) return null;
+        const decoded = JSON.parse(atob(payload)); // decoded base-64
+        return decoded;
+    } catch {
+        return null;
+    }
+};
+
+const getTokenExpirationTime = (token: string | null): number | null => {
+    if (!token) return null;
+    const decoded = parseJWT(token);
+    if (!decoded?.exp) return null;
+    return decoded.exp * 1000;
+};
+
 export const UserProvider = ({ children }: UserProviderProps) => {
+    const navigate = useNavigate();
     const [JWTToken, setJWTToken] = useState(initJWTToken);
-    const [userData, setUserData] = useState<UserData | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+    const queryClient = useQueryClient();
+    const tokenExpirationTimerIdRef = useRef<number | null>(null);
+
+    const logOutUser = useCallback(() => {
+        if (tokenExpirationTimerIdRef.current) {
+            clearTimeout(tokenExpirationTimerIdRef.current);
+            tokenExpirationTimerIdRef.current = null;
+        }
+        queryClient.setQueryData(["user"], null);
+        setJWTToken(null);
+        localStorage.removeItem("access-token");
+    }, [queryClient]);
+
+    const setupTokenExpirationTimer = useCallback(
+        (token: string | null) => {
+            // Clear existing timer
+            if (tokenExpirationTimerIdRef.current) {
+                clearTimeout(tokenExpirationTimerIdRef.current);
+                tokenExpirationTimerIdRef.current = null;
+            }
+
+            if (!token) return;
+
+            const expirationTime = getTokenExpirationTime(token);
+            if (!expirationTime) return;
+
+            const timeUntilExpiration = expirationTime - Date.now();
+
+            // Only set timer if token expires in the future
+            if (timeUntilExpiration > 0) {
+                tokenExpirationTimerIdRef.current = setTimeout(() => {
+                    logOutUser();
+                    navigate("/auth", { replace: true });
+                }, timeUntilExpiration);
+            } else {
+                logOutUser();
+            }
+        },
+        [logOutUser, navigate],
+    );
+
+    const {
+        data: user,
+        isLoading: isLoadingUserData,
+        isError: isErrorUserData,
+    } = useQuery<UserData>({
+        queryKey: ["user"],
+        queryFn: () => apiClient.me(JWTToken).then((res) => res.user),
+        staleTime: 30 * 60 * 1000,
+        enabled: !!JWTToken,
+    });
     const isAuthenticated = !!JWTToken;
 
     const changeUserData = useCallback(
         async <T extends keyof UserData>(changes: [T, UserData[T]][], signal: AbortSignal) => {
             await new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
-                    setUserData((prev) => {
-                        if (!prev) return prev;
-                        const newUserData = { ...prev };
+                    queryClient.setQueryData(["user"], (oldData: UserData | null) => {
+                        if (!oldData) return oldData;
+
+                        const newUserData = { ...oldData };
 
                         changes.forEach(([field, value]) => {
                             newUserData[field] = value;
@@ -40,7 +111,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
                         return newUserData;
                     });
-                    resolve(true);
+                    resolve(null);
                 }, 1500);
 
                 if (signal) {
@@ -61,67 +132,70 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                 }
             });
         },
-        [],
+        [queryClient],
     );
 
-    const registerUser = useCallback(async (data: RegisterRequest) => {
-        const result = await apiClient.register(data);
-        setUserData(result.user);
-        setJWTToken(result.token);
-    }, []);
+    const registerUser = useCallback(
+        async (data: RegisterRequest) => {
+            const result = await apiClient.register(data);
+            queryClient.setQueryData(["user"], result.user);
+            setJWTToken(result.token);
+            localStorage.setItem("access-token", JSON.stringify(result.token));
+            setupTokenExpirationTimer(result.token);
+        },
+        [queryClient, setupTokenExpirationTimer],
+    );
 
-    const logOutUser = useCallback(() => {
-        setUserData(null);
-        setJWTToken(null);
-        localStorage.removeItem("access-token");
-    }, []);
-
-    const logInUser = useCallback(async (email: string, password: string) => {
-        const result = await apiClient.login({ email, password });
-        setUserData(result.user);
-        setJWTToken(result.token);
-    }, []);
+    const logInUser = useCallback(
+        async (email: string, password: string) => {
+            const result = await apiClient.login({ email, password });
+            queryClient.setQueryData(["user"], result.user);
+            setJWTToken(result.token);
+            localStorage.setItem("access-token", JSON.stringify(result.token));
+            setupTokenExpirationTimer(result.token);
+        },
+        [queryClient, setupTokenExpirationTimer],
+    );
 
     const deleteUser = useCallback(async () => {
+        if (tokenExpirationTimerIdRef.current) {
+            clearTimeout(tokenExpirationTimerIdRef.current);
+            tokenExpirationTimerIdRef.current = null;
+        }
+
         await apiClient.delete();
-        setUserData(null);
+        queryClient.setQueryData(["user"], null);
         setJWTToken(null);
         localStorage.removeItem("access-token");
-    }, []);
+    }, [queryClient]);
 
     useEffect(() => {
-        if (JWTToken !== null) {
+        if (JWTToken) {
             localStorage.setItem("access-token", JSON.stringify(JWTToken));
+        } else {
+            localStorage.removeItem("access-token");
         }
     }, [JWTToken]);
 
     useEffect(() => {
-        (async () => {
-            try {
-                if (!JWTToken) {
-                    setUserData(null);
-                    return;
-                }
+        // it can not trigger cascade rerenders
+        setupTokenExpirationTimer(JWTToken);
+    }, [JWTToken, setupTokenExpirationTimer]);
 
-                const result = await apiClient.me(JWTToken);
-                setUserData(result.user);
-            } catch (error) {
-                setUserData(null);
-                setJWTToken(null);
-                localStorage.removeItem("access-token");
-
-                if (error instanceof Error && error.message !== "Unauthorized") {
-                    setError(new Error("Неизвестная ошибка при загрузке данных пользователя"));
-                }
+    useEffect(() => {
+        return () => {
+            if (tokenExpirationTimerIdRef.current) {
+                clearTimeout(tokenExpirationTimerIdRef.current);
             }
-        })();
-    }, [JWTToken]);
+        };
+    }, []);
 
     const value: UserContextType = useMemo(
         () => ({
-            user: userData,
-            error,
+            user,
             isAuthenticated,
+            isLoadingUserData,
+            isErrorUserData,
             registerUser,
             logOutUser,
             deleteUser,
@@ -129,9 +203,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             changeUserData,
         }),
         [
-            userData,
-            error,
+            user,
             isAuthenticated,
+            isLoadingUserData,
+            isErrorUserData,
             registerUser,
             logOutUser,
             deleteUser,

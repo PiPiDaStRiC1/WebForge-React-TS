@@ -9,7 +9,7 @@ import { Preloader, ErrorAlert } from "@/components/common";
 import type { FreelancersData } from "@shared/types";
 
 const Favorites = () => {
-    const { favoritesList } = useFavorites();
+    const { favoritesList, isErrorFavorites } = useFavorites();
 
     const { data, isLoading, isError } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
@@ -26,6 +26,10 @@ const Favorites = () => {
 
     if (isLoading) {
         return <Preloader />;
+    }
+
+    if (isErrorFavorites) {
+        return <ErrorAlert message="Не удалось загрузить избранное" />;
     }
 
     if (isError) {

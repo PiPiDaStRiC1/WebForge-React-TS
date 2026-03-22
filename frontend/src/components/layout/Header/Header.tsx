@@ -11,7 +11,7 @@ import type { OrdersData } from "@shared/types";
 
 export const Header = () => {
     const location = useLocation();
-    const { isAuthenticated, error } = useUser();
+    const { isAuthenticated, isErrorUserData } = useUser();
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUsersOpen, setIsUsersOpen] = useState(false);
@@ -30,7 +30,7 @@ export const Header = () => {
 
     const filteredOrders =
         orders?.allIds
-            .map((orderId) => orders.ordersById[orderId])
+            .map((orderId) => orders.ordersById[orderId]!)
             .filter(
                 (order) =>
                     searchQuery.trim().length > 0 &&
@@ -229,7 +229,11 @@ export const Header = () => {
                             className="cursor-pointer flex items-center gap-2 py-1.5 px-3 pl-1.5 hover:bg-gray-50 rounded-xl transition-colors"
                         >
                             <div className="w-[34px] h-[34px] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
-                                {error ? <UserX size={18} /> : <User size={18} />}
+                                {!isAuthenticated || isErrorUserData ? (
+                                    <UserX size={18} />
+                                ) : (
+                                    <User size={18} />
+                                )}
                             </div>
                             <span className="text-[15px] font-semibold text-gray-900 hidden md:block">
                                 Войти

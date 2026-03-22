@@ -9,7 +9,7 @@ export const createAccessToken = ({ userId, role }: JWTPayload) => {
             throw new Error("SECRET_KEY is not defined in env");
         }
 
-        const token = jwt.sign({ userId, role }, SECRET_KEY, { expiresIn: "1h" });
+        const token = jwt.sign({ userId, role }, SECRET_KEY, { expiresIn: "5h" });
 
         return token;
     } catch (error) {

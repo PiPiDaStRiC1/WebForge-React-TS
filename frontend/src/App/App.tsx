@@ -12,6 +12,7 @@ import { lazy, Suspense } from "react";
 // 2) Непрочитанные сообщения
 // 3) Переделать структуру responses в json, а именно сделать так, чтобы ключом был
 // номера заказа, а не номер самого id response (getOneOrderResponses)
+// 4) Сделать любимые заказы для фрилансеров (later)
 
 // SEO
 // Сделать SEO френдли с помощью React Helmet (later)

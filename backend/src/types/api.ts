@@ -18,4 +18,5 @@ export interface ResponseRequest {
 export interface JWTPayload {
     userId: number;
     role: "freelancer" | "client";
+    token?: string;
 }

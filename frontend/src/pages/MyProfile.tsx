@@ -9,10 +9,10 @@ type TabType = "profile" | "settings";
 
 const MyProfile = () => {
     const navigate = useNavigate();
-    const { user, error, logOutUser } = useUser();
+    const { user, isLoadingUserData, isErrorUserData, logOutUser } = useUser();
     const [activeTab, setActiveTab] = useState<TabType>("profile");
 
-    if (error) {
+    if (isErrorUserData) {
         return <ErrorAlert />;
     }
 
@@ -21,7 +21,7 @@ const MyProfile = () => {
         setTimeout(() => logOutUser(), 100);
     };
 
-    if (!user) {
+    if (isLoadingUserData || !user) {
         return <ProfileSkeleton />;
     }
 

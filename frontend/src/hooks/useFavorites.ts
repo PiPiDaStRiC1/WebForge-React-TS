@@ -8,10 +8,13 @@ export const useFavorites = () => {
     const { user } = useUser();
     const currentUserId = user?.id;
 
-    const { data: favoritesList = {}, isPending } = useQuery<FavoritesData>({
+    const {
+        data: favoritesList = {},
+        isPending,
+        isError: isErrorFavorites,
+    } = useQuery<FavoritesData>({
         queryKey: ["favorites", currentUserId],
         queryFn: apiClient.getAllLikesMe,
-        staleTime: 0,
         enabled: !!currentUserId,
     });
 
@@ -70,5 +73,5 @@ export const useFavorites = () => {
         return Object.values(favoritesList).some((fav) => fav.likedUserId === userId);
     };
 
-    return { favoritesList, toggleFavorite: mutate, isFavorite, isPending };
+    return { favoritesList, toggleFavorite: mutate, isFavorite, isPending, isErrorFavorites };
 };

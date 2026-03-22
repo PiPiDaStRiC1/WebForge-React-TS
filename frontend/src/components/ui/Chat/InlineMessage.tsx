@@ -10,6 +10,11 @@ interface InlineMessageProps {
 export const InlineMessage = ({ message, currentUser, ownUserId }: InlineMessageProps) => {
     const isOwn = message.senderId === ownUserId;
 
+    const timestamp = message.timestamp!.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+
     return (
         <div className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
             <div className={`flex gap-2 max-w-[75%] ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
@@ -45,7 +50,7 @@ export const InlineMessage = ({ message, currentUser, ownUserId }: InlineMessage
                     <p
                         className={`text-xs mt-1 px-1 ${isOwn ? "text-right text-gray-500" : "text-left text-gray-500"}`}
                     >
-                        {message.timestamp}
+                        {timestamp}
                     </p>
                 </div>
             </div>

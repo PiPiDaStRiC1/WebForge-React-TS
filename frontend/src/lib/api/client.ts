@@ -13,10 +13,31 @@ import type {
     AuthResponse,
 } from "@shared/types/apiResponses";
 import type { Favorite, FavoritesData } from "@shared/types";
-import type { RegisterRequest, LoginRequest } from "@shared/types";
+import type { RegisterRequest, LoginRequest, Message, MessagesData } from "@shared/types";
 import type { OrderFormData } from "@/hooks";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:5000/api";
+
+const getStoredAccessToken = (): string => {
+    try {
+        const rawToken = localStorage.getItem("access-token");
+        const token = rawToken ? JSON.parse(rawToken) : null;
+
+        if (typeof token !== "string" || token.length === 0) {
+            throw new Error("Unauthorized");
+        }
+
+        return token;
+    } catch {
+        localStorage.removeItem("access-token");
+        throw new Error("Unauthorized");
+    }
+};
+
+const getAuthHeader = (): { Authorization: string } => {
+    const token = getStoredAccessToken();
+    return { Authorization: `Bearer ${token}` };
+};
 
 export const apiClient = {
     register: async (data: RegisterRequest) => {
@@ -57,12 +78,7 @@ export const apiClient = {
 
     delete: async () => {
         try {
-            const rawToken = localStorage.getItem("access-token");
-            const token = rawToken ? JSON.parse(rawToken) : null;
-
-            if (!token) {
-                throw new Error("Unauthorized");
-            }
+            const token = getStoredAccessToken();
 
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/auth/delete`, {
                 method: "DELETE",
@@ -79,8 +95,12 @@ export const apiClient = {
         }
     },
 
-    me: async (token: string) => {
+    me: async (token: string | null) => {
         try {
+            if (!token) {
+                throw new Error("Unauthorized");
+            }
+
             const response = await genericFetch<AuthResponse>(`${API_URL}/auth/me`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${token}` },
@@ -91,23 +111,18 @@ export const apiClient = {
 
             return response.data;
         } catch (error) {
-            console.error("Error loading current user:", error);
+            if (!(error instanceof Error) || error.message !== "Unauthorized") {
+                console.error("Error loading current user:", error);
+            }
             throw error;
         }
     },
 
-    getAllLikesMe: async () => {
+    getAllChatsMe: async () => {
         try {
-            const rawToken = localStorage.getItem("access-token");
-            const token = rawToken ? JSON.parse(rawToken) : null;
-
-            if (!token) {
-                throw new Error("Unauthorized");
-            }
-
-            const response = await genericFetch<ApiResponse<FavoritesData>>(`${API_URL}/likes/me`, {
+            const response = await genericFetch<ApiResponse<MessagesData>>(`${API_URL}/chats/me`, {
                 method: "GET",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                headers: getAuthHeader(),
             });
 
             if (!response.success) {
@@ -116,23 +131,82 @@ export const apiClient = {
 
             return response.data;
         } catch (error) {
-            console.error("Error loading likes:", error);
+            console.error("Error loading chats:", error);
+            throw error;
+        }
+    },
+
+    getSingleChat: async (chatId: number) => {
+        try {
+            const response = await genericFetch<ApiResponse<Message[]>>(
+                `${API_URL}/chats/${chatId}/messages`,
+                { method: "GET", headers: getAuthHeader() },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error loading chats:", error);
+            throw error;
+        }
+    },
+
+    postSingleMessage: async (chatId: number, message: Message) => {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/chats/${chatId}/messages`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...getAuthHeader(),
+                    },
+                    body: JSON.stringify(message),
+                },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error loading chats:", error);
+            throw error;
+        }
+    },
+
+    getAllLikesMe: async () => {
+        try {
+            const response = await genericFetch<ApiResponse<FavoritesData>>(`${API_URL}/likes/me`, {
+                method: "GET",
+                headers: getAuthHeader(),
+            });
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            if (!(error instanceof Error) || error.message !== "Unauthorized") {
+                console.error("Error loading likes:", error);
+            }
             throw error;
         }
     },
 
     postSingleLike: async (data: Favorite) => {
         try {
-            const rawToken = localStorage.getItem("access-token");
-            const token = rawToken ? JSON.parse(rawToken) : null;
-
-            if (!token) {
-                throw new Error("Unauthorized");
-            }
-
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/likes`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getAuthHeader(),
+                },
                 body: JSON.stringify(data),
             });
 
@@ -149,16 +223,9 @@ export const apiClient = {
 
     deleteSingleLike: async (likedUserId: number) => {
         try {
-            const rawToken = localStorage.getItem("access-token");
-            const token = rawToken ? JSON.parse(rawToken) : null;
-
-            if (!token) {
-                throw new Error("Unauthorized");
-            }
-
             const response = await genericFetch<ApiResponse<string>>(
                 `${API_URL}/likes/${likedUserId}`,
-                { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+                { method: "DELETE", headers: getAuthHeader() },
             );
 
             if (!response.success) {
@@ -187,16 +254,12 @@ export const apiClient = {
 
     postSingleOrder: async (data: OrderFormData, signal: AbortSignal) => {
         try {
-            const rawToken = localStorage.getItem("access-token");
-            const token = rawToken ? JSON.parse(rawToken) : null;
-
-            if (!token) {
-                throw new Error("Unauthorized");
-            }
-
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/orders`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getAuthHeader(),
+                },
                 body: JSON.stringify(data),
                 signal,
             });
@@ -231,16 +294,9 @@ export const apiClient = {
 
     getSingleOrder: async (id: string) => {
         try {
-            const rawToken = localStorage.getItem("access-token");
-            const token = rawToken ? JSON.parse(rawToken) : null;
-
-            if (!token) {
-                throw new Error("Unauthorized");
-            }
-
             const response = await genericFetch<OrderResponse>(`${API_URL}/orders/${id}`, {
                 method: "GET",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: getAuthHeader(),
             });
 
             if (!response.success) {

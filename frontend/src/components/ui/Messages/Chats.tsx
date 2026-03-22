@@ -52,7 +52,6 @@ export const Chats = () => {
                 if (!lastMessage) return null;
 
                 return {
-                    id: colloId,
                     userName: userData.name,
                     userAvatar: userData.picture,
                     isOnline: userData.statusChat === "online",
@@ -155,7 +154,10 @@ export const Chats = () => {
                                                         {chat.userName}
                                                     </h3>
                                                     <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
-                                                        {chat.lastMessage.timestamp}
+                                                        {chat.lastMessage.timestamp.toLocaleTimeString(
+                                                            [],
+                                                            { hour: "2-digit", minute: "2-digit" },
+                                                        )}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between">

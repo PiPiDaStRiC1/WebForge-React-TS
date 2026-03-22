@@ -2,9 +2,10 @@ import { createContext } from "react";
 import type { UserData, RegisterRequest } from "@shared/types";
 
 export interface UserContextType {
-    user: UserData | null;
-    error: Error | null;
+    user: UserData | undefined;
     isAuthenticated: boolean;
+    isLoadingUserData: boolean;
+    isErrorUserData: boolean;
     registerUser: (data: RegisterRequest) => Promise<void>;
     logOutUser: () => void;
     logInUser: (email: string, password: string) => Promise<void>;

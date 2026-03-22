@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useMessages, useUser } from "@/hooks";
-import { Send, Paperclip, MoreVertical, ArrowLeft, MessageCircle, Star } from "lucide-react";
+import { Send, MoreVertical, ArrowLeft, MessageCircle, Star } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { InlineMessage } from "@/components/ui";
@@ -153,14 +153,9 @@ const Chat = () => {
             const previousUser = queryClient.getQueryData<UserData>(["user", userId]);
 
             const optimisticMessage: Message = {
-                id: crypto.randomUUID(),
                 text: messageText,
-                timestamp: new Date().toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                }),
                 senderId: ownUserId,
-                isRead: false,
+                timestamp: new Date(),
             };
 
             if (!previousUser) return { previousUser, previousMessages };
@@ -181,14 +176,9 @@ const Chat = () => {
         },
         mutationFn: async (messageText: string) => {
             const newMessage: Message = {
-                id: crypto.randomUUID(),
                 text: messageText,
-                timestamp: new Date().toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                }),
                 senderId: ownUserId,
-                isRead: false,
+                timestamp: new Date(),
             };
             saveMessage(Number(userId), newMessage);
 
@@ -211,7 +201,6 @@ const Chat = () => {
             const timerMessageId = setTimeout(
                 () => {
                     const replyMessage: Message = {
-                        id: crypto.randomUUID(),
                         text:
                             currentUser?.gender === "female"
                                 ? femaleFreelancerReplies[
@@ -220,12 +209,8 @@ const Chat = () => {
                                 : maleFreelancerReplies[
                                       Math.floor(Math.random() * maleFreelancerReplies.length)
                                   ]!,
-                        timestamp: new Date().toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        }),
+                        timestamp: new Date(),
                         senderId: Number(userId),
-                        isRead: false,
                     };
 
                     saveMessage(Number(userId), replyMessage);
@@ -434,13 +419,6 @@ const Chat = () => {
 
                 <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-b-2xl shadow-lg px-6 py-4">
                     <form onSubmit={handleSendMessage} className="flex items-start gap-3">
-                        <button
-                            type="button"
-                            className="p-2.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex-shrink-0"
-                        >
-                            <Paperclip size={22} />
-                        </button>
-
                         <div className="flex-1 relative">
                             <textarea
                                 autoFocus

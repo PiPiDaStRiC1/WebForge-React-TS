@@ -15,7 +15,7 @@ export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next
 
         const payload = jwt.verify(token, SECRET_KEY) as JWTPayload;
 
-        req.user = payload;
+        req.user = { ...payload, token };
 
         next();
     } catch (error) {

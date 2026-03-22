@@ -7,7 +7,7 @@ const authRouter = Router();
 authRouter
     .post("/login", loginUser)
     .post("/register", registerUser)
-    .get("/me", autoLogin)
+    .get("/me", verifyJWT, autoLogin)
     .delete("/delete", verifyJWT, deleteUser);
 
 export { authRouter };

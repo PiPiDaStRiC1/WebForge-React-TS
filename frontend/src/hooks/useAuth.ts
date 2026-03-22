@@ -58,13 +58,13 @@ export const useAuth = () => {
         register: registerLogin,
         handleSubmit: handleSubmitLogin,
         formState: { errors: errorsLogin, isValid: isValidLogin },
-    } = useForm<FormDataLogin>({ resolver: zodResolver(loginSchema), mode: "onTouched" });
+    } = useForm<FormDataLogin>({ resolver: zodResolver(loginSchema), mode: "onChange" });
 
     const {
         register: registerRegister,
         handleSubmit: handleSubmitRegister,
         formState: { errors: errorsRegister, isValid: isValidRegister },
-    } = useForm<FormDataRegister>({ resolver: zodResolver(registerSchema), mode: "onTouched" });
+    } = useForm<FormDataRegister>({ resolver: zodResolver(registerSchema), mode: "onChange" });
 
     const submitForm = async (formData: FormDataLogin | FormDataRegister) => {
         setIsLoadingSubmitting(true);
@@ -93,11 +93,10 @@ export const useAuth = () => {
                 await logInUser(formData.email, formData.password);
                 toast.success("Успешно вошли в систему!");
             } catch (error) {
-                toast.error(
-                    error instanceof Error
-                        ? error.message
-                        : "Ошибка при входе. Пожалуйста, попробуйте еще раз.",
-                );
+                if (error instanceof Error && error.message !== "Unauthorized") {
+                    console.error("Login error:", error);
+                }
+                toast.error("Ошибка при входе");
             } finally {
                 setIsLoadingSubmitting(false);
             }
