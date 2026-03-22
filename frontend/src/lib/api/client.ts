@@ -136,10 +136,10 @@ export const apiClient = {
         }
     },
 
-    getSingleChat: async (chatId: number) => {
+    getSingleChat: async (userId: number) => {
         try {
             const response = await genericFetch<ApiResponse<Message[]>>(
-                `${API_URL}/chats/${chatId}/messages`,
+                `${API_URL}/chats/by-coll/${userId}/messages`,
                 { method: "GET", headers: getAuthHeader() },
             );
 
@@ -154,18 +154,33 @@ export const apiClient = {
         }
     },
 
-    postSingleMessage: async (chatId: number, message: Message) => {
+    postSingleMessage: async (userId: number, message: Message) => {
         try {
             const response = await genericFetch<ApiResponse<string>>(
-                `${API_URL}/chats/${chatId}/messages`,
+                `${API_URL}/chats/by-coll/${userId}/messages`,
                 {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        ...getAuthHeader(),
-                    },
+                    headers: { "Content-Type": "application/json", ...getAuthHeader() },
                     body: JSON.stringify(message),
                 },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error loading chats:", error);
+            throw error;
+        }
+    },
+
+    deleteSingleChat: async (userId: number) => {
+        try {
+            const response = await genericFetch<ApiResponse<Message[]>>(
+                `${API_URL}/chats/by-coll/${userId}/messages`,
+                { method: "DELETE", headers: getAuthHeader() },
             );
 
             if (!response.success) {
@@ -203,10 +218,7 @@ export const apiClient = {
         try {
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/likes`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...getAuthHeader(),
-                },
+                headers: { "Content-Type": "application/json", ...getAuthHeader() },
                 body: JSON.stringify(data),
             });
 
@@ -256,10 +268,7 @@ export const apiClient = {
         try {
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/orders`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...getAuthHeader(),
-                },
+                headers: { "Content-Type": "application/json", ...getAuthHeader() },
                 body: JSON.stringify(data),
                 signal,
             });

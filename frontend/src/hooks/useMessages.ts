@@ -1,40 +1,45 @@
-import { useUser } from "./useUser";
 import { apiClient } from "@/lib/api";
-import type { Message, AllUserLSData } from "@shared/types";
+import type { Message } from "@shared/types";
+
+const normalizeMessage = (message: Message): Message => {
+    const parsedTimestamp =
+        message.timestamp instanceof Date
+            ? message.timestamp
+            : message.timestamp
+              ? new Date(message.timestamp)
+              : new Date();
+
+    return {
+        ...message,
+        timestamp: Number.isNaN(parsedTimestamp.getTime()) ? new Date() : parsedTimestamp,
+    };
+};
 
 export const useMessages = () => {
-    const { user } = useUser();
-    const currentUserId = user?.id;
-
     const getAllMessages = async () => {
         try {
             const chats = await apiClient.getAllChatsMe();
 
-            return chats;
+            return Object.fromEntries(
+                Object.entries(chats).map(([collId, messages]) => [
+                    collId,
+                    messages.map((message) => normalizeMessage(message)),
+                ]),
+            );
         } catch (error) {
             console.error("Failed to fetch messages from API:", error);
             return {};
         }
-
-        // if (!currentUserId) return {};
-
-        // const raw = localStorage.getItem("users-data");
-        // if (!raw) return {};
-
-        // try {
-        //     const allUsersData: Record<string, AllUserLSData> = JSON.parse(raw);
-        //     return allUsersData[currentUserId]?.messages || {};
-        // } catch (error) {
-        //     console.error("Failed to parse messages from localStorage:", error);
-        //     return {};
-        // }
     };
 
     const getMessagesById = async (userId: number) => {
-        const allMessages = await getAllMessages();
-
-        const currentMessages = allMessages[userId] || [];
-        return currentMessages;
+        try {
+            const chat = await apiClient.getSingleChat(userId);
+            return chat.map((message) => normalizeMessage(message));
+        } catch (error) {
+            console.error("Failed to fetch messages from API:", error);
+            return [];
+        }
     };
 
     const saveMessage = async (userId: number, message: Message) => {
@@ -44,38 +49,14 @@ export const useMessages = () => {
             console.error("Failed to save message:", error);
             return;
         }
-
-        // if (!currentUserId) {
-        //     console.error("Cannot save message: user not authenticated");
-        //     return;
-        // }
-
-        // const raw = localStorage.getItem("users-data");
-        // const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
-
-        // if (!allUsersData[currentUserId]) {
-        //     allUsersData[currentUserId] = { messages: {}, favorites: {}, createdOrders: {} };
-        // }
-
-        // if (!allUsersData[currentUserId].messages) {
-        //     allUsersData[currentUserId].messages = {};
-        // }
-
-        // const currentMessages = allUsersData[currentUserId].messages[userId] || [];
-        // allUsersData[currentUserId].messages[userId] = [...currentMessages, message];
-
-        // localStorage.setItem("users-data", JSON.stringify(allUsersData));
     };
 
     const resetMessages = async (userId: number) => {
-        if (!currentUserId) return;
-
-        const raw = localStorage.getItem("users-data");
-        const allUsersData: Record<string, AllUserLSData> = raw ? JSON.parse(raw) : {};
-
-        if (allUsersData[currentUserId]?.messages?.[userId]) {
-            delete allUsersData[currentUserId].messages[userId];
-            localStorage.setItem("users-data", JSON.stringify(allUsersData));
+        try {
+            await apiClient.deleteSingleChat(userId);
+        } catch (error) {
+            console.error("Failed to delete messages:", error);
+            return;
         }
     };
 

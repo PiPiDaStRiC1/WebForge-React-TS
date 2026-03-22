@@ -22,17 +22,17 @@ export const Chats = () => {
     const { data: messages, isLoading: isLoadingMessages } = useQuery<Record<string, Message[]>>({
         queryKey: ["messages"],
         queryFn: getAllMessages,
-        staleTime: 0,
+        staleTime: 5 * 1000,
     });
     const { data: freelancers, isLoading: isLoadingFreelancers } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
         queryFn: apiClient.getAllFreelancers,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 5 * 1000,
     });
     const { data: clients, isLoading: isLoadingClients } = useQuery<ClientsData>({
         queryKey: ["clients"],
         queryFn: apiClient.getAllClients,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 5 * 1000,
     });
 
     const collocutorIds = Object.keys(messages || {});
@@ -52,6 +52,7 @@ export const Chats = () => {
                 if (!lastMessage) return null;
 
                 return {
+                    id: Number(colloId),
                     userName: userData.name,
                     userAvatar: userData.picture,
                     isOnline: userData.statusChat === "online",
@@ -154,10 +155,12 @@ export const Chats = () => {
                                                         {chat.userName}
                                                     </h3>
                                                     <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
-                                                        {chat.lastMessage.timestamp.toLocaleTimeString(
-                                                            [],
-                                                            { hour: "2-digit", minute: "2-digit" },
-                                                        )}
+                                                        {(
+                                                            chat.lastMessage.timestamp ?? new Date()
+                                                        ).toLocaleString([], {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        })}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between">

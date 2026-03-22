@@ -10,7 +10,16 @@ interface InlineMessageProps {
 export const InlineMessage = ({ message, currentUser, ownUserId }: InlineMessageProps) => {
     const isOwn = message.senderId === ownUserId;
 
-    const timestamp = message.timestamp!.toLocaleTimeString([], {
+    const parsedTimestamp =
+        message.timestamp instanceof Date
+            ? message.timestamp
+            : message.timestamp
+              ? new Date(message.timestamp)
+              : new Date();
+
+    const safeTimestamp = Number.isNaN(parsedTimestamp.getTime()) ? new Date() : parsedTimestamp;
+
+    const timestamp = safeTimestamp.toLocaleString([], {
         hour: "2-digit",
         minute: "2-digit",
     });

@@ -6,113 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { InlineMessage } from "@/components/ui";
 import type { Message, UserData } from "@shared/types";
-
-const commonReplies: string[] = [
-    "Привет! Спасибо за сообщение 🙂",
-    "Спасибо за обращение! Сейчас уточню детали и вернусь с ответом.",
-    "Задача понятна. Нужно уточнить пару моментов, чтобы всё сделать правильно.",
-    "Да, это реализуемо. Всё зависит от деталей и сроков.",
-    "Отлично, звучит понятно. Давайте уточним требования и ожидаемый результат.",
-    "Подскажите, есть ли примеры/референсы того, как должно выглядеть?",
-    "Если есть ТЗ или список требований — будет идеально для быстрой оценки.",
-    "Сначала стоит посмотреть текущий код/сайт/макеты, чтобы дать точную оценку.",
-    "Обычно работа идёт по этапам: черновой вариант → проверка → финальная версия.",
-    "Если нужно — возможна поддержка и доработки после сдачи проекта.",
-    "Если появятся вопросы — можно писать, отвечу максимально быстро.",
-    "Важно уточнить, какие платформы/браузеры нужно поддерживать.",
-    "Нужно уточнить, требуется ли авторизация/безопасность/роли пользователей.",
-    "Решение возможно, но важно понять ожидаемую нагрузку.",
-    "Уточните, нужен быстрый вариант или более масштабируемое решение.",
-    "По срокам всё реально, но лучше заложить время на тестирование.",
-    "Можно отправлять промежуточные результаты, чтобы всё было прозрачно.",
-    "Сейчас уточню и скажу, где именно проблема.",
-    "Похоже на баг — можно быстро диагностировать и исправить.",
-    "Спасибо за уточнение. Тогда лучше сделать немного по-другому.",
-    "Правки возможны. Лучше заранее зафиксировать, что именно меняем.",
-    "Ок, изменения внесу и отправлю обновлённую версию.",
-    "Есть вариант сделать проще и быстрее, чтобы сэкономить бюджет.",
-    "Есть нюанс: так делать не очень правильно. Могу объяснить и предложить альтернативу.",
-    "Нужно чуть больше информации, чтобы точно оценить объём.",
-    "Оценку по времени и стоимости можно подготовить сегодня.",
-    "Для реализации потребуется доступ к репозиторию/админке/хостингу.",
-    "Спасибо за данные! Сейчас начну разбираться.",
-    "Если потребуется — уточню в процессе, чтобы не сделать лишнего.",
-    "Можно начать с первого этапа, а потом расширять функционал.",
-    "В целом всё ясно. Осталось уточнить детали — и можно стартовать.",
-    "Чтобы всё было прозрачно, лучше зафиксировать требования заранее.",
-    "Напоминаю по задаче — всё актуально?",
-    "Если нужно — можно записать короткое видео с демонстрацией результата.",
-    "Можно протестировать и дать фидбек — всё поправлю при необходимости.",
-    "Если хотите, можно дополнительно оптимизировать скорость загрузки.",
-    "Текущий вариант рабочий, но есть идеи, как улучшить структуру и производительность.",
-    "Ок, сделаем именно так, как вы описали.",
-    "Хорошо, добавлю это в план работ.",
-    "По бюджету можно обсудить и подобрать комфортный вариант.",
-    "При желании можно разбить оплату на этапы.",
-    "Чтобы всё прошло гладко, лучше заранее согласовать требования.",
-    "Продолжаем, я на связи 🙂",
-    "Спасибо! Было приятно помочь 🙌",
-];
-
-const maleFreelancerReplies: string[] = [
-    ...commonReplies,
-
-    "Здравствуйте! Готов взяться за выполнение вашего заказа.",
-    "Добрый день! Посмотрел задачу — могу приступить.",
-    "Понял. Я подготовлю план работ и скину вам.",
-    "Да, могу взяться. Скажите, это срочно или можно спокойно в течение нескольких дней?",
-    "Я правильно понимаю, что нужно сделать именно вот так?",
-    "Хорошо, давайте согласуем детали, чтобы не было расхождений по ожиданиям.",
-    "Отлично, я готов начать. Подтвердите, пожалуйста, что всё актуально.",
-    "Да, конечно. Обычно это занимает примерно X времени, но точнее скажу после уточнений.",
-    "Я могу сделать это под ключ, включая тестирование и правки.",
-    "Скорее всего это несложно, но хочу уточнить один момент по логике.",
-    "Могу предложить оптимальный вариант, чтобы уложиться в бюджет.",
-    "Смотрите, тут есть несколько нюансов — объясню простыми словами.",
-    "Да, без проблем. Сделаю аккуратно и с возможностью расширения в будущем.",
-    "Хороший вопрос. Я бы сделал так, чтобы это было надежно и не ломалось при обновлениях.",
-    "Могу подключиться сегодня. Во сколько вам удобно созвониться/обсудить?",
-    "Хорошо, давайте сделаем так: я начну, а вы параллельно пришлёте материалы.",
-    "Да, могу сделать. Только уточните, нужно под мобильные тоже адаптировать?",
-    "Сделаю. Могу отправлять промежуточные результаты, чтобы вы контролировали процесс.",
-    "Я могу начать сразу после подтверждения и предоплаты (если договоримся).",
-    "Я завершил основную часть. Могу отправить на проверку.",
-    "Готово. Посмотрите, пожалуйста, всё ли устраивает.",
-    "Я всё проверил, багов не вижу. Но если найдете — поправлю.",
-    "Да, я свободен и могу взять задачу.",
-    "Сейчас занят другим проектом, но могу начать через X дней, если вам подходит.",
-    "Я могу взяться, но нужно будет уточнить бюджет — чтобы не получилось недопонимания.",
-];
-
-const femaleFreelancerReplies: string[] = [
-    ...commonReplies,
-
-    "Здравствуйте! Готова взяться за выполнение вашего заказа.",
-    "Добрый день! Посмотрела задачу — могу приступить.",
-    "Поняла. Я подготовлю план работ и скину вам.",
-    "Да, могу взяться. Подскажите, это срочно или можно спокойно в течение нескольких дней?",
-    "Я правильно понимаю, что нужно сделать именно вот так?",
-    "Хорошо, давайте согласуем детали, чтобы не было расхождений по ожиданиям.",
-    "Отлично, я готова начать. Подтвердите, пожалуйста, что всё актуально.",
-    "Да, конечно. Обычно это занимает примерно X времени, но точнее скажу после уточнений.",
-    "Я могу сделать это под ключ, включая тестирование и правки.",
-    "Скорее всего это несложно, но хочу уточнить один момент по логике.",
-    "Могу предложить оптимальный вариант, чтобы уложиться в бюджет.",
-    "Смотрите, тут есть несколько нюансов — объясню простыми словами.",
-    "Да, без проблем. Сделаю аккуратно и с возможностью расширения в будущем.",
-    "Хороший вопрос. Я бы сделала так, чтобы это было надежно и не ломалось при обновлениях.",
-    "Могу подключиться сегодня. Во сколько вам удобно созвониться/обсудить?",
-    "Хорошо, давайте сделаем так: я начну, а вы параллельно пришлёте материалы.",
-    "Да, могу сделать. Только уточните, нужно под мобильные тоже адаптировать?",
-    "Сделаю. Могу отправлять промежуточные результаты, чтобы вы контролировали процесс.",
-    "Я могу начать сразу после подтверждения и предоплаты (если договоримся).",
-    "Я завершила основную часть. Могу отправить на проверку.",
-    "Готово. Посмотрите, пожалуйста, всё ли устраивает.",
-    "Я всё проверила, багов не вижу. Но если найдете — поправлю.",
-    "Да, я свободна и могу взять задачу.",
-    "Сейчас занята другим проектом, но могу начать через X дней, если вам подходит.",
-    "Я могу взяться, но нужно будет уточнить бюджет — чтобы не получилось недопонимания.",
-];
+import toast from "react-hot-toast";
 
 const Chat = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -122,7 +16,7 @@ const Chat = () => {
     const { getMessagesById, saveMessage, resetMessages } = useMessages();
     const [openMore, setOpenMore] = useState(false);
     const moreOptionsRef = useRef<HTMLDivElement>(null);
-    const controller = useRef<AbortController>(null);
+    const offlineTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const ownUserId = useMemo(() => ownUser?.id ?? 0, [ownUser?.id]);
 
@@ -139,7 +33,9 @@ const Chat = () => {
     const { data: messages } = useQuery<Message[]>({
         queryKey: ["messages", userId],
         queryFn: () => getMessagesById(Number(userId)),
-        staleTime: 0,
+        staleTime: 2 * 1000,
+        refetchInterval: 2 * 1000,
+        refetchIntervalInBackground: true,
         enabled: !!userId,
     });
     const { mutate } = useMutation({
@@ -152,15 +48,25 @@ const Chat = () => {
             const previousMessages = queryClient.getQueryData<Message[]>(["messages", userId]);
             const previousUser = queryClient.getQueryData<UserData>(["user", userId]);
 
+            if (offlineTimerRef.current) {
+                clearTimeout(offlineTimerRef.current);
+                offlineTimerRef.current = null;
+            }
+
             const optimisticMessage: Message = {
                 text: messageText,
                 senderId: ownUserId,
                 timestamp: new Date(),
+                senderType: "user",
             };
 
-            if (!previousUser) return { previousUser, previousMessages };
-
-            const optimisticUser: UserData = { ...previousUser, statusChat: "online" };
+            queryClient.setQueryData<UserData | undefined>(
+                ["user", userId],
+                (prevData: UserData | undefined) => {
+                    if (!prevData) return prevData;
+                    return { ...prevData, statusChat: "online" };
+                },
+            );
 
             queryClient.setQueriesData(
                 { queryKey: ["messages", userId] },
@@ -170,8 +76,6 @@ const Chat = () => {
                 },
             );
 
-            queryClient.setQueriesData({ queryKey: ["user", userId] }, optimisticUser);
-
             return { previousMessages, previousUser }; // context -> onError, onSuccess
         },
         mutationFn: async (messageText: string) => {
@@ -179,51 +83,29 @@ const Chat = () => {
                 text: messageText,
                 senderId: ownUserId,
                 timestamp: new Date(),
+                senderType: "user",
             };
-            saveMessage(Number(userId), newMessage);
+            await saveMessage(Number(userId), newMessage);
 
             return newMessage;
         },
         onError: (_err, _value, context) => {
-            if (context?.previousMessages) {
+            if (offlineTimerRef.current) {
+                clearTimeout(offlineTimerRef.current);
+                offlineTimerRef.current = null;
+            }
+
+            if (context) {
                 queryClient.setQueryData(["messages", userId], context.previousMessages); // rollback
                 queryClient.setQueryData(["user", userId], context.previousUser); // rollback
             }
         },
         onSuccess: () => {
-            controller.current?.abort(); // abort previous timers if user sends messages rapidly
+            if (offlineTimerRef.current) {
+                clearTimeout(offlineTimerRef.current);
+            }
 
-            controller.current = new AbortController();
-            const signal = controller.current.signal;
-
-            if (signal.aborted) return;
-
-            const timerMessageId = setTimeout(
-                () => {
-                    const replyMessage: Message = {
-                        text:
-                            currentUser?.gender === "female"
-                                ? femaleFreelancerReplies[
-                                      Math.floor(Math.random() * femaleFreelancerReplies.length)
-                                  ]!
-                                : maleFreelancerReplies[
-                                      Math.floor(Math.random() * maleFreelancerReplies.length)
-                                  ]!,
-                        timestamp: new Date(),
-                        senderId: Number(userId),
-                    };
-
-                    saveMessage(Number(userId), replyMessage);
-
-                    queryClient.setQueryData(["messages", userId], (prevData: Message[]) => [
-                        ...prevData,
-                        replyMessage,
-                    ]);
-                },
-                Math.random() * 5000 + 1000,
-            );
-
-            const timerStatusId = setTimeout(() => {
+            offlineTimerRef.current = setTimeout(() => {
                 queryClient.setQueryData<UserData | undefined>(
                     ["user", userId],
                     (prevData: UserData | undefined) => {
@@ -231,31 +113,16 @@ const Chat = () => {
                         return { ...prevData, statusChat: "offline" };
                     },
                 );
-            }, 7000);
-
-            signal.addEventListener("abort", async () => {
-                clearTimeout(timerMessageId);
-                clearTimeout(timerStatusId);
-                controller.current = null;
-
-                if (queryClient.isMutating({ mutationKey: ["sendMessage"] })) return;
-
-                queryClient.setQueryData<UserData | undefined>(
-                    ["user", userId],
-                    (prevData: UserData | undefined) => {
-                        if (!prevData || !userId) return prevData;
-                        return { ...prevData, statusChat: "offline" };
-                    },
-                );
-            });
+            }, 15000); // set user offline after 15 seconds of inactivity
         },
     });
     const [messageText, setMessageText] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleClear = () => {
+    const handleClear = async () => {
         queryClient.setQueryData(["messages", userId], []);
-        resetMessages(Number(userId));
+        await resetMessages(Number(userId));
+        toast.success("Все сообщения удалены");
         setOpenMore(false);
     };
 
@@ -282,7 +149,11 @@ const Chat = () => {
     }, [messages]);
 
     useEffect(() => {
-        return () => controller.current?.abort();
+        return () => {
+            if (offlineTimerRef.current) {
+                clearTimeout(offlineTimerRef.current);
+            }
+        };
     }, []);
 
     if (isLoading) {

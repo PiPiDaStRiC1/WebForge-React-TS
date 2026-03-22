@@ -35,7 +35,7 @@ const NAV_SECTIONS = [
 ];
 
 const SOCIALS = [
-    { href: "https://github.com", icon: Github, label: "GitHub" },
+    { href: "https://github.com/PiPiDaStRiC1/WebForge-React-TS", icon: Github, label: "GitHub" },
     { href: "https://twitter.com", icon: Twitter, label: "Twitter" },
     { href: "https://youtube.com", icon: Youtube, label: "YouTube" },
 ];
