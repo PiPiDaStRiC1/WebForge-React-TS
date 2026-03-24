@@ -97,7 +97,7 @@ export const Preview = ({ onClose, data }: PreviewProps) => {
                             <div className="flex items-center gap-4 text-sm text-gray-600">
                                 <div className="flex items-center gap-1">
                                     <Clock size={16} />
-                                    <span>{data.deadline || "0"} дней</span>
+                                    <span>{data.deadlineDays || "0"} дней</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <DollarSign size={16} />

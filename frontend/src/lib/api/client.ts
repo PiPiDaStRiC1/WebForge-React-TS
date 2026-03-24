@@ -12,7 +12,13 @@ import type {
     ApiResponse,
     AuthResponse,
 } from "@shared/types/apiResponses";
-import type { Favorite, FavoritesData } from "@shared/types";
+import type {
+    ChatPreviewWithoutLastMessage,
+    Favorite,
+    FavoriteOrdersData,
+    FavoritesData,
+    FavoriteOrder,
+} from "@shared/types";
 import type { RegisterRequest, LoginRequest, Message, MessagesData } from "@shared/types";
 import type { OrderFormData } from "@/hooks";
 
@@ -118,6 +124,26 @@ export const apiClient = {
         }
     },
 
+    getAllCollocutorsMe: async () => {
+        try {
+            const response = await genericFetch<ApiResponse<ChatPreviewWithoutLastMessage[]>>(
+                `${API_URL}/chats/colls`,
+                { method: "GET", headers: getAuthHeader() },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            if (!(error instanceof Error) || error.message !== "Unauthorized") {
+                console.error("Error loading current collocutors:", error);
+            }
+            throw error;
+        }
+    },
+
     getAllChatsMe: async () => {
         try {
             const response = await genericFetch<ApiResponse<MessagesData>>(`${API_URL}/chats/me`, {
@@ -190,6 +216,63 @@ export const apiClient = {
             return response.data;
         } catch (error) {
             console.error("Error loading chats:", error);
+            throw error;
+        }
+    },
+
+    getAllLikeOrdersMe: async () => {
+        try {
+            const response = await genericFetch<ApiResponse<FavoriteOrdersData>>(
+                `${API_URL}/like-orders/me`,
+                { method: "GET", headers: getAuthHeader() },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            if (!(error instanceof Error) || error.message !== "Unauthorized") {
+                console.error("Error loading like orders:", error);
+            }
+            throw error;
+        }
+    },
+
+    postSingleLikeOrder: async (data: FavoriteOrder) => {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(`${API_URL}/like-orders`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...getAuthHeader() },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error posting like order:", error);
+            throw error;
+        }
+    },
+
+    deleteSingleLikeOrder: async (orderId: number) => {
+        try {
+            const response = await genericFetch<ApiResponse<string>>(
+                `${API_URL}/like-orders/${orderId}`,
+                { method: "DELETE", headers: getAuthHeader() },
+            );
+
+            if (!response.success) {
+                throw new Error(response.data);
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error("Error deleting like:", error);
             throw error;
         }
     },

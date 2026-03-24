@@ -20,25 +20,27 @@ export const getAllLikes = async (req: Request, res: Response<ApiResponse<Favori
     }
 };
 
-export const postOneLike = async (
-    req: Request<{}, {}, Favorite, {}>,
-    res: Response<ApiResponse<Favorite>>,
-) => {
-    try {
-        const { likedUserId } = req.body;
+    export const postOneLike = async (
+        req: Request<{}, {}, Favorite, {}>,
+        res: Response<ApiResponse<Favorite>>,
+    ) => {
+        try {
+            const { likedUserId } = req.body;
 
-        const { userId } = req.user!;
+            const { userId } = req.user!;
 
-        const favorite = await prisma.favorite.create({ data: { likedUserId, clientId: userId } });
+            const favorite = await prisma.favorite.create({
+                data: { likedUserId, clientId: userId },
+            });
 
-        res.status(200).json({ success: true, data: favorite });
-    } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-            res.status(409).json({ success: false, data: "Like is already existed" });
+            return res.status(200).json({ success: true, data: favorite });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+                return res.status(409).json({ success: false, data: "Like is already existed" });
+            }
+            return res.status(500).json({ success: false, data: "Internal Server Error" });
         }
-        res.status(500).json({ success: false, data: "Internal Server Error" });
-    }
-};
+    };
 
 export const deleteOneLike = async (
     req: Request<{ likedUserId: string }, {}, {}>,

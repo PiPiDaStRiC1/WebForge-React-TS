@@ -1,8 +1,8 @@
-import { memo, forwardRef } from "react";
-import { Clock, Calendar, MessageCircle, DollarSign } from "lucide-react";
+import { memo, forwardRef, useState } from "react";
+import { Clock, Calendar, MessageCircle, DollarSign, Heart } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useUser, useFavoritesOrders } from "@/hooks";
 import type { OrderWithResponsesCount } from "@shared/types";
-import { useUser } from "@/hooks";
 
 interface OrderCardProps {
     order: OrderWithResponsesCount;
@@ -18,7 +18,14 @@ export const OrderCard = memo(
     forwardRef<HTMLDivElement, OrderCardProps>(({ order }, ref) => {
         const location = useLocation();
         const { user: currentUser, isAuthenticated } = useUser();
+        const { toggleLikeOrder, isLikedOrder, isPending } = useFavoritesOrders();
+        const [isLikedUser, setIsFavoriteUser] = useState(isLikedOrder(order.id));
         const isOwnProfile = currentUser?.id === Number(order.clientId);
+
+        const handleToggleFavorite = () => {
+            toggleLikeOrder({ likedOrderId: order.id, isLiked: isLikedUser });
+            setIsFavoriteUser(!isLikedUser);
+        };
 
         return (
             <div
@@ -92,36 +99,54 @@ export const OrderCard = memo(
                             ID: <span>#{order.id}</span>
                         </div>
                     </div>
-                    {!isAuthenticated ? (
-                        <Link
-                            to="/auth"
-                            state={{
-                                background: location,
-                                redirectTo: `/messages/${order.clientId}`,
-                            }}
-                            className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Откликнуться
-                        </Link>
-                    ) : order.status === "completed" || order.status === "in-progress" ? (
-                        <button
-                            className="opacity-50 px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors cursor-not-allowed"
-                            disabled
-                        >
-                            {order.status === "completed" ? "Завершен" : "В работе"}
-                        </button>
-                    ) : (
-                        <Link
-                            to={
-                                !isOwnProfile
-                                    ? `/messages/${order.clientId}`
-                                    : `/orders/${order.id}`
-                            }
-                            className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isOwnProfile ? "Это ваш заказ" : "Откликнуться"}
-                        </Link>
-                    )}
+                    <div className="flex gap-2 justify-center items-center">
+                        {isAuthenticated && currentUser?.role === "freelancer" && (
+                            <button
+                                className={`${isLikedUser ? "text-rose-500 border-rose-300 bg-rose-50" : "text-gray-400 border-gray-200 bg-white"} cursor-pointer flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg hover:scale-110 active:scale-95 transition-all duration-200`}
+                                aria-label="В избранное"
+                                onClick={handleToggleFavorite}
+                            >
+                                {isPending ? (
+                                    <div className="border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
+                                ) : (
+                                    <Heart
+                                        size={16}
+                                        className="hover:scale-110 active:scale-95 hover:animate-pulse"
+                                    />
+                                )}
+                            </button>
+                        )}
+                        {!isAuthenticated ? (
+                            <Link
+                                to="/auth"
+                                state={{
+                                    background: location,
+                                    redirectTo: `/messages/${order.clientId}`,
+                                }}
+                                className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Откликнуться
+                            </Link>
+                        ) : order.status === "completed" || order.status === "in-progress" ? (
+                            <button
+                                className="opacity-50 px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors cursor-not-allowed"
+                                disabled
+                            >
+                                {order.status === "completed" ? "Завершен" : "В работе"}
+                            </button>
+                        ) : (
+                            <Link
+                                to={
+                                    !isOwnProfile
+                                        ? `/messages/${order.clientId}`
+                                        : `/orders/${order.id}`
+                                }
+                                className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isOwnProfile ? "Это ваш заказ" : "Откликнуться"}
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
         );

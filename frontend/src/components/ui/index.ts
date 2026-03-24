@@ -8,6 +8,6 @@ export { AuthTab, RegisterTab } from "./AuthModal";
 export { ProfileSkeleton, SettingsTab, VerificationProfile, ProfileTab } from "./MyProfile";
 export { InlineMessage } from "./Chat";
 export { Chats } from "./Messages";
-export { FavoriteUserCard } from "./Favorites";
+export { FavoriteUserCard, FavoriteOrderCard } from "./Favorites";
 export { AsideFilters, UserCard } from "./Performers";
 export { GuideCard } from "./Guides/GuideCard";

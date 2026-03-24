@@ -49,6 +49,17 @@ model OrderSkill {
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
+model FavoriteOrder {
+  id         Int        @id @default(autoincrement())
+  likedOrderId Int        
+  timestamp   DateTime   @default(now())
+  freelancerId    Int
+  freelancer  Freelancer @relation(fields: [freelancerId], references: [userId], onDelete: Cascade)
+  order       Order      @relation(fields: [likedOrderId], references: [id], onDelete: Cascade)
+
+  @@unique([freelancerId, likedOrderId])
+}
+
 model Favorite {
   id          Int        @id @default(autoincrement())
   likedUserId Int        
@@ -86,6 +97,7 @@ model Order {
   client         Client       @relation(fields: [clientId], references: [userId], onDelete: Cascade)
   skills         OrderSkill[]
   orderResponses Response[]
+  favorites      FavoriteOrder[]
 }
 
 model User {
@@ -121,6 +133,7 @@ model Freelancer {
   skills       FreelancerSkill[]
   orders       Order[]
   responses    Response[]
+  favoriteOrders FavoriteOrder[]
 }
 
 model Client {

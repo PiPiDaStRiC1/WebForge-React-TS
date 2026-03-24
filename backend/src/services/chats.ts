@@ -1,7 +1,12 @@
 import { prisma } from "@/helpers";
 import { BOTS_IDS } from "@shared/constants";
 import type { Request, Response } from "express";
-import type { ApiResponse, MessagesData, Message } from "@shared/types";
+import type {
+    ApiResponse,
+    MessagesData,
+    Message,
+    ChatPreviewWithoutLastMessage,
+} from "@shared/types";
 
 const commonReplies: string[] = [
     "Привет! Спасибо за сообщение 🙂",
@@ -145,6 +150,31 @@ export const deleteMessagesByCollId = async (
 
         await prisma.message.deleteMany({ where: { chat: { collId, userId } } });
         return res.status(200).json({ success: true, data: "Message deleted" });
+    } catch (error) {
+        return res.status(500).json({ success: false, data: "Internal server error" });
+    }
+};
+
+export const getAllCollocutors = async (
+    req: Request<{ collId: string }, {}, Message>,
+    res: Response<ApiResponse<ChatPreviewWithoutLastMessage[]>>,
+) => {
+    try {
+        const { userId } = req.user!;
+
+        const collsId = await prisma.chat.findMany({ where: { userId }, select: { collId: true } });
+
+        const collocutors = (await prisma.user.findMany({
+            where: { id: { in: collsId.map((c) => c.collId) } },
+            select: {
+                id: true,
+                name: true,
+                picture: { select: { large: true, medium: true, thumbnail: true } },
+                statusChat: true,
+            },
+        })) as ChatPreviewWithoutLastMessage[];
+
+        return res.status(200).json({ success: true, data: collocutors });
     } catch (error) {
         return res.status(500).json({ success: false, data: "Internal server error" });
     }

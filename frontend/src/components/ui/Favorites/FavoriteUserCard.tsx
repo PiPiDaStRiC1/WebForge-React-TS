@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BadgeCheck, MapPin, Heart } from "lucide-react";
 import { AvatarPreloader } from "@/components/common";
@@ -9,7 +9,7 @@ interface UserCardProps {
     user: UserData;
 }
 
-export const FavoriteUserCard = memo(({ user }: UserCardProps) => {
+export const FavoriteUserCard = ({ user }: UserCardProps) => {
     const location = useLocation();
     const { toggleFavorite, isFavorite } = useFavorites();
     const { data: currentUser } = useCurrentUser();
@@ -117,4 +117,4 @@ export const FavoriteUserCard = memo(({ user }: UserCardProps) => {
             </div>
         </article>
     );
-});
+};

@@ -7,7 +7,7 @@ import { useMessages } from "@/hooks";
 import { apiClient } from "@/lib/api";
 import { SkeletonChats } from "./SkeletonChats";
 import { InlineMessage } from "@/components/ui/Chat/index";
-import type { Message, ClientsData, FreelancersData, ChatPreview } from "@shared/types";
+import type { Message, ChatPreview } from "@shared/types";
 
 export const Chats = () => {
     const { user } = useUser();
@@ -24,53 +24,37 @@ export const Chats = () => {
         queryFn: getAllMessages,
         staleTime: 5 * 1000,
     });
-    const { data: freelancers, isLoading: isLoadingFreelancers } = useQuery<FreelancersData>({
-        queryKey: ["freelancers"],
-        queryFn: apiClient.getAllFreelancers,
+    const { data: collocutors, isLoading: isLoadingCollocutors } = useQuery({
+        queryKey: ["collocutors"],
+        queryFn: apiClient.getAllCollocutorsMe,
         staleTime: 5 * 1000,
     });
-    const { data: clients, isLoading: isLoadingClients } = useQuery<ClientsData>({
-        queryKey: ["clients"],
-        queryFn: apiClient.getAllClients,
-        staleTime: 5 * 1000,
-    });
-
-    const collocutorIds = Object.keys(messages || {});
 
     const chatPreviews: ChatPreview[] = useMemo(() => {
-        if (!messages || !freelancers || !clients) return [];
+        if (!collocutors || !messages) return [];
 
-        const allUsers = { ...freelancers.freelancersById, ...clients.clientsById };
+        return collocutors
+            .map((col) => {
+                const userMessages = messages[col.id];
 
-        return collocutorIds
-            .map((colloId) => {
-                const userData = allUsers[colloId];
-                if (!userData) return null;
+                if (!userMessages || userMessages.length === 0) return null;
 
-                const lastMessage = messages[colloId]?.slice(-1)[0];
+                const lastMessage = userMessages.slice(-1)[0];
 
-                if (!lastMessage) return null;
-
-                return {
-                    id: Number(colloId),
-                    userName: userData.name,
-                    userAvatar: userData.picture,
-                    isOnline: userData.statusChat === "online",
-                    lastMessage,
-                };
+                return { ...col, lastMessage };
             })
             .filter((chat): chat is ChatPreview => chat !== null);
-    }, [collocutorIds, freelancers, clients, messages]);
+    }, [collocutors, messages]);
 
     const filteredChats = useMemo(
         () =>
             chatPreviews.filter((chat) =>
-                chat.userName.toLowerCase().includes(searchQuery.toLowerCase()),
+                chat.name.toLowerCase().includes(searchQuery.toLowerCase()),
             ),
         [chatPreviews, searchQuery],
     );
 
-    if (isLoadingFreelancers || isLoadingClients || isLoadingMessages) {
+    if (isLoadingCollocutors || isLoadingMessages) {
         return <SkeletonChats />;
     }
 
@@ -128,31 +112,31 @@ export const Chats = () => {
                                                     : "bg-white/30"
                                             }`}
                                         >
-                                            {chat.userAvatar ? (
+                                            {chat.picture ? (
                                                 <>
                                                     <Link
                                                         to={`/profile/${chat.id}`}
                                                         className="relative"
                                                     >
                                                         <img
-                                                            src={chat.userAvatar?.medium}
-                                                            alt={chat.userName}
+                                                            src={chat.picture?.medium}
+                                                            alt={chat.name}
                                                             className="w-12 h-12 rounded-full object-cover"
                                                         />
-                                                        {chat.isOnline && (
+                                                        {chat.statusChat === "online" && (
                                                             <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full" />
                                                         )}
                                                     </Link>
                                                 </>
                                             ) : (
                                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
-                                                    {chat.userName?.charAt(0).toUpperCase() || "U"}
+                                                    {chat.name?.charAt(0).toUpperCase() || "U"}
                                                 </div>
                                             )}
                                             <div className="flex-1 min-w-0 text-left">
                                                 <div className="flex items-center justify-between mb-1">
                                                     <h3 className="font-semibold text-gray-900 truncate text-sm">
-                                                        {chat.userName}
+                                                        {chat.name}
                                                     </h3>
                                                     <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
                                                         {(
@@ -188,35 +172,36 @@ export const Chats = () => {
                                             >
                                                 <ArrowLeft size={20} />
                                             </button>
-                                            {selectedChat.userAvatar ? (
+                                            {selectedChat.picture ? (
                                                 <>
                                                     <Link
                                                         to={`/profile/${selectedChat.id}`}
                                                         className="relative"
                                                     >
                                                         <img
-                                                            src={selectedChat.userAvatar?.medium}
-                                                            alt={selectedChat.userName}
+                                                            src={selectedChat.picture?.medium}
+                                                            alt={selectedChat.name}
                                                             className="w-10 h-10 rounded-full object-cover"
                                                         />
-                                                        {selectedChat.isOnline && (
+                                                        {selectedChat.statusChat === "online" && (
                                                             <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full" />
                                                         )}
                                                     </Link>
                                                 </>
                                             ) : (
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
-                                                    {selectedChat.userName
-                                                        ?.charAt(0)
-                                                        .toUpperCase() || "U"}
+                                                    {selectedChat.name?.charAt(0).toUpperCase() ||
+                                                        "U"}
                                                 </div>
                                             )}
                                             <div>
                                                 <h3 className="font-semibold text-gray-900 text-sm">
-                                                    {selectedChat.userName}
+                                                    {selectedChat.name}
                                                 </h3>
                                                 <p className="text-xs text-gray-500">
-                                                    {selectedChat.isOnline ? "Online" : "Offline"}
+                                                    {selectedChat.statusChat === "online"
+                                                        ? "В сети"
+                                                        : "Не в сети"}
                                                 </p>
                                             </div>
                                         </div>
@@ -243,8 +228,8 @@ export const Chats = () => {
                                                     message={message}
                                                     currentUser={{
                                                         id: Number(selectedChat.id),
-                                                        name: selectedChat.userName,
-                                                        picture: selectedChat.userAvatar,
+                                                        name: selectedChat.name,
+                                                        picture: selectedChat.picture,
                                                     }}
                                                     ownUserId={ownUserId}
                                                 />

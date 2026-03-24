@@ -2,29 +2,56 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Heart, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useFavorites } from "@/hooks";
+import { useFavorites, useFavoritesOrders, useUser } from "@/hooks";
 import { apiClient } from "@/lib/api";
-import { FavoriteUserCard } from "@/components/ui";
+import { FavoriteUserCard, FavoriteOrderCard } from "@/components/ui";
 import { Preloader, ErrorAlert } from "@/components/common";
-import type { FreelancersData } from "@shared/types";
+import type { FreelancersData, OrdersData } from "@shared/types";
 
 const Favorites = () => {
-    const { favoritesList, isErrorFavorites } = useFavorites();
+    const { user } = useUser();
+    const userRole = user?.role;
 
-    const { data, isLoading, isError } = useQuery<FreelancersData>({
+    const { favoritesList, isErrorFavorites } = useFavorites();
+    const { likeOrdersList, isErrorLikeOrders } = useFavoritesOrders();
+
+    const {
+        data: freelancersData,
+        isLoading: isLoadingFreelancers,
+        isError: isErrorFreelancers,
+    } = useQuery<FreelancersData>({
         queryKey: ["freelancers"],
         queryFn: apiClient.getAllFreelancers,
         staleTime: 5 * 60 * 1000,
+        enabled: !!userRole || userRole === "client",
+    });
+
+    const {
+        data: ordersData,
+        isLoading: isLoadingOrders,
+        isError: isErrorOrders,
+    } = useQuery<OrdersData>({
+        queryKey: ["orders"],
+        queryFn: apiClient.getAllOrders,
+        staleTime: 5 * 60 * 1000,
+        enabled: !!userRole || userRole === "freelancer",
     });
 
     const favoriteFreelancers = useMemo(() => {
-        if (!data) return [];
+        if (!freelancersData) return [];
 
         const favoriteIds = Object.values(favoritesList).map((fav) => fav.likedUserId);
-        return favoriteIds.map((id) => data.freelancersById[id]!).filter(Boolean);
-    }, [data, favoritesList]);
+        return favoriteIds.map((id) => freelancersData.freelancersById[id]!).filter(Boolean);
+    }, [freelancersData, favoritesList]);
 
-    if (isLoading) {
+    const favoriteOrders = useMemo(() => {
+        if (!ordersData) return [];
+
+        const favoriteIds = Object.values(likeOrdersList).map((fav) => fav.likedOrderId);
+        return favoriteIds.map((id) => ordersData.ordersById[id]!).filter(Boolean);
+    }, [ordersData, likeOrdersList]);
+
+    if (isLoadingFreelancers || isLoadingOrders) {
         return <Preloader />;
     }
 
@@ -32,7 +59,7 @@ const Favorites = () => {
         return <ErrorAlert message="Не удалось загрузить избранное" />;
     }
 
-    if (isError) {
+    if (isErrorFreelancers || isErrorOrders || isErrorLikeOrders) {
         return <ErrorAlert message="Не удалось загрузить избранных исполнителей" />;
     }
 
@@ -54,16 +81,18 @@ const Favorites = () => {
                                 <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                                     Избранные исполнители
                                 </h1>
-                                <p className="text-gray-600 text-sm mt-1">
-                                    {favoriteFreelancers.length === 0
-                                        ? "Пока ничего не добавлено"
-                                        : `${favoriteFreelancers.length} ${favoriteFreelancers.length === 1 ? "исполнитель" : favoriteFreelancers.length < 5 ? "исполнителя" : "исполнителей"}`}
-                                </p>
+                                {favoriteFreelancers.length === 0 ||
+                                    (favoriteOrders.length === 0 && (
+                                        <p className="text-gray-600 mt-1">
+                                            Здесь будут отображаться исполнители и заказы, которые
+                                            вы добавили в избранное.
+                                        </p>
+                                    ))}
                             </div>
                         </div>
                     </div>
 
-                    {favoriteFreelancers.length === 0 ? (
+                    {userRole === "client" && favoriteFreelancers.length === 0 && (
                         <div className="relative flex flex-col items-center justify-center py-20 px-4">
                             <div className="max-w-md text-center">
                                 <div className="relative mb-8">
@@ -92,7 +121,48 @@ const Favorites = () => {
                                 </Link>
                             </div>
                         </div>
-                    ) : (
+                    )}
+
+                    {userRole === "freelancer" && favoriteOrders.length === 0 && (
+                        <div className="relative flex flex-col items-center justify-center py-20 px-4">
+                            <div className="max-w-md text-center">
+                                <div className="relative mb-8">
+                                    <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center">
+                                        <Heart size={64} className="text-rose-300" />
+                                    </div>
+                                    <div className="absolute top-0 right-1/4 w-8 h-8 rounded-full bg-pink-200 animate-pulse" />
+                                    <div className="absolute bottom-0 left-1/4 w-6 h-6 rounded-full bg-rose-200 animate-pulse delay-150" />
+                                </div>
+
+                                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                                    Здесь пока пусто
+                                </h2>
+                                <p className="text-gray-600 mb-8 leading-relaxed">
+                                    Добавьте заказы в избранное, чтобы быстро находить их позже.
+                                    Нажмите на иконку сердечка в карточке заказа.
+                                </p>
+
+                                <Link
+                                    to="/orders"
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-xl shadow-lg shadow-rose-500/30 hover:shadow-xl hover:shadow-rose-500/40 hover:scale-105 transition-all duration-200"
+                                >
+                                    <Sparkles size={20} />
+                                    Найти заказ
+                                    <ArrowRight size={20} />
+                                </Link>
+                            </div>
+                        </div>
+                    )}
+
+                    {userRole === "freelancer" && favoriteOrders.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {favoriteOrders.map((order) => (
+                                <FavoriteOrderCard key={order.id} order={order} />
+                            ))}
+                        </div>
+                    )}
+
+                    {userRole === "client" && favoriteFreelancers.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {favoriteFreelancers.map((freelancer) => (
                                 <FavoriteUserCard key={freelancer.id} user={freelancer} />

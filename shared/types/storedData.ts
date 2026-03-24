@@ -47,8 +47,6 @@ export interface ResponsesData {
 
 export type MessagesData = Record<string, Message[]>;
 
-export type FavoritesData = Record<string, Favorite>;
-
 export interface AllUserLSData {
     messages: Record<string, Message[]>;
     favorites: Record<string, Favorite>;

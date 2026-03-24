@@ -33,8 +33,8 @@ const Chat = () => {
     const { data: messages } = useQuery<Message[]>({
         queryKey: ["messages", userId],
         queryFn: () => getMessagesById(Number(userId)),
-        staleTime: 2 * 1000,
-        refetchInterval: 2 * 1000,
+        staleTime: 3 * 1000,
+        refetchInterval: 3 * 1000,
         refetchIntervalInBackground: true,
         enabled: !!userId,
     });
@@ -274,9 +274,9 @@ const Chat = () => {
                             </div>
                         ) : (
                             <>
-                                {messages.map((message) => (
+                                {messages.map((message, index) => (
                                     <InlineMessage
-                                        key={message.id}
+                                        key={message.id || index}
                                         message={message}
                                         currentUser={currentUser}
                                         ownUserId={ownUserId}

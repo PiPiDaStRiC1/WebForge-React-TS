@@ -70,7 +70,7 @@ export const useFavorites = () => {
     });
 
     const isFavorite = (userId: number): boolean => {
-        return Object.values(favoritesList).some((fav) => fav.likedUserId === userId);
+        return !!favoritesList?.[userId];
     };
 
     return { favoritesList, toggleFavorite: mutate, isFavorite, isPending, isErrorFavorites };

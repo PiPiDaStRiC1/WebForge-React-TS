@@ -8,3 +8,4 @@ export * from "./useFavorites";
 export * from "./useCurrentUser";
 export * from "./useAuth";
 export * from "./useCreateOrder";
+export * from "./useFavoritesOrders";

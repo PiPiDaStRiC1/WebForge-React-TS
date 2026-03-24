@@ -8,14 +8,14 @@ interface Props {
 
 interface State {
     hasError: boolean;
-    error?: Error;
-    errorInfo?: { componentStack: string };
+    error: Error | null;
+    errorInfo: { componentStack: string } | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = { hasError: false, error: null, errorInfo: null };
     }
 
     static getDerivedStateFromError(error: Error) {
@@ -23,14 +23,16 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     handleReset = () => {
-        this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+        this.setState({ hasError: false, error: null, errorInfo: null });
     };
 
-    componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
+    override componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
         console.error("ErrorBoundary caught an error:", error, errorInfo.componentStack);
+
+        this.setState({ error, errorInfo });
     }
 
-    render() {
+    override render() {
         if (this.state.hasError) {
             if (this.props.fallback) {
                 return this.props.fallback;

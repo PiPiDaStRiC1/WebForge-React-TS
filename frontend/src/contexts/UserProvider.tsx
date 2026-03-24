@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { UserContext, type UserContextType } from "./UserContext";
 import { apiClient } from "@/lib/api";
-import type { UserData, RegisterRequest } from "@shared/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import type { UserData, RegisterRequest } from "@shared/types";
 
 interface UserProviderProps {
     children: React.ReactNode;
@@ -75,6 +76,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             if (timeUntilExpiration > 0) {
                 tokenExpirationTimerIdRef.current = setTimeout(() => {
                     logOutUser();
+                    toast.error("Сессия истекла. Пожалуйста, войдите снова.");
                     navigate("/auth", { replace: true });
                 }, timeUntilExpiration);
             } else {

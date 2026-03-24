@@ -8,7 +8,7 @@ export interface BaseUser {
     name: string;
     lastName: string;
     rating: number;
-    bio: string | null;
+    bio: string;
     location: string;
     status: "verified" | "unverified" | "free" | "busy";
     statusChat: "offline" | "online";

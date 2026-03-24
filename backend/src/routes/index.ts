@@ -5,3 +5,4 @@ export * from "./responses.ts";
 export * from "./auth.ts";
 export * from "./likes.ts";
 export * from "./chats.ts";
+export * from "./likeOrders.ts";

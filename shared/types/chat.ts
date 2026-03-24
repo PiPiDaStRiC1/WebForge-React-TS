@@ -8,10 +8,17 @@ export interface Message {
     senderType?: MessageSenderType;
 }
 
+export interface ChatPreviewWithoutLastMessage {
+    id: number;
+    name: string;
+    picture: { large: string; medium: string; thumbnail: string } | null;
+    statusChat: "offline" | "online";
+}
+
 export interface ChatPreview {
     id: number;
-    userName: string;
-    userAvatar: { large: string; medium: string; thumbnail: string } | null;
-    isOnline: boolean;
+    name: string;
+    picture: { large: string; medium: string; thumbnail: string } | null;
+    statusChat: "offline" | "online";
     lastMessage: Message;
 }

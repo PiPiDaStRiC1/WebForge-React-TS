@@ -45,7 +45,9 @@ export const AsideFilters = ({
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     <input
-                                        value={priceLow === 0 ? "" : Math.max(priceLow, 0)}
+                                        value={
+                                            priceLow === 0 || !priceLow ? "" : Math.max(priceLow, 0)
+                                        }
                                         type="number"
                                         min="0"
                                         placeholder="От ₽"
@@ -56,7 +58,11 @@ export const AsideFilters = ({
                                         }}
                                     />
                                     <input
-                                        value={priceHigh === 0 ? "" : Math.max(priceHigh, 0)}
+                                        value={
+                                            priceHigh === 0 || !priceHigh
+                                                ? ""
+                                                : Math.max(priceHigh, 0)
+                                        }
                                         type="number"
                                         min="0"
                                         placeholder="До ₽"

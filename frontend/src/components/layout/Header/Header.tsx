@@ -5,13 +5,13 @@ import { Logo } from "@/components/common/index";
 import { AboutUsers, Support } from "./index";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { useUser, useFavorites } from "@/hooks";
+import { useUser, useFavorites, useFavoritesOrders } from "@/hooks";
 import { SearchCard } from "./SearchCard";
 import type { OrdersData } from "@shared/types";
 
 export const Header = () => {
     const location = useLocation();
-    const { isAuthenticated, isErrorUserData } = useUser();
+    const { user, isAuthenticated, isErrorUserData } = useUser();
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUsersOpen, setIsUsersOpen] = useState(false);
@@ -26,7 +26,11 @@ export const Header = () => {
     });
 
     const { favoritesList } = useFavorites();
-    const favoritesCount = Object.keys(favoritesList).length;
+    const { likeOrdersList } = useFavoritesOrders();
+    const favoritesCount =
+        user?.role === "client"
+            ? Object.keys(favoritesList).length
+            : Object.keys(likeOrdersList).length;
 
     const filteredOrders =
         orders?.allIds

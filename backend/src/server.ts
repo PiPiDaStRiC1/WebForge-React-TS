@@ -9,6 +9,7 @@ import {
     authRouter,
     likesRouter,
     chatsRouter,
+    likeOrdersRouter,
 } from "@/routes/index.ts";
 
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/responses", responsesRouter);
 app.use("/api/likes", likesRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/chats", chatsRouter);
+app.use("/api/like-orders", likeOrdersRouter);
 
 app.listen(PORT, () => {
     console.log(`Listening server on port: ${PORT}`);
