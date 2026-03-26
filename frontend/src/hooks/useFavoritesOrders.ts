@@ -20,7 +20,7 @@ export const useFavoritesOrders = () => {
 
     const { mutate } = useMutation<
         undefined,
-        unknown,
+        Error,
         { likedOrderId: number; isLiked: boolean },
         { prevData: FavoriteOrdersData }
     >({
