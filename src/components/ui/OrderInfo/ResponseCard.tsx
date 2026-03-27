@@ -16,28 +16,41 @@ export const ResponseCard = ({ response, freelancer }: ResponseCardProps) => {
     const currentUser = useMemo(() => new AuthStore(), []);
     const isOwnProfile = currentUser.getUserId() === freelancer?.id;
     const isAuthenticated = !!currentUser.getUserId();
+    const createdAtLabel = useMemo(() => {
+        const date = new Date(response.createdAt);
+
+        if (Number.isNaN(date.getTime())) {
+            return response.createdAt.split("T")[0] || "Дата не указана";
+        }
+
+        return new Intl.DateTimeFormat("ru-RU", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        }).format(date);
+    }, [response.createdAt]);
 
     if (!freelancer) {
         return <UserCardPreloader />;
     }
 
     return (
-        <div className="bg-gradient-to-br from-white/80 to-indigo-50/30 backdrop-blur-sm border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-indigo-200 transition-all duration-300 mb-4">
-            <div className="flex items-start gap-4">
+        <div className="group bg-gradient-to-br from-white/90 to-indigo-50/35 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 sm:p-5 hover:shadow-xl hover:border-indigo-200 transition-all duration-300 mb-4">
+            <div className="flex items-start gap-3 sm:gap-4">
                 <div className="relative flex-shrink-0">
-                    {isLoadingAvatar && <AvatarPreloader />}
+                    {isLoadingAvatar && <AvatarPreloader size={14} />}
                     <Link to={`/profile/${freelancer.id}`}>
                         {freelancer.picture ? (
-                            <div className="w-14 h-14 rounded-xl overflow-hidden shadow-2xl bg-white hover:scale-105">
+                            <div className="w-14 h-14 rounded-xl overflow-hidden shadow-xl bg-white transition-transform duration-300 group-hover:scale-105">
                                 <img
                                     src={freelancer.picture.medium}
                                     alt={freelancer.name}
-                                    className="w-14 h-14 rounded-xl object-cover shadow-md transition-transform"
+                                    className="w-full h-full rounded-xl object-cover"
                                     onLoad={() => setIsLoadingAvatar(false)}
                                 />
                             </div>
                         ) : (
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl sm:text-4xl font-bold">
                                 {freelancer.name?.charAt(0).toUpperCase() || "U"}
                             </div>
                         )}
@@ -50,36 +63,41 @@ export const ResponseCard = ({ response, freelancer }: ResponseCardProps) => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 min-w-0">
-                            <Link
-                                to={`/profile/${freelancer.id}`}
-                                className="text-base font-bold text-gray-900 hover:text-indigo-600 transition-colors"
-                            >
-                                {freelancer.name}
-                            </Link>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                                <div className="flex items-center gap-1">
-                                    <Star size={12} className="text-amber-400 fill-amber-400" />
-                                    <span className="font-semibold">
-                                        {freelancer.rating.toFixed(1)}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <Briefcase size={12} />
-                                    <span>{freelancer.completedOrders} заказов</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <MapPin size={12} />
-                                    <span>{freelancer.location}</span>
+                    <div className="mb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                            <div className="flex-1 min-w-0">
+                                <Link
+                                    to={`/profile/${freelancer.id}`}
+                                    className="text-base sm:text-lg font-bold text-gray-900 hover:text-indigo-600 transition-colors line-clamp-1"
+                                >
+                                    {freelancer.name}
+                                </Link>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-600">
+                                    <div className="flex items-center gap-1">
+                                        <Star size={12} className="text-amber-400 fill-amber-400" />
+                                        <span className="font-semibold">
+                                            {freelancer.rating.toFixed(1)}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Briefcase size={12} />
+                                        <span>{freelancer.completedOrders} заказов</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <MapPin size={12} />
+                                        <span>{freelancer.location}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <span>{response.createdAt.split("T")[0]}</span>
+                            <div className="inline-flex items-center gap-1 self-start rounded-full border border-gray-200 bg-white/80 px-2.5 py-1 text-[11px] sm:text-xs text-gray-600">
+                                <span>{createdAtLabel}</span>
+                            </div>
                         </div>
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed mb-3">{response.text}</p>
+
+                    <p className="text-sm text-gray-700 leading-relaxed mb-3 break-words">
+                        {response.text}
+                    </p>
                     <div className="flex flex-wrap gap-1.5 mb-3">
                         {freelancer.skills.slice(0, 5).map((skill) => (
                             <span
@@ -95,45 +113,45 @@ export const ResponseCard = ({ response, freelancer }: ResponseCardProps) => {
                             </span>
                         )}
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Link
-                            to={`/profile/${freelancer.id}`}
-                            className="px-4 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 transition-all"
-                        >
-                            Профиль
-                        </Link>
-                        {!isAuthenticated ? (
+                    <div className="flex flex-col gap-3 sm:gap-3">
+                        <div className="flex flex-col xs:flex-row gap-2 sm:gap-3">
                             <Link
-                                to="/auth"
-                                state={{
-                                    background: location,
-                                    redirectTo: `/messages/${freelancer.id}`,
-                                }}
-                                className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
+                                to={`/profile/${freelancer.id}`}
+                                className="px-4 py-2 sm:py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 transition-all text-center"
                             >
-                                Написать
+                                Профиль
                             </Link>
-                        ) : isOwnProfile ? (
-                            <button
-                                className="opacity-50 px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
-                                disabled
-                            >
-                                Это вы
-                            </button>
-                        ) : (
-                            <Link
-                                to={`/messages/${freelancer.id}`}
-                                className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
-                            >
-                                Написать
-                            </Link>
-                        )}
-                        <div className="ml-auto text-right">
-                            <div className="text-lg font-bold text-gray-900">
-                                {freelancer.pricePerHour
-                                    ? `₽${freelancer.pricePerHour.toLocaleString()}/час`
-                                    : "Договорная"}
-                            </div>
+                            {!isAuthenticated ? (
+                                <Link
+                                    to="/auth"
+                                    state={{
+                                        background: location,
+                                        redirectTo: `/messages/${freelancer.id}`,
+                                    }}
+                                    className="px-4 py-2 sm:py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all text-center"
+                                >
+                                    Написать
+                                </Link>
+                            ) : isOwnProfile ? (
+                                <button
+                                    className="opacity-50 px-4 py-2 sm:py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 transition-all"
+                                    disabled
+                                >
+                                    Это вы
+                                </button>
+                            ) : (
+                                <Link
+                                    to={`/messages/${freelancer.id}`}
+                                    className="px-4 py-2 sm:py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition-all text-center"
+                                >
+                                    Написать
+                                </Link>
+                            )}
+                        </div>
+                        <div className="inline-flex self-start sm:self-end rounded-full text-gray-900 px-3 py-1 text-sm sm:text-base font-bold">
+                            {freelancer.pricePerHour
+                                ? `₽${freelancer.pricePerHour.toLocaleString()}/час`
+                                : "Договорная"}
                         </div>
                     </div>
                 </div>

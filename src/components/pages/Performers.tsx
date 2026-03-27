@@ -434,44 +434,51 @@ const Performers = () => {
                                 </>
                             )}
 
-                            <div className="w-full flex items-center justify-center mt-8 md:mt-10 overflow-x-auto pb-1">
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                                        disabled={page === 1}
-                                        onClick={() =>
-                                            set("page", String(Math.max(page - 1, 1)), "1")
-                                        }
-                                    >
-                                        Назад
-                                    </button>
-                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                                        (p) => (
-                                            <button
-                                                key={p}
-                                                type="button"
-                                                className={`cursor-pointer h-10 w-10 rounded-xl text-sm font-semibold ${
-                                                    p === page
-                                                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
-                                                        : "bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors"
-                                                }`}
-                                                onClick={() => set("page", String(p), "1")}
-                                            >
-                                                {p}
-                                            </button>
-                                        ),
-                                    )}
-                                    <button
-                                        type="button"
-                                        className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                                        disabled={page === totalPages}
-                                        onClick={() =>
-                                            set("page", String(Math.min(page + 1, totalPages)), "1")
-                                        }
-                                    >
-                                        Вперёд
-                                    </button>
+                            <div className="w-full mt-8 md:mt-10">
+                                <div className="mx-auto w-full max-w-xl">
+                                    <div className="overflow-x-auto pb-2">
+                                        <div className="mx-auto w-max flex items-center gap-2 px-1">
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                                                (p) => (
+                                                    <button
+                                                        key={p}
+                                                        type="button"
+                                                        className={`cursor-pointer h-10 w-10 rounded-xl text-sm font-semibold ${
+                                                            p === page
+                                                                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                                                                : "bg-white/70 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors"
+                                                        }`}
+                                                        onClick={() => set("page", String(p), "1")}
+                                                    >
+                                                        {p}
+                                                    </button>
+                                                ),
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-3 flex items-center justify-center gap-3">
+                                        <button
+                                            type="button"
+                                            className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                            disabled={page === 1}
+                                            onClick={() =>
+                                                set("page", String(Math.max(page - 1, 1)), "1")
+                                            }
+                                        >
+                                            Назад
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                                            disabled={page === totalPages}
+                                            onClick={() =>
+                                                set("page", String(Math.min(page + 1, totalPages)), "1")
+                                            }
+                                        >
+                                            Вперёд
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

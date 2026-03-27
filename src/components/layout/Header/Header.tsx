@@ -228,7 +228,7 @@ export const Header = () => {
                         </div>
                     )}
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-4 flex-shrink-0">
                     <Search
                         className="block md:hidden text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors"
                         size={20}
@@ -237,9 +237,20 @@ export const Header = () => {
                             setIsMenuOpen(false);
                         }}
                     />
+                    <Link
+                        to="/favorites"
+                        className="relative rounded-xl text-gray-600 hover:text-indigo-700 transition-colors"
+                    >
+                        <Heart size={20} />
+                        {favoritesCount > 0 && (
+                            <span className="absolute -top-[10px] -right-[10px] w-4 h-4 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">
+                                {favoritesCount}
+                            </span>
+                        )}
+                    </Link>
                     <button
                         type="button"
-                        className="md:hidden w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors"
+                        className="md:hidden flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors"
                         onClick={() => {
                             setIsMenuOpen((prev) => !prev);
                             setIsSearchOpen(false);
@@ -275,13 +286,6 @@ export const Header = () => {
                                     <div className="pt-3 border-t border-gray-200 grid grid-cols-1 gap-2">
                                         {isAuthenticated ? (
                                             <>
-                                                <Link
-                                                    to="/favorites"
-                                                    className="h-11 px-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-medium inline-flex items-center gap-2 hover:border-indigo-200 hover:text-indigo-700 hover:bg-indigo-50/60 transition-colors"
-                                                    onClick={() => setIsMenuOpen(false)}
-                                                >
-                                                    <Heart size={16} /> Избранное
-                                                </Link>
                                                 <Link
                                                     to="/messages"
                                                     className="h-11 px-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-medium inline-flex items-center gap-2 hover:border-indigo-200 hover:text-indigo-700 hover:bg-indigo-50/60 transition-colors"
@@ -377,19 +381,6 @@ export const Header = () => {
                     )}
                     {isAuthenticated ? (
                         <div className="hidden md:flex gap-2 justify-center items-center">
-                            <Link
-                                to="/favorites"
-                                className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors"
-                            >
-                                <div>
-                                    <Heart size={20} />
-                                    {favoritesCount > 0 && (
-                                        <span className="absolute -top-[0.5px] -right-[0.5px] w-4 h-4 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">
-                                            {favoritesCount}
-                                        </span>
-                                    )}
-                                </div>
-                            </Link>
                             <Link
                                 to="/messages"
                                 className="relative w-[42px] h-[42px] flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-xl transition-colors"

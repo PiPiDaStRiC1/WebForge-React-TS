@@ -182,10 +182,10 @@ const Privacy = () => {
                             <p className="mt-4">
                                 Для реализации этих прав напишите на
                                 <a
-                                    href="mailto:privacy@kwork-clone.ru"
+                                    href="mailto:privacy@webforge.ru"
                                     className="text-emerald-600 hover:underline ml-1"
                                 >
-                                    privacy@kwork-clone.ru
+                                    privacy@webforge.ru
                                 </a>
                             </p>
                         </div>

@@ -1,3 +1,3 @@
-export const AvatarPreloader = () => (
-    <div className="absolute w-16 h-16 z-500 bg-gray-200 rounded-xl animate-pulse" />
-)
+export const AvatarPreloader = ({ size = 16 }: { size: number }) => (
+    <div className={`absolute w-${size} h-${size} z-500 bg-gray-200 rounded-xl animate-pulse`} />
+);
