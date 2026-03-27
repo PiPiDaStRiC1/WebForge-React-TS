@@ -31,7 +31,7 @@ export const Categories = () => {
             </section>
 
             <section>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {CATEGORIES.map((category) => {
                         const Icon = category.icon;
                         return (
@@ -57,7 +57,9 @@ export const Categories = () => {
                                         <Icon size={32} className="text-white" />
                                     </div>
 
-                                    <h3 className="text-xl font-bold text-white mb-3">{category.name}</h3>
+                                    <h3 className="text-xl font-bold text-white mb-3">
+                                        {category.name}
+                                    </h3>
 
                                     <div className="flex flex-col gap-2 text-white/90 text-sm mb-4">
                                         <div className="flex items-center gap-2">
@@ -71,7 +73,7 @@ export const Categories = () => {
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 overflow-hidden">
-                                        {category.subcategories.map(sub => (
+                                        {category.subcategories.map((sub) => (
                                             <span
                                                 key={sub}
                                                 className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-lg text-xs text-white font-medium"

@@ -113,7 +113,7 @@ const Orders = () => {
                     <div className="absolute -bottom-32 -left-32 w-[28rem] h-[28rem] bg-violet-100 rounded-full blur-3xl opacity-40" />
                 </div>
 
-                <div className="relative pt-14 pb-10">
+                <div className="relative pt-10 md:pt-14 pb-8 md:pb-10">
                     <div className="text-center max-w-3xl mx-auto">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-indigo-100 text-sm font-medium text-indigo-600 mb-5">
                             <Briefcase size={16} className="text-indigo-500" />
@@ -123,7 +123,7 @@ const Orders = () => {
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-gray-900 mb-4">
                             Доступные заказы
                         </h1>
-                        <p className="text-lg text-gray-600">
+                        <p className="text-base md:text-lg text-gray-600">
                             Откликайтесь на проекты и начинайте зарабатывать уже сегодня
                         </p>
                         <div className="mt-8 max-w-2xl mx-auto">
@@ -137,13 +137,13 @@ const Orders = () => {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Поиск по заказам..."
-                                    className="w-full h-14 pl-12 pr-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-lg"
+                                    className="w-full h-12 md:h-14 pl-11 md:pl-12 pr-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-lg"
                                 />
                             </div>
                         </div>
                     </div>
                     <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                        <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
+                        <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 md:p-6 text-center">
                             <Briefcase className="mx-auto mb-2 text-indigo-500" size={32} />
                             {isLoading ? (
                                 <div className="animate-pulse flex justify-center items-center">
@@ -156,7 +156,7 @@ const Orders = () => {
                             )}
                             <div className="text-sm text-gray-600">Всего заказов</div>
                         </div>
-                        <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
+                        <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 md:p-6 text-center">
                             <DollarSign className="mx-auto mb-2 text-green-500" size={32} />
                             {isLoading ? (
                                 <div className="animate-pulse flex justify-center items-center">
@@ -169,7 +169,7 @@ const Orders = () => {
                             )}
                             <div className="text-sm text-gray-600">Средний бюджет</div>
                         </div>
-                        <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 text-center">
+                        <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 md:p-6 text-center">
                             <TrendingUp className="mx-auto mb-2 text-blue-500" size={32} />
                             {isLoading ? (
                                 <div className="animate-pulse flex justify-center items-center">
@@ -204,7 +204,7 @@ const Orders = () => {
                     </div>
                 </div>
             </section>
-            <section className="py-10">
+            <section className="py-8 md:py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <AsideFilter sortBy={sortBy} status={status} />
                     <div className="lg:col-span-9">

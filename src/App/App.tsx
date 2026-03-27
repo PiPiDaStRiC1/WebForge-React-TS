@@ -7,30 +7,6 @@ import { PublicRoute, ProtectedRoute, ChatGuard, OrderGuard } from "@/features";
 import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 
-// TODO:
-// 1) Сделать скелетоны для каждой страницы(overkill)
-// 2) Возможно добавить отзывы заказчиков в профиле исполнителей(later)
-
-// SEO
-// Сделать SEO френдли с помощью React Helmet (later)
-// добавить в title имя фрилансера и его специализацию (later)
-
-// Error Boundary
-// components/common/ErrorBoundary.tsx(done)
-
-// Оптимизация
-// 1) сделать оптимизацию карточек исполнителей (например, первые 10 делать используя
-// lazy loading, а остальные по мере прокрутки)(done)
-
-// Чат:
-// 1) сделать так, чтобы при отправки сообщений собеседник был online(later, overkill)
-// 2) добавить возможность отправки файлов (например, изображений) в чат (later, overkill)
-// 3) добавить возможность Заблокировать пользователя(later)
-
-// AI
-// Error Boundary(done)
-// Непрочитанные сообщения(later)
-
 const FAQ = lazy(() => import("@/components/pages/FAQ"));
 const Guides = lazy(() => import("@/components/pages/Guides"));
 const Terms = lazy(() => import("@/components/pages/Terms"));

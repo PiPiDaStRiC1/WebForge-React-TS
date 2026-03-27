@@ -79,7 +79,7 @@ export const Chats = () => {
         <section className="relative -mt-10">
             <div className="max-w-7xl mx-auto">
                 <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 h-[calc(100vh-300px)] min-h-[600px]">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 h-[calc(100vh-230px)] lg:h-[calc(100vh-300px)] min-h-[420px] sm:min-h-[520px] lg:min-h-[600px]">
                         <div
                             className={`lg:col-span-4 border-r border-gray-200 flex flex-col ${isMobileChatOpen ? "hidden lg:flex" : "flex"}`}
                         >

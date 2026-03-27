@@ -28,7 +28,7 @@ export const OrderCard = memo(
             >
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex flex-col md:flex-row items-start gap-2 mb-2">
                             <span
                                 className={`px-3 py-1 rounded-lg text-xs font-semibold ${STATUS_CONFIG[order.status].color}`}
                             >
@@ -76,7 +76,7 @@ export const OrderCard = memo(
                     ))}
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                             <Clock size={16} />
                             <span>{order.deadline} дней</span>

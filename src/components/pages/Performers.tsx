@@ -32,6 +32,7 @@ const Performers = () => {
     const { user } = useUser();
     const [sortBy, setSortBy] = useState<SortOption>("default");
     const [isSortOpen, setIsSortOpen] = useState(false);
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [loadSkills, setLoadSkills] = useState(false);
     const sortRef = useRef<HTMLDivElement>(null);
     const { get, set, toggle, getRange } = useFilters();
@@ -113,6 +114,27 @@ const Performers = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!isFiltersOpen) {
+            document.body.style.overflow = "";
+            return;
+        }
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setIsFiltersOpen(false);
+            }
+        };
+
+        document.body.style.overflow = "hidden";
+        document.addEventListener("keydown", onKeyDown);
+
+        return () => {
+            document.body.style.overflow = "";
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [isFiltersOpen]);
+
     return (
         <div className="min-h-screen">
             <section className="relative">
@@ -121,7 +143,7 @@ const Performers = () => {
                     <div className="absolute -bottom-32 -left-32 w-[28rem] h-[28rem] bg-purple-100 rounded-full blur-3xl opacity-40" />
                 </div>
 
-                <div className="relative pt-14 pb-10">
+                <div className="relative pt-10 md:pt-14 pb-8 md:pb-10">
                     <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
                         <div className="max-w-2xl">
                             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-indigo-100 text-sm font-medium text-indigo-600 mb-5">
@@ -132,15 +154,15 @@ const Performers = () => {
                             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-gray-900">
                                 Исполнители для вашего проекта
                             </h1>
-                            <p className="mt-4 text-lg text-gray-600">
+                            <p className="mt-4 text-base md:text-lg text-gray-600">
                                 Выбирайте специалистов по стеку, рейтингу и стоимости.
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
                             <Link
                                 to="/orders"
-                                className="inline-flex items-center gap-2 h-11 px-5 bg-white border border-gray-200 rounded-xl text-gray-700 font-semibold hover:border-indigo-200 hover:text-indigo-700 hover:bg-white/70 transition-colors"
+                                className="inline-flex items-center justify-center gap-2 h-11 px-5 bg-white border border-gray-200 rounded-xl text-gray-700 font-semibold hover:border-indigo-200 hover:text-indigo-700 hover:bg-white/70 transition-colors w-full sm:w-auto"
                             >
                                 Смотреть заказы
                                 <ArrowRight size={18} />
@@ -148,7 +170,7 @@ const Performers = () => {
                             {user?.role === "client" && (
                                 <Link
                                     to="/create-order"
-                                    className="inline-flex items-center justify-center h-11 px-5 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                    className="inline-flex items-center justify-center h-11 px-5 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all w-full sm:w-auto"
                                 >
                                     Разместить заказ
                                 </Link>
@@ -182,7 +204,8 @@ const Performers = () => {
                             </div>
                             <button
                                 type="button"
-                                className="inline-flex lg:hidden items-center justify-center gap-2 h-12 px-5 bg-white border border-gray-200 rounded-xl text-gray-700 font-semibold hover:border-indigo-200 hover:text-indigo-700 transition-colors"
+                                className="cursor-pointer inline-flex lg:hidden items-center justify-center gap-2 h-12 px-5 bg-white border border-gray-200 rounded-xl text-gray-700 font-semibold hover:border-indigo-200 hover:text-indigo-700 transition-colors"
+                                onClick={() => setIsFiltersOpen(true)}
                             >
                                 <SlidersHorizontal size={18} />
                                 Фильтры
@@ -236,7 +259,55 @@ const Performers = () => {
                 </div>
             </section>
 
-            <section className="relative py-10">
+            <div
+                className={`fixed inset-0 z-[70] lg:hidden transition-all duration-300 ${
+                    isFiltersOpen ? "pointer-events-auto" : "pointer-events-none"
+                }`}
+            >
+                <button
+                    type="button"
+                    className={`absolute inset-0 bg-black/35 backdrop-blur-[2px] transition-opacity duration-300 ${
+                        isFiltersOpen ? "opacity-100" : "opacity-0"
+                    }`}
+                    onClick={() => setIsFiltersOpen(false)}
+                    aria-label="Закрыть фильтры"
+                />
+
+                <div
+                    className={`absolute inset-x-0 bottom-0 p-2 sm:p-3 transition-transform duration-300 ease-out ${
+                        isFiltersOpen ? "translate-y-0" : "translate-y-full"
+                    }`}
+                >
+                    <div className="mx-auto w-full max-w-2xl max-h-[88dvh] overflow-hidden rounded-t-3xl rounded-b-2xl border border-white/70 bg-white/85 shadow-2xl backdrop-blur-sm">
+                        <div className="mb-2 flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5">
+                            <p className="text-sm font-semibold text-gray-700">
+                                Настройка фильтров
+                            </p>
+                            <button
+                                type="button"
+                                className="cursor-pointer rounded-lg p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                                onClick={() => setIsFiltersOpen(false)}
+                                aria-label="Закрыть панель фильтров"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="px-2 pb-2 sm:px-3 sm:pb-3">
+                            <AsideFilters
+                                mobile
+                                price={[priceLow, priceHigh]}
+                                ratingLow={ratingLow}
+                                status={status}
+                                experience={[experienceLow, experienceHigh]}
+                                completedOrdersLow={completedOrdersLow}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section className="relative py-8 md:py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <AsideFilters
                         price={[priceLow, priceHigh]}
@@ -246,7 +317,7 @@ const Performers = () => {
                         completedOrdersLow={completedOrdersLow}
                     />
                     <div className="lg:col-span-8 xl:col-span-9">
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                             <div className="text-sm text-gray-600">
                                 <h2
                                     className="text-2xl font-bold text-gray-900"
@@ -363,7 +434,7 @@ const Performers = () => {
                                 </>
                             )}
 
-                            <div className="w-full flex items-center justify-center mt-10">
+                            <div className="w-full flex items-center justify-center mt-8 md:mt-10 overflow-x-auto pb-1">
                                 <div className="flex items-center gap-2">
                                     <button
                                         type="button"

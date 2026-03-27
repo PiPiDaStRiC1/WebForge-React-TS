@@ -21,11 +21,11 @@ export const CTA = () => {
                     <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white rounded-full" />
                 </div>
 
-                <div className="relative max-w-4xl mx-auto px-6 text-center">
+                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
                     <span className="inline-block px-4 py-1.5 bg-white/20 text-white text-sm font-medium rounded-full mb-6 backdrop-blur-sm">
                         Фриланс-платформа №1 для веб-разработки
                     </span>
-                    <h2 className="text-4xl lg:text-5xl font-bold text-white mb-5 leading-tight">
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 leading-tight">
                         Найдите лучшего специалиста{" "}
                         <span className="text-indigo-200">или начните зарабатывать</span>
                     </h2>
@@ -54,9 +54,9 @@ export const CTA = () => {
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-3 divide-x divide-white/20 max-w-sm mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/20 max-w-sm mx-auto">
                         {STATS.map((s) => (
-                            <div key={s.label} className="px-4">
+                            <div key={s.label} className="px-4 py-2 sm:py-0">
                                 <div className="text-2xl font-bold text-white">{s.value}</div>
                                 <div className="text-xs text-indigo-200 mt-0.5">{s.label}</div>
                             </div>
@@ -98,7 +98,7 @@ export const CTA = () => {
                 <div className="absolute -bottom-16 -left-16 w-72 h-72 bg-white rounded-full" />
             </div>
 
-            <div className="relative max-w-3xl mx-auto px-6 text-center">
+            <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white/20 text-white text-sm font-medium rounded-full mb-5 backdrop-blur-sm">
                     <BadgeIcon size={14} />
                     {badgeText}
