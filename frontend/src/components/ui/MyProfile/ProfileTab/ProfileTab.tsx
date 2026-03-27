@@ -43,11 +43,11 @@ export const ProfileTab = () => {
 
     return (
         <form
-            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
             onSubmit={handleSubmit(handleSaveForm)}
         >
             <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 group">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 group">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold text-gray-900">О себе</h2>
                         {!isEditing && !isSaving && (
@@ -81,7 +81,7 @@ export const ProfileTab = () => {
 
                 {user.role === "freelancer" ? (
                     <>
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Навыки</h2>
                             {isEditing ? (
                                 <input
@@ -120,7 +120,7 @@ export const ProfileTab = () => {
                             )}
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Портфолио</h2>
                             <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
                                 <p className="text-gray-500">Добавьте свои работы</p>
@@ -132,7 +132,7 @@ export const ProfileTab = () => {
                     </>
                 ) : (
                     <>
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">
                                 Активные заказы
                             </h2>
@@ -153,7 +153,7 @@ export const ProfileTab = () => {
             </div>
 
             <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">Статистика</h3>
                     <div className="space-y-4">
                         {user.role === "freelancer" ? (
@@ -204,7 +204,7 @@ export const ProfileTab = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">Дополнительно</h3>
                     <div className="space-y-3">
                         {isEditing ? (

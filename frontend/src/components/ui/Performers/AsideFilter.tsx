@@ -7,6 +7,7 @@ interface AsideFiltersProps {
     status: string[];
     experience: number[];
     completedOrdersLow: number;
+    mobile?: boolean;
 }
 
 export const AsideFilters = ({
@@ -15,14 +16,15 @@ export const AsideFilters = ({
     price,
     ratingLow,
     status,
+    mobile = false,
 }: AsideFiltersProps) => {
     const [experienceLow, experienceHigh] = experience;
     const [priceLow, priceHigh] = price;
     const { resetFilters, toggle, setRange } = useFilters();
 
     return (
-        <aside className="lg:col-span-4 xl:col-span-3">
-            <div className="sticky top-24">
+        <aside className={mobile ? "w-full" : "hidden lg:block lg:col-span-4 xl:col-span-3"}>
+            <div className={mobile ? "" : "lg:sticky lg:top-24"}>
                 <div className="bg-white/70 backdrop-blur-sm border border-white/70 rounded-2xl shadow-xl overflow-hidden">
                     <div className="px-5 pt-5 pb-4 border-b border-gray-100 bg-white/50">
                         <div className="flex items-center justify-between">
@@ -38,7 +40,11 @@ export const AsideFilters = ({
                     </div>
 
                     <div className="relative">
-                        <div className="max-h-[calc(100vh-200px)] overflow-y-auto px-5 py-4 space-y-2">
+                        <div
+                            className={`${
+                                mobile ? "max-h-[calc(100dvh-180px)]" : "max-h-[calc(100vh-200px)]"
+                            } overflow-y-auto px-5 py-4 space-y-2`}
+                        >
                             <div>
                                 <div className="text-sm font-semibold text-gray-900 mb-2.5">
                                     Цена за час
@@ -270,7 +276,7 @@ export const AsideFilters = ({
                     </div>
                 </div>
                 <div
-                    className="cursor-pointer w-full bottom-0 mt-2 p-1 flex justify-center items-center bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg"
+                    className="hidden lg:flex cursor-pointer w-full bottom-0 mt-2 p-1 justify-center items-center bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg"
                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                     <ArrowUp size={30} />

@@ -17,8 +17,8 @@ export const AsideFilter = ({ sortBy, status }: AsideFilterProps) => {
 
     return (
         <aside className="lg:col-span-3">
-            <div className="sticky top-24 flex flex-col gap-2">
-                <div className="bg-white/70 top-26 backdrop-blur-sm border border-gray-200 rounded-2xl p-6">
+            <div className="lg:sticky lg:top-24 flex flex-col gap-2">
+                <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 md:p-6">
                     <div className="flex items-center gap-2 mb-6">
                         <Filter size={20} className="text-indigo-600" />
                         <h3 className="text-lg font-bold text-gray-900">Фильтры</h3>
@@ -63,7 +63,7 @@ export const AsideFilter = ({ sortBy, status }: AsideFilterProps) => {
                     </button>
                 </div>
                 <div
-                    className="cursor-pointer w-full p-1 flex justify-center items-center bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg"
+                    className="hidden lg:flex cursor-pointer w-full p-1 justify-center items-center bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg"
                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
                     <ArrowUp size={30} />

@@ -7,25 +7,6 @@ import { PublicRoute, ProtectedRoute, ChatGuard, OrderGuard } from "@/features";
 import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 
-// TODO:
-// 1) Затипизовать все api функции во вкладке frontend
-// 2) Непрочитанные сообщения
-// 3) Переделать структуру responses в json, а именно сделать так, чтобы ключом был
-// номера заказа, а не номер самого id response (getOneOrderResponses)
-// 4) Сделать любимые заказы для фрилансеров (later)
-// 5) Возможно сделать отдельный эндпоинт для загрузки пользователя для чата (сейчас загру
-// жаются все пользователи) (сейчас все загружается каждые 5 секунд - 
-// frontend\src\components\ui\Messages\Chats.tsx (22-36 строки) )
-
-// SEO
-// Сделать SEO френдли с помощью React Helmet (later)
-// добавить в title имя фрилансера и его специализацию (later)
-
-// Чат:
-// 1) сделать так, чтобы при отправки сообщений собеседник был online(later, overkill)
-// 2) добавить возможность отправки файлов (например, изображений) в чат (overkill)
-// 3) добавить возможность Заблокировать пользователя(later)
-
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const Guides = lazy(() => import("@/pages/Guides"));
 const Terms = lazy(() => import("@/pages/Terms"));

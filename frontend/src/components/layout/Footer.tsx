@@ -48,9 +48,9 @@ export const Footer = () => {
 
     return (
         <footer className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 border-t border-gray-200">
-            <div className="max-w-7xl mx-auto px-6 py-14">
-                <div className="grid grid-cols-1 lg:grid-cols-6 gap-10 mb-12">
-                    <div className="lg:col-span-2 flex flex-col gap-4">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-10 md:py-14">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 md:gap-10 mb-10 md:mb-12">
+                    <div className="sm:col-span-2 flex flex-col gap-4">
                         <Link to="/" className="flex items-center gap-2.5 w-fit">
                             <Logo />
                         </Link>

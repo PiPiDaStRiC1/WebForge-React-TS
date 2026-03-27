@@ -13,7 +13,7 @@ import {
 } from "@/routes/index.ts";
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env["PORT"];
 
 app.use(morgan("tiny"));
 app.use(express.json());

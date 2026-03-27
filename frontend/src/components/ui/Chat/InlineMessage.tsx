@@ -34,11 +34,11 @@ export const InlineMessage = ({ message, currentUser, ownUserId }: InlineMessage
                                 <img
                                     src={currentUser.picture.medium}
                                     alt={currentUser.name}
-                                    className="w-8 h-8 rounded-full flex-shrink-0 mt-1"
+                                    className="min-w-8 min-h-8 max-w-10 max-h-10 rounded-full mt-1"
                                 />
                             </Link>
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                            <div className="min-w-8 min-h-8 max-w-10 max-h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
                                 {currentUser.name?.charAt(0).toUpperCase() || "U"}
                             </div>
                         )}
