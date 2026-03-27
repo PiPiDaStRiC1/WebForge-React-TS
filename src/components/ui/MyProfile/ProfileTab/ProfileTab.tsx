@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useProfile, useUser } from "@/hooks";
 import { DollarSign, MapPin, X, Pencil } from "lucide-react";
-import { VerificationProfile } from "./VerificationProfile";
 import { ErrorAlert } from "@/components/common";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -278,7 +277,6 @@ export const ProfileTab = () => {
                         )}
                     </div>
                 </div>
-                <VerificationProfile />
             </div>
 
             {(isEditing || isSaving) && (

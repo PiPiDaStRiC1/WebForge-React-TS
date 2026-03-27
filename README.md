@@ -2,7 +2,9 @@
 
 Платформа для взаимодействия заказчиков и фрилансеров.
 
-## [Демо](https://pipidastric1.github.io/WebForge-React-TS/)
+## [Демо без бекенда (gh-pages)](https://pipidastric1.github.io/WebForge-React-TS/)
+
+## [Демо c бекенда (vercel)](https://pipidastric1.github.io/WebForge-React-TS/)
 
 ## Ветки
 

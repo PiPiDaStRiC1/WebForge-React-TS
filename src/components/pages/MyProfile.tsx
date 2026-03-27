@@ -7,10 +7,25 @@ import { ErrorAlert } from "@/components/common";
 
 type TabType = "profile" | "settings";
 
+const formatRegisterDate = (value?: string) => {
+    if (!value) return "Дата регистрации не указана";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Дата регистрации не указана";
+
+    return new Intl.DateTimeFormat("ru-RU", {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+    }).format(date);
+};
+
 const MyProfile = () => {
     const navigate = useNavigate();
     const { user, error, logOutUser } = useUser();
     const [activeTab, setActiveTab] = useState<TabType>("profile");
+
+    const registerDate = formatRegisterDate(user?.registeredAt);
 
     if (error) {
         return <ErrorAlert />;
@@ -30,12 +45,12 @@ const MyProfile = () => {
     }
 
     return (
-        <div className="min-h-screen py-8">
-            <div className="max-w-4xl mx-auto px-6">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-6">
-                    <div className="flex items-start gap-6">
+        <div className="min-h-screen py-4 sm:py-6 md:py-8">
+            <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 md:p-8 mb-5 sm:mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                         <div className="relative group">
-                            <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl sm:text-4xl font-bold">
                                 {user.name?.charAt(0).toUpperCase() || "U"}
                             </div>
                             <button className="cursor-pointer absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -44,12 +59,12 @@ const MyProfile = () => {
                         </div>
 
                         <div className="flex-1">
-                            <div className="flex items-start justify-between mb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 break-words">
                                         {user.name} {user.lastName}
                                     </h1>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                         <span
                                             className={`px-3 py-1 rounded-lg text-sm font-medium ${
                                                 user.role === "freelancer"
@@ -70,16 +85,13 @@ const MyProfile = () => {
                                             )}
                                         </span>
                                         <span className="text-sm text-gray-500">
-                                            {new Date(user.registeredAt).toLocaleDateString(
-                                                "ru-RU",
-                                                { month: "long", year: "numeric" },
-                                            )}
+                                            {registerDate}
                                         </span>
                                     </div>
                                 </div>
                                 <button
                                     onClick={handleLogOut}
-                                    className="cursor-pointer px-4 py-2 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
+                                    className="cursor-pointer w-full sm:w-auto justify-center px-4 py-2 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors inline-flex items-center gap-2"
                                     title="Выйти"
                                 >
                                     <LogOut size={18} />
@@ -87,26 +99,27 @@ const MyProfile = () => {
                                 </button>
                             </div>
 
-                            <div className="flex gap-5">
-                                <div className="flex items-center gap-2 text-gray-600">
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-5">
+                                <div className="flex items-center gap-2 text-gray-600 min-w-0">
                                     <UserCircle size={16} />
                                     <span className="text-sm">
                                         {user.gender === "male" ? "Мужчина" : "Женщина"}
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-600">
+                                <div className="flex items-center gap-2 text-gray-600 min-w-0">
                                     <Mail size={16} />
-                                    <span className="text-sm">{user.email}</span>
+                                    <span className="text-sm break-all">{user.email}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-2 mb-6">
+                <div className="mb-6 overflow-x-auto">
+                    <div className="inline-flex min-w-full sm:min-w-0 gap-2">
                     <button
                         onClick={() => setActiveTab("profile")}
-                        className={`cursor-pointer px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                        className={`cursor-pointer flex-1 sm:flex-none justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-medium transition-all inline-flex items-center gap-2 whitespace-nowrap ${
                             activeTab === "profile"
                                 ? "bg-white text-indigo-600"
                                 : "text-gray-600 hover:bg-white/50"
@@ -117,7 +130,7 @@ const MyProfile = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab("settings")}
-                        className={`cursor-pointer px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                        className={`cursor-pointer flex-1 sm:flex-none justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-medium transition-all inline-flex items-center gap-2 whitespace-nowrap ${
                             activeTab === "settings"
                                 ? "bg-white text-indigo-600"
                                 : "text-gray-600 hover:bg-white/50"
@@ -126,6 +139,7 @@ const MyProfile = () => {
                         <Settings size={18} />
                         Настройки
                     </button>
+                    </div>
                 </div>
 
                 {activeTab === "profile" ? <ProfileTab /> : <SettingsTab />}

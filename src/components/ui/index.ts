@@ -5,7 +5,7 @@ export { TopUserCard, OtherUserCard } from "./TopPerformers";
 export { Preview } from "./CreateOrder";
 export { ClientCard, ResponseCard, OrderInfoSkeleton } from "./OrderInfo";
 export { AuthTab, RegisterTab } from "./AuthModal";
-export { ProfileSkeleton, SettingsTab, VerificationProfile, ProfileTab } from "./MyProfile";
+export { ProfileSkeleton, SettingsTab, ProfileTab } from "./MyProfile";
 export { InlineMessage } from "./Chat";
 export { Chats } from "./Messages";
 export { FavoriteUserCard } from "./Favorites";

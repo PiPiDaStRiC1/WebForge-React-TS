@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from "react";
 import { Home, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Props {
     children: ReactNode;
@@ -82,13 +83,13 @@ export class ErrorBoundary extends Component<Props, State> {
                                 <RefreshCw size={20} />
                                 Попробовать снова
                             </button>
-                            <a
-                                href="/"
+                            <Link
+                                to="/"
                                 className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
                             >
                                 <Home size={20} />
                                 На главную
-                            </a>
+                            </Link>
                         </div>
 
                         <p className="mt-6 text-sm text-gray-500">
