@@ -7,4 +7,5 @@ export default defineConfig({
     base: "/WebForge-React-TS/",
     plugins: [react({ babel: { plugins: [["babel-plugin-react-compiler"]] } }), tailwindcss()],
     resolve: { alias: { "@": path.resolve(__dirname, "src") } },
+    server: { open: true, port: 5173 },
 });
