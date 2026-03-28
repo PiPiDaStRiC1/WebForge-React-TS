@@ -84,11 +84,9 @@ export const apiClient = {
 
     delete: async () => {
         try {
-            const token = getStoredAccessToken();
-
             const response = await genericFetch<ApiResponse<string>>(`${API_URL}/auth/delete`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: getAuthHeader(),
             });
             if (!response.success) {
                 throw new Error(response.data);

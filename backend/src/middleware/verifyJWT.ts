@@ -11,8 +11,12 @@ export const verifyJWT = (req: Request, res: Response<ApiResponse<string>>, next
             throw new Error("Unauthorized");
         }
 
-        const SECRET_KEY = process.env["SECRET_KEY"]!;
+        const SECRET_KEY = process.env["SECRET_KEY"];
 
+        if (!SECRET_KEY) {
+            throw new Error("SECRET_KEY is not defined in env");
+        } 
+        
         const payload = jwt.verify(token, SECRET_KEY) as JWTPayload;
 
         req.user = { ...payload, token };

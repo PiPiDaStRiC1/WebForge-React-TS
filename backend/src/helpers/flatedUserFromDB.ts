@@ -14,7 +14,8 @@ export const flatedUserFromDB = (user: any): Freelancer | Client | null => {
             category: (freelancer?.category ?? "web-dev") as Freelancer["category"],
             earning: freelancer?.earning ?? 0,
             experience: freelancer?.experience ?? 0,
-            skills: (freelancer?.skills as { name: string }[]).map((s) => s.name) ?? [],
+            skills:
+                (freelancer?.skills as { name: string }[] | undefined)?.map((s) => s.name) ?? [],
             completedOrders: freelancer?.orders?.length ?? 0,
         };
     } else if (user.role === "client") {

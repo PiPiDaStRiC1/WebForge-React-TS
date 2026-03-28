@@ -11,7 +11,6 @@ import {
     Award,
     TrendingUp,
     DollarSign,
-    Check,
     PhoneIcon,
     Mail,
 } from "lucide-react";
@@ -22,6 +21,7 @@ import { useFavorites, useUser } from "@/hooks";
 import { ErrorAlert, OrderCardSkeleton } from "@/components/common";
 import { UserProfileSkeleton, OrderCardSmall } from "@/components/ui";
 import type { Client, FreelancerWithoutCompletedOrders, OrdersData } from "@shared/types";
+import toast from "react-hot-toast";
 
 const UserProfile = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -59,7 +59,6 @@ const UserProfile = () => {
     }, [orders, userId]);
 
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(!!user?.picture);
-    const [showShareToast, setShowShareToast] = useState(false);
     const [isFavoriteUser, setIsFavoriteUser] = useState(isFavorite(Number(userId)));
 
     if (isLoading) {
@@ -74,11 +73,7 @@ const UserProfile = () => {
         const url = window.location.href;
         navigator.clipboard.writeText(url);
 
-        setShowShareToast(true);
-
-        setTimeout(() => {
-            setShowShareToast(false);
-        }, 2000);
+        toast.success("Ссылка скопирована");
     };
 
     const handleToggleFavorite = () => {
@@ -90,22 +85,6 @@ const UserProfile = () => {
 
     return (
         <div className="min-h-screen pb-10">
-            <div
-                className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-6 py-3 bg-white border border-gray-200 rounded-xl shadow-2xl transition-all duration-300 ${
-                    showShareToast
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 -translate-y-4 pointer-events-none"
-                }`}
-            >
-                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <Check size={18} className="text-emerald-600" />
-                </div>
-                <div>
-                    <p className="text-sm font-semibold text-gray-900">Ссылка скопирована</p>
-                    <p className="text-xs text-gray-600">Поделитесь профилем с друзьями</p>
-                </div>
-            </div>
-
             <section className="relative">
                 <div className="absolute inset-0 h-64 via-purple-50">
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-200 rounded-full blur-3xl opacity-40" />
@@ -192,7 +171,7 @@ const UserProfile = () => {
                                     <button
                                         type="button"
                                         onClick={handleShare}
-                                        className="w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 active:scale-95 transition-all"
+                                        className="cursor-pointer w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 active:scale-95 transition-all"
                                         aria-label="Поделиться"
                                     >
                                         <Share2 size={20} />
@@ -204,7 +183,7 @@ const UserProfile = () => {
                                                 background: location,
                                                 redirectTo: `/messages/${userId}`,
                                             }}
-                                            className="h-11 px-6 flex items-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
+                                            className="cursor-pointer h-11 px-6 flex items-center gap-2 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-indigo-500/35 transition-all"
                                         >
                                             <MessageCircle size={18} />
                                             Написать

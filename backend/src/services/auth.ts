@@ -72,7 +72,7 @@ export const registerUser = async (
             picture: null,
             gender: "male",
             rating: 0,
-            bio: null,
+            bio: "",
             location: "",
             status: "unverified",
             statusChat: "online",
