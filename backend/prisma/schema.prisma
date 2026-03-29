@@ -105,7 +105,7 @@ model User {
   role         String
   gender       String
   name         String
-  bio          String?     @default("Это пользователь не хочет о себе рассказывать")
+  bio          String      @default("Это пользователь не хочет о себе рассказывать")
   email        String      @unique
   login        String      @unique
   password     String
