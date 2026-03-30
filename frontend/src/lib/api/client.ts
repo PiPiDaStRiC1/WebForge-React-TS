@@ -22,7 +22,10 @@ import type {
 import type { RegisterRequest, LoginRequest, Message, MessagesData } from "@shared/types";
 import type { OrderFormData } from "@/hooks";
 
-const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:5000/api";
+const API_URL =
+    import.meta.env["VITE_NODE_ENV"] === "production"
+        ? import.meta.env["VITE_API_URL"]
+        : "http://localhost:5000/api";
 
 const getStoredAccessToken = (): string => {
     try {

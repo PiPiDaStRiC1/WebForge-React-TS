@@ -15,9 +15,7 @@ import {
 const app = express();
 const PORT = process.env["PORT"];
 const origin =
-    process.env["NODE_ENV"] === "production"
-        ? "https://webforge-react-ts.vercel.app"
-        : "http://localhost:5000";
+    process.env["NODE_ENV"] === "production" ? process.env["CORS_ORIGIN"] : "http://localhost:5173";
 
 app.use(morgan("tiny"));
 app.use(express.json());
@@ -33,6 +31,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/chats", chatsRouter);
 app.use("/api/like-orders", likeOrdersRouter);
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), "0.0.0.0", () => {
     console.log(`Listening server on port: ${PORT}`);
 });
