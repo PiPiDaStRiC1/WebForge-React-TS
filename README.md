@@ -4,7 +4,7 @@
 
 ## [Демо без бекенда (gh-pages)](https://pipidastric1.github.io/WebForge-React-TS/)
 
-## [Демо c бекенда (vercel)](https://pipidastric1.github.io/WebForge-React-TS/)
+## [Демо c бекендом (vercel)](https://web-forge-react-ts.vercel.app/)
 
 ## Ветки
 
