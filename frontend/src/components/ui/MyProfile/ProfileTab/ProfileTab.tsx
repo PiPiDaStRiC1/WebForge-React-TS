@@ -188,12 +188,6 @@ export const ProfileTab = () => {
                         ) : (
                             <>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-600">Размещено заказов</span>
-                                    <span className="text-lg font-bold text-gray-900">
-                                        {user.placedOrders}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Потрачено</span>
                                     <span className="text-lg font-bold text-gray-900">
                                         {user.spending.toLocaleString("ru-RU")} ₽

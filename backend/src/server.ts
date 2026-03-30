@@ -14,11 +14,15 @@ import {
 
 const app = express();
 const PORT = process.env["PORT"];
+const origin =
+    process.env["NODE_ENV"] === "production"
+        ? "https://webforge-react-ts.vercel.app"
+        : "http://localhost:5000";
 
 app.use(morgan("tiny"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({ origin: origin }));
 
 app.use("/api/clients", clientsRouter);
 app.use("/api/freelancers", freelancersRouter);
