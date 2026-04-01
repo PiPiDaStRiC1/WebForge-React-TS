@@ -9,9 +9,9 @@
 ## Ветки
 
 - `main`: frontend-версия проекта (без собственного backend).
-- `feature/express-backend`: полноценная fullstack-версия (React + Express + Prisma).
+- `fullstack`: полноценная fullstack-версия (React + Express + Prisma).
 
-Если вам нужна полная серверная логика (авторизация, чаты, избранное, API), используйте ветку `feature/express-backend`.
+Если вам нужна полная серверная логика (авторизация, чаты, избранное, API), используйте ветку `fullstack`.
 
 ## Скриншоты
 
@@ -46,7 +46,7 @@
 - Профили пользователей и страницы избранного.
 - Сообщения, формы авторизации и создания заказов.
 
-### `feature/express-backend` — Fullstack-версия
+### `fullstack` — Fullstack-версия
 
 Ветка с вынесенной серверной логикой и персистентными данными.
 
@@ -123,10 +123,10 @@ npm install
 npm run dev
 ```
 
-### `feature/express-backend` (fullstack)
+### `fullstack` (fullstack)
 
 ```bash
-git switch feature/express-backend
+git switch fullstack
 npm install
 ```
 
@@ -148,7 +148,7 @@ npm run dev:backend
 Чтобы запустить fullstack-реализацию:
 
 ```bash
-git switch feature/express-backend
+git switch fullstack
 ```
 
 В этой ветке добавлены:
@@ -160,4 +160,4 @@ git switch feature/express-backend
 
 ## Статус Проекта
 
-Проект активно развивается. Основная fullstack-версия поддерживается в ветке `feature/express-backend`.
+Проект активно развивается. Основная fullstack-версия поддерживается в ветке `fullstack`.
