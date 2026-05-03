@@ -12,6 +12,7 @@
         "composite": true,
 
         "baseUrl": ".",
+        "ignoreDeprecations": "6.0",
         "paths": { "@/*": ["src/*"], "@shared/*": ["../shared/*"] },
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
