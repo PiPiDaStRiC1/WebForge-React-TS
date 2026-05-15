@@ -449,7 +449,7 @@ const Performers = () => {
                             )}
 
                             <div className="w-full flex items-center justify-center mt-8 md:mt-10 pb-1">
-                                <div className="flex items-center gap-2 overflow-x-scroll">
+                                <div className="flex items-center gap-2">
                                     <button
                                         type="button"
                                         className="hidden md:block cursor-pointer h-10 px-4 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-200 hover:text-indigo-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
